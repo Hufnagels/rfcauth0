@@ -1,0 +1,18 @@
+.mindmap {
+  display: flex;
+  position: relative;
+  min-height: calc(100vh - 82px);
+
+  &_canvas {
+    background-color: rgb(190, 59, 140);
+    width: 100%;
+    min-height: 100%;
+  }
+  &_toolbar {
+    display: flex;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    
+  }
+}
