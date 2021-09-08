@@ -8,18 +8,20 @@ import {
 // Material
 import { styled, useTheme, createTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import Button from '@mui/material/Button';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import IconButton from '@mui/material/IconButton';
+import {
+  Typography,
+  Divider,
+  AppBar,
+  Toolbar,
+  Box,
+  Drawer,
+  Button,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+} from '@mui/material';
 
 // Material icons
 import MenuIcon from '@mui/icons-material/Menu';
@@ -69,6 +71,7 @@ const AdminLayout = () => {
   const theme = useTheme();
   const classes = useStyles();
   let location = useLocation();
+  const appname = process.env.APP_NAME;
   const [state, setState] = React.useState(false);
   
   const toggleDrawer = () => (event) => {
@@ -96,7 +99,7 @@ const AdminLayout = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>ReactChatMindmap</Typography>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>{appname}</Typography>
           <AuthenticationButton />
         </Toolbar>
       </AppBar>

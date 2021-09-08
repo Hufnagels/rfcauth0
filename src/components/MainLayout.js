@@ -1,30 +1,39 @@
 import React, { useState, useEffect } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { 
+  NavLink, 
+  Link as RouterLink 
+} from "react-router-dom";
 import PropTypes from 'prop-types';
 
 // Material
+import { styled, useTheme, createTheme } from '@mui/material/styles';
+import { makeStyles } from '@mui/styles';
 import {
   CssBaseline,
+  Typography,
   AppBar,
   Toolbar,
-  Typography,
-  Button,
-  IconButton,
   Box,
   Drawer,
   Container,
   Link,
-  MenuItem,
+  Button,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
   Slide,
   Fab,
   Zoom,
   useScrollTrigger,
 } from "@mui/material";
-import { makeStyles } from '@mui/styles';
+
 
 // Material icons
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import MenuIcon from '@mui/icons-material/Menu';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 // custom
 import routes from '../features/routes/routes';
@@ -131,6 +140,17 @@ const useStyles = makeStyles((theme) => ({
 
     marginLeft: "18px",
   },
+  navlink: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent:'flex-start',
+    textDecoration:'none',
+    color: theme.palette.text.primary,
+  },
+  activeClass: {
+    color: '#e55cb3',
+    backgroundColor: '#90d6e3',
+  },
   toolbar: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -144,15 +164,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const DrawerHeader = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  padding: theme.spacing(0, 1),
+  // necessary for content to be below app bar
+  ...theme.mixins.toolbar,
+}));
+
+const drawerWidth = 250;
+const appname = process.env.APP_NAME;
+
 const MainLayout = (props) => {
-  const { header, logo, links, menuButton, toolbar, drawerContainer } = useStyles();
+  const { header, logo, links, menuButton, activeClass, navlink, toolbar, drawerContainer } = useStyles();
   const headersData = routes[1].children;
   const [state, setState] = useState({
     mobileView: false,
     drawerOpen: false,
   });
-
+  
   const { mobileView, drawerOpen } = state;
+console.log(appname)
 
   useEffect(() => {
     const setResponsiveness = () => {
@@ -206,7 +239,22 @@ const MainLayout = (props) => {
             onClose: handleDrawerClose,
           }}
         >
-          <div className={drawerContainer}>{getDrawerChoices()}</div>
+          <DrawerHeader>
+            <IconButton onClick={handleDrawerClose}>
+              <ChevronLeftIcon />
+            </IconButton>
+          </DrawerHeader>
+          <Box
+            sx={{ width: drawerWidth }}
+            role="presentation"
+            /* onClick={toggleDrawer(false)}
+            onKeyDown={toggleDrawer(false)} */
+          >
+            <List>
+              {getDrawerChoices()}
+            </List>
+            <div className={drawerContainer}>{getDrawerChoices()}</div>
+          </Box>
         </Drawer>
 
         <div>{SiteNameAndLogo}</div>
@@ -218,23 +266,17 @@ const MainLayout = (props) => {
     return headersData.map(({ title, path }) => {
       if(title)
       return (
-        <Link
-          {...{
-            component: RouterLink,
-            to: path,
-            color: "inherit",
-            style: { textDecoration: "none" },
-            key: title,
-          }}
-        >
-          <MenuItem>{title}</MenuItem>
-        </Link>
+        <NavLink end className={navlink} to={path} activeClassName={activeClass} key={`routeLink-${title}}`}>
+          <ListItem button key={`routeListItem-${title}}`} >
+            <Typography variant="span">{title}</Typography>
+          </ListItem>
+        </NavLink>
       );
     });
   };
 
   const SiteNameAndLogo = (
-    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>ReactChatMindmap</Typography>
+    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>{appname}</Typography>
   );
 
   const getMenuButtons = () => {

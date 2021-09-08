@@ -16,8 +16,8 @@ const PostList = () => {
     try {
       // fetch data from a url endpoint
       const response = await axios.get("https://jsonplaceholder.typicode.com/posts");
-      console.log("response");
-      console.log(response.data);
+      // console.log("response");
+      // console.log(response.data);
       setPostsdata(response.data)
       //dispatch({type: 'FETCH_SUCCESS', payload: response.data})
 
