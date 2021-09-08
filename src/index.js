@@ -7,9 +7,13 @@ import {
 import { Provider } from 'react-redux';
 
 //Material
-import { StyledEngineProvider } from  '@mui/material/styles';
+import { 
+  createTheme,
+  StyledEngineProvider,
+  ThemeProvider 
+} from  '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import { ThemeProvider } from '@mui/material/styles';
+
 // custom
 import App from './App';
 import Auth0ProviderWithHistory from './components/Auth/Auth0ProviderWithHistory';
@@ -32,7 +36,15 @@ ReactDOM.render(
   <React.StrictMode>
     <StyledEngineProvider injectFirst>
       
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={createTheme({
+    components: {
+      MuiAppBar: {
+        defaultProps: {
+          enableColorOnDark: true,
+        },
+      },
+    },
+  })}>
         <Provider store={store}>
           <Router>
             <Auth0ProviderWithHistory>

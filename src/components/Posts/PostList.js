@@ -2,8 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import JSONPretty from 'react-json-pretty';
 
+// Material
+
+import { Grid, Paper, CircularProgress } from '@mui/material';
+
 // custom
-import PostItem from './PostItem';
+import PostListItem from './PostListItem';
+
 const PostList = () => {
   const [postsdata, setPostsdata] = useState([]);
 
@@ -28,15 +33,19 @@ const PostList = () => {
   }, []);
 
   return (
-    <div>
-      {
-        postsdata.map((postitem) =>  {
-          <JSONPretty data={JSON.stringify(postitem, null, 2)} />
-        }
-         
-        )
+    <React.Fragment>
+    <h1>PostList</h1>
+    <Grid 
+      container 
+      direction="row"
+      spacing={2}
+    >
+      { postsdata.length ? 
+        postsdata.map(post => <PostListItem data={post} />)
+        : <CircularProgress color="secondary" />
       }
-    </div>
+    </Grid>
+    </React.Fragment>
   )
 }
 

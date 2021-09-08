@@ -65,7 +65,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 const drawerWidth = 250;
 
-const AdminLayout2 = () => {
+const AdminLayout = () => {
   const theme = useTheme();
   const classes = useStyles();
   let location = useLocation();
@@ -146,4 +146,4 @@ const AdminLayout2 = () => {
   );
 }
 
-export default AdminLayout2;
+export default AdminLayout;

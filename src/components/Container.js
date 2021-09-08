@@ -8,10 +8,10 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 
 
-const Layout = () => {
+const Layout = (props) => {
   return (
     <Container maxWidth={false}>
-      <Box sx={{ my: 0 }}>
+      <Box sx={{ my: props.margin || 0 }}>
         <Outlet />
       </Box>
     </Container>

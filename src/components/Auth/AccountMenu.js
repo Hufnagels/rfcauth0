@@ -115,11 +115,16 @@ export default function AccountMenu() {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        {isAuthenticated && (window.location.href.indexOf("app") > -1) ? null :
+        {isAuthenticated && (window.location.href.indexOf("app") > -1) ? 
+        <MenuItem>
+          <Avatar alt={user.name} /> <Link className={classes.navlink} to="/">Home</Link>
+        </MenuItem>
+        :
         <MenuItem>
           <Avatar alt={user.name} /> <Link className={classes.navlink} to="/app">Dashboard</Link>
         </MenuItem>
         }
+        <Divider />
         <MenuItem>
           <Avatar alt={user.name} /> <Link className={classes.navlink} to="/app/profile">Profile</Link>
         </MenuItem>

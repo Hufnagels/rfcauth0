@@ -10,8 +10,7 @@ import {
 } from '@mui/icons-material'
 
 //Layouts
-import AdminLayout from '../../components/_AdminLayout';
-import AdminLayout2 from '../../components/AdminLayout';
+import AdminLayout from '../../components/AdminLayout';
 import MainLayout from '../../components/MainLayout';
 
 // Pages -- admin
@@ -41,7 +40,7 @@ const DashboardPage = loadable(() => import("../../pages/admin/Dashboard.js"), {
 const routes = [
   {
     path: 'app',
-    element: <AdminLayout2 />,
+    element: <AdminLayout />,
     children: [
       { path: '', element: <DashboardPage />, title: 'Dashboard',icon: Dashboard, children: [] },
       { path: 'mindmap', element: <MindMap />, title: 'MindMap',icon: AccountTree, children: [] },
@@ -62,14 +61,14 @@ const routes = [
     path: '/',
     element: <MainLayout />,
     children: [
-      { path: 'posts', element: <PostList /> },
-      { path: 'login', element: <Login /> },
-      { path: 'register', element: <Register /> },
-      { path: '404', element: <NotFound /> },
-      { path: 'about', element: <About /> },
-      { path: '/', element: <Home /> },
+      { path: '/', element: <Home />, title: 'Home' },
+      { path: 'posts', element: <PostList />, title: 'Posts' },
+      { path: 'about', element: <About />, title: 'About' },
+      { path: 'login', element: <Login />, title: 'Login' },
+      { path: 'register', element: <Register />, title: 'Register'},
+      { path: '404', element: <NotFound />, title: '404' },
       /* { path: '/', element: <Navigate to="/app/dashboard" /> }, */
-      { path: '*', element: <Navigate to="/404" /> }
+      { path: '*', element: <Navigate to="/404" />, title:'' }
     ]
   }
 ];
