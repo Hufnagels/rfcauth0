@@ -18,6 +18,7 @@ import Zoom from '@mui/material/Zoom';
 
 // custom
 import AuthenticationButton from './Auth/Authenticationbutton';
+import Layout from './Container';
 
 function HideOnScroll(props) {
   const { children, window } = props;
@@ -91,7 +92,7 @@ ScrollTop.propTypes = {
   window: PropTypes.func,
 };
 
-export default function MainLayout(props) {
+const MainLayout = (props) => {
   return (
     <React.Fragment>
       <CssBaseline />
@@ -104,11 +105,12 @@ export default function MainLayout(props) {
         </AppBar>
       </HideOnScroll>
       <Toolbar id="back-to-top-anchor" />
-      <Container maxWidth={false}>
+      {/* <Container maxWidth={false}>
         <Box sx={{ my: 2 }}>
           <Outlet />
         </Box>
-      </Container>
+      </Container> */}
+      <Layout />
       <ScrollTop {...props}>
         <Fab color="secondary" size="small" aria-label="scroll back to top">
           <KeyboardArrowUpIcon />
@@ -117,3 +119,4 @@ export default function MainLayout(props) {
     </React.Fragment>
   );
 }
+export default MainLayout;

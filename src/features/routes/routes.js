@@ -10,7 +10,8 @@ import {
 } from '@mui/icons-material'
 
 //Layouts
-import AdminLayout from '../../components/AdminLayout';
+import AdminLayout from '../../components/_AdminLayout';
+import AdminLayout2 from '../../components/AdminLayout';
 import MainLayout from '../../components/MainLayout';
 
 // Pages -- admin
@@ -29,6 +30,7 @@ import Register from '../../pages/Register';
 import NotFound from '../../pages/NotFound';
 
 import loadable from "@loadable/component"
+import PostList from '../../components/Posts/PostList';
 const Loading = () => {
   return <div>Loading...</div>
 }
@@ -39,7 +41,7 @@ const DashboardPage = loadable(() => import("../../pages/admin/Dashboard.js"), {
 const routes = [
   {
     path: 'app',
-    element: <AdminLayout />,
+    element: <AdminLayout2 />,
     children: [
       { path: '', element: <DashboardPage />, title: 'Dashboard',icon: Dashboard, children: [] },
       { path: 'mindmap', element: <MindMap />, title: 'MindMap',icon: AccountTree, children: [] },
@@ -60,6 +62,7 @@ const routes = [
     path: '/',
     element: <MainLayout />,
     children: [
+      { path: 'posts', element: <PostList /> },
       { path: 'login', element: <Login /> },
       { path: 'register', element: <Register /> },
       { path: '404', element: <NotFound /> },

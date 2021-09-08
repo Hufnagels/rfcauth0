@@ -14,6 +14,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import App from './App';
 import Auth0ProviderWithHistory from './components/Auth/Auth0ProviderWithHistory';
 import { store } from './redux/store/store';
+import './index.css';
 import theme from './features/theme/Theme';
 
 //const theme = createTheme();
