@@ -41,6 +41,7 @@ const PostList = () => {
       spacing={2}
     >
       { postsdata.length ? 
+        /* Object.entries(postsdata).map(([slug, { post }]) => (<PostListItem slug={slug} data={post} />)) */
         postsdata.map(post => <PostListItem data={post} />)
         : <CircularProgress color="secondary" />
       }

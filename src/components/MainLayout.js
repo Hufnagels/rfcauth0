@@ -39,7 +39,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import routes from '../features/routes/routes';
 import AuthenticationButton from './Auth/Authenticationbutton';
 import Layout from './Container';
-
+import RouterBreadcrumbs from './RouterBreadcrumbs';
 // ScrollToTop
 function HideOnScroll(props) {
   const { children, window } = props;
@@ -310,6 +310,7 @@ console.log(appname)
         </AppBar>
       </HideOnScroll>
       <Toolbar id="back-to-top-anchor" />
+      <RouterBreadcrumbs />
       <Layout margin='2' />
       <ScrollTop {...props}>
         <Fab color="secondary" size="small" aria-label="scroll back to top">

@@ -21,9 +21,8 @@ const PostListItem = (props) => {
         <div key={props.data.id}>
           <h3>{props.data.title}</h3>
           <p>{props.data.body}</p>
-          <Button color="inherit"></Button>
-          <NavLink end to={`/post/${props.data.id}}`} key={`routeLink-${props.data.title}}`}>
-            <ListItem button key={`routeListItem-${props.data.title}}`} >
+          <NavLink end to={`/posts/${props.data.id}`} key={`routeLink-${props.data.id}}`}>
+            <ListItem button key={`routeListItem-${props.data.id}}`} >
               <Typography variant="span">More...</Typography>
             </ListItem>
           </NavLink>

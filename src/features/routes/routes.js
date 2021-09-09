@@ -27,9 +27,11 @@ import Home from '../../pages/Home';
 import Login from '../../pages/Login';
 import Register from '../../pages/Register';
 import NotFound from '../../pages/NotFound';
-
-import loadable from "@loadable/component"
 import PostList from '../../components/Posts/PostList';
+import PostItem from '../../components/Posts/PostItem';
+import loadable from "@loadable/component"
+import Posts from '../../components/Posts/Posts';
+
 const Loading = () => {
   return <div>Loading...</div>
 }
@@ -62,7 +64,10 @@ const routes = [
     element: <MainLayout />,
     children: [
       { path: '/', element: <Home />, title: 'Home' },
-      { path: 'posts', element: <PostList />, title: 'Posts' },
+      { path: 'posts', element: <Posts />, title: 'Posts', children: [
+        { path: '/', element: <PostList />, title: 'Postlist' },
+        { path: ':id', element: <PostItem />, title: 'Post Item' },
+      ]},
       { path: 'about', element: <About />, title: 'About' },
       { path: 'login', element: <Login />, title: 'Login' },
       { path: 'register', element: <Register />, title: 'Register'},
