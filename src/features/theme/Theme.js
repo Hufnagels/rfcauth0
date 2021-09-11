@@ -41,6 +41,7 @@ const theme = createTheme({
          secondary:'rgba(0, 0, 0, 0.54)',
          disabled:'rgba(0, 0, 0, 0.38)',
          hint:'rgba(0, 0, 0, 0.38)',
+         nav:'rgba(128, 28, 122, 0.38)',
       },
     // Used by `getContrastText()` to maximize the contrast between
     // the background and the text.

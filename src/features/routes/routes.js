@@ -10,14 +10,15 @@ import {
 } from '@mui/icons-material'
 
 //Layouts
-import AdminLayout from '../../components/AdminLayout';
-import MainLayout from '../../components/MainLayout';
+import AdminLayout from '../../components/Layout/AdminLayout';
+import MainLayout from '../../components/Layout/MainLayout';
 
 // Pages -- admin
 import DashboardLayout from '../../pages/admin/Dashboard';
 import DataFetching from '../../pages/admin/Tables/DataFetching';
 import BasicFilteringGrid from '../../pages/admin/Tables/Table';
 import MindMap from '../../pages/admin/Mindmap/Mindmap';
+import Whiteboard from '../../pages/admin/Whiteboard/Whiteboard';
 import Counter from '../../pages/admin/Counter/Counter';
 import Profile from '../../pages/admin/Profile';
 
@@ -31,10 +32,11 @@ import PostList from '../../components/Posts/PostList';
 import PostItem from '../../components/Posts/PostItem';
 import loadable from "@loadable/component"
 import Posts from '../../components/Posts/Posts';
+import Loading from '../../components/Loading'
 
-const Loading = () => {
-  return <div>Loading...</div>
-}
+// const Loading = () => {
+//   return <div>Loading...</div>
+// }
 const DashboardPage = loadable(() => import("../../pages/admin/Dashboard.js"), {
   fallback: <Loading />,
 })
@@ -46,7 +48,7 @@ const routes = [
     children: [
       { path: '', element: <DashboardPage />, title: 'Dashboard',icon: Dashboard, children: [] },
       { path: 'mindmap', element: <MindMap />, title: 'MindMap',icon: AccountTree, children: [] },
-      { path: 'whiteboard', element: <MindMap />, title: 'WhiteBoard',icon: BorderColor, children: [] },
+      { path: 'whiteboard', element: <Whiteboard />, title: 'WhiteBoard',icon: BorderColor, children: [] },
       { path: 'counter', element: <Counter />, title: 'Counter',icon: Dashboard, children: [] },
       { path: 'tables', element: <BasicFilteringGrid />, title: 'Tables',icon: TableView, children: [] },
       { path: 'users', element: <DataFetching />, title: 'Users',icon: ContactPage,

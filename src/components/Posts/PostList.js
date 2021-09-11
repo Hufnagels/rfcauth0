@@ -42,7 +42,7 @@ const PostList = () => {
     >
       { postsdata.length ? 
         /* Object.entries(postsdata).map(([slug, { post }]) => (<PostListItem slug={slug} data={post} />)) */
-        postsdata.map(post => <PostListItem data={post} />)
+        postsdata.map((post) => <PostListItem key={post.id} data={post} />)
         : <CircularProgress color="secondary" />
       }
     </Grid>

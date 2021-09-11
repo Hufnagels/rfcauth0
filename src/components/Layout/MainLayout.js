@@ -36,10 +36,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 // custom
-import routes from '../features/routes/routes';
-import AuthenticationButton from './Auth/Authenticationbutton';
+import routes from '../../features/routes/routes';
+import AuthenticationButton from '../Auth/Authenticationbutton';
 import Layout from './Container';
-import RouterBreadcrumbs from './RouterBreadcrumbs';
+import RouterBreadcrumbs from '../RouterBreadcrumbs';
+
 // ScrollToTop
 function HideOnScroll(props) {
   const { children, window } = props;
@@ -134,6 +135,7 @@ const useStyles = makeStyles((theme) => ({
     alignContent:'center',
     justifyContent:'center',
     alignItems:'center',
+    textDecoration:'none',
   },
   menuButton: {
     fontWeight: 500,
@@ -146,10 +148,19 @@ const useStyles = makeStyles((theme) => ({
     justifyContent:'flex-start',
     textDecoration:'none',
     color: theme.palette.text.primary,
+    color: theme.palette.text.nav,
   },
-  activeClass: {
+  navlinkNavbar : {
+    textDecoration:'none',
+    color: theme.palette.primary.light,
+  },
+  activeClassSidenav: {
     color: '#e55cb3',
     backgroundColor: '#90d6e3',
+  },
+  activeClassNavbar: {
+    color: '#ffeeee',
+    borderBottom: '1px solid #ffeeee',
   },
   toolbar: {
     display: 'flex',
@@ -174,20 +185,24 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }));
 
 const drawerWidth = 250;
-const appname = process.env.APP_NAME;
+
 
 const MainLayout = (props) => {
-  const { header, logo, links, menuButton, activeClass, navlink, toolbar, drawerContainer } = useStyles();
+  const { header, logo, links, menuButton, activeClassSidenav, activeClassNavbar, navlink, navlinkNavbar, toolbar, drawerContainer } = useStyles();
   const headersData = routes[1].children;
+  const [appname, setAppname] = useState(null)
   const [state, setState] = useState({
     mobileView: false,
     drawerOpen: false,
-  });
-  
+  });  
   const { mobileView, drawerOpen } = state;
-console.log(appname)
 
   useEffect(() => {
+    fetch(process.env.REACT_APP_WEBSITE_NAME)
+      .then(response => setAppname(response.url.slice(response.url.lastIndexOf('/') + 1)))
+      //let appname = response.url.slice(response.url.lastIndexOf('/') + 1);
+console.log(appname)
+
     const setResponsiveness = () => {
       return window.innerWidth < 900
         ? setState((prevState) => ({ ...prevState, mobileView: true }))
@@ -266,8 +281,8 @@ console.log(appname)
     return headersData.map(({ title, path }) => {
       if(title)
       return (
-        <NavLink end className={navlink} to={path} activeClassName={activeClass} key={`routeLink-${title}}`}>
-          <ListItem button key={`routeListItem-${title}}`} >
+        <NavLink end className={navlink} to={path} activeClassName={activeClassSidenav} key={`routeLink-${title}}`}>
+          <ListItem button key={`routeListItem-${title}}`} activeClassName={activeClassSidenav} >
             <Typography variant="span">{title}</Typography>
           </ListItem>
         </NavLink>
@@ -276,24 +291,18 @@ console.log(appname)
   };
 
   const SiteNameAndLogo = (
-    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>{appname}</Typography>
+    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>{process.env.REACT_APP_WEBSITE_NAME}</Typography>
   );
 
   const getMenuButtons = () => {
     return headersData.map(({ title, path }) => {
       if(title)
       return (
-        <Button
-          {...{
-            key: title,
-            color: "inherit",
-            to: path,
-            component: RouterLink,
-            className: menuButton,
-          }}
-        >
-          {title}
-        </Button>
+        <NavLink end className={navlinkNavbar} to={path} activeClassName={activeClassNavbar} key={`routeLink-${title}}`}>
+          <ListItem button key={`routeListItem-${title}}`} >
+            <Typography variant="span">{title}</Typography>
+          </ListItem>
+        </NavLink>
       );
     });
   };

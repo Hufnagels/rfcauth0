@@ -10,23 +10,49 @@ import {
   Grid,
   ListItem,
   Button,
+  CardActionArea, 
+  CardActions
 } from '@mui/material';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Skeleton from '@mui/material/Skeleton';
+
 
 
 
 const PostListItem = (props) => {
   return (
-    <Grid item xs={3}>
+    <Grid item xs={6} md={3}>
       <Paper elevation={2} >
-        <div key={props.data.id}>
-          <h3>{props.data.title}</h3>
-          <p>{props.data.body}</p>
-          <NavLink end to={`/posts/${props.data.id}`} key={`routeLink-${props.data.id}}`}>
-            <ListItem button key={`routeListItem-${props.data.id}}`} >
-              <Typography variant="span">More...</Typography>
-            </ListItem>
-          </NavLink>
-        </div>
+        <Card  key={`post-${props.data.id}`}>
+          <CardActionArea>
+            {props.data.image ?
+              <CardMedia
+                component="img"
+                height="140"
+                image="/static/images/cards/contemplative-reptile.jpg"
+                alt="green iguana"
+              />
+              :
+              <Skeleton variant="rectangular" width='100%' height={180} />
+            }
+            <CardContent>
+              <Typography gutterBottom variant="h5" component="div" style={{minHeight:'130px',}}>{props.data.title}</Typography>
+              <Typography variant="body2" color="text.secondary" noWrap /* style={{minHeight:'100px',}} */>{props.data.body}</Typography>
+            </CardContent>
+          </CardActionArea>
+          <CardActions>
+            <NavLink end to={`/posts/${props.data.id}`} key={`routeLink-${props.data.id}}`}>
+                <ListItem button key={`routeListItem-${props.data.id}}`} size="small">
+                  <Typography variant="span" >More...</Typography>
+                </ListItem>
+              </NavLink>
+            <Button size="small" color="primary">
+              Share
+            </Button>
+          </CardActions>
+        </Card>
       </Paper>
     </Grid>
   );

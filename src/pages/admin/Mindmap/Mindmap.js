@@ -10,78 +10,17 @@ import MuiBox from '@mui/material/Box';
 // custom
 import Map from './Map';
 import MapToolbar from './MapToolbar';
+import Wrapper from '../../../components/Wrapper';
 
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    position: 'relative',
-    padding:0,
-    margin:0,
-    '& > *': {
-      //margin: theme.spacing(1),
-      /*width: theme.spacing(100), 
-      height: theme.spacing(16), */
-    },
-  },
-  mindmap: {
-    display: 'flex',
-    position: 'relative',
-    minHeight: '100vh'//calc(100vh - 82px),
-  },
-
-}));
-
-const MapWrapper = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'left',
-  justifyContent: 'flex-end',
-  position: 'relative',
-  padding: theme.spacing(0, 1),
-  minHeight: '90vh',
-  minWidth: '100%',
-  
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-}));
-
-const Box = styled(MuiBox, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: '100%',
-    height:'calc(100vh - 80px)',
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    display:'flex',
-    position: 'relative', 
-    /*  backgroundColor: theme.palette.primary.main,*/
-    borderWidth: '1px',
-    borderStyle: 'dashed', 
-    borderColor: theme.palette.primary.main, 
-  }),
-);
 
 const Mindmap = () => {
-  const classes = useStyles();
 
   return (
-    <React.Fragment >
-      <Grid 
-        container
-        direction="row"
-      >
-        <Grid item xs={12}>
-          <Paper elevation={3}>
-            <Box>
-              <MapToolbar />
-              <Map />
-            </Box>
-          </Paper>
-        </Grid>
-      </Grid>
-      
-    </React.Fragment>
+    <Wrapper>
+      <MapToolbar />
+      <Map />
+    </Wrapper>
     
     
   );

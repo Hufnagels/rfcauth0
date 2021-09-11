@@ -3,11 +3,6 @@ import React from 'react';
 // Material
 import { makeStyles } from '@mui/styles';
 import { styled, useTheme } from '@mui/material/styles';
-import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
-import Paper from '@mui/material/Paper';
-
-import Box from '@mui/material/Box';
 import Backdrop from '@mui/material/Backdrop';
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
@@ -17,6 +12,8 @@ import SaveIcon from '@mui/icons-material/Save';
 import PrintIcon from '@mui/icons-material/Print';
 import ShareIcon from '@mui/icons-material/Share';
 
+// custom
+import ToolbarWrapper from '../../../components/ToolbarWrapper';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MapToolbarWrapper = styled('div')(({ theme }) => ({
+/* const ToolbarWrapper = styled('div')(({ theme }) => ({
   position:'absolute',
   top:10,
   right:10,
@@ -40,7 +37,7 @@ const MapToolbarWrapper = styled('div')(({ theme }) => ({
   justifyContent: 'flex-start',
   padding: 0,
   
-}));
+})); */
 
 const MapToolbar = () => {
   const classes = useStyles();
@@ -70,8 +67,7 @@ const MapToolbar = () => {
   ];
 
   return (
-    <MapToolbarWrapper>
-      <Box sx={{ height: 330, transform: 'translateZ(0px)', flexGrow: 1 }}>
+    <ToolbarWrapper>
         <Backdrop open={open} />
         <SpeedDial
           ariaLabel="SpeedDial tooltip example"
@@ -92,8 +88,7 @@ const MapToolbar = () => {
             />
           ))}
         </SpeedDial>
-      </Box>
-    </MapToolbarWrapper>
+    </ToolbarWrapper>
   );
 }
 

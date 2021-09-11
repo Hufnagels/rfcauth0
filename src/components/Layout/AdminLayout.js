@@ -31,8 +31,8 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 
 // custom
-import AuthenticationButton from './Auth/Authenticationbutton';
-import routes from '../features/routes/routes'
+import AuthenticationButton from '../Auth/Authenticationbutton';
+import routes from '../../features/routes/routes'
 import Layout from './Container';
 
 //const theme = createTheme();
@@ -71,7 +71,7 @@ const AdminLayout = () => {
   const theme = useTheme();
   const classes = useStyles();
   let location = useLocation();
-  const appname = process.env.APP_NAME;
+  const [appname, setAppname] = React.useState(null)
   const [state, setState] = React.useState(false);
   
   const toggleDrawer = () => (event) => {
@@ -99,7 +99,7 @@ const AdminLayout = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>{appname}</Typography>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>{process.env.REACT_APP_WEBSITE_NAME}</Typography>
           <AuthenticationButton />
         </Toolbar>
       </AppBar>
