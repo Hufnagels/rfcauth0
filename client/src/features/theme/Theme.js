@@ -55,7 +55,11 @@ const theme = createTheme({
          defaultProps: {
            enableColorOnDark: true,
          },
-       },
+      },
+      body: {
+         margin:0,
+         padding:0,
+      },
     }
   },
 });

@@ -18,7 +18,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 
-import AuthenticationButton from '../Auth/Authenticationbutton';
+import AuthenticationButton from '../../Auth/Authenticationbutton';
 
 const drawerWidth = 240;
 

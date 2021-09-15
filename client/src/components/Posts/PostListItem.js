@@ -22,8 +22,14 @@ import Skeleton from '@mui/material/Skeleton';
 
 
 const PostListItem = (props) => {
+
+  
+  const cardWidth = (text) => {
+    return text.length > 20 ? '4' : '2';
+  }
+
   return (
-    <Grid item xs={6} md={3}>
+    <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
       <Paper elevation={2} >
         <Card  key={`post-${props.data.id}`}>
           <CardActionArea>
@@ -38,7 +44,7 @@ const PostListItem = (props) => {
               <Skeleton variant="rectangular" width='100%' height={180} />
             }
             <CardContent>
-              <Typography gutterBottom variant="h5" component="div" style={{minHeight:'130px',}}>{props.data.title}</Typography>
+              <Typography gutterBottom variant="h6" component="div" style={{minHeight:'130px',}}>{props.data.title}</Typography>
               <Typography variant="body2" color="text.secondary" noWrap /* style={{minHeight:'100px',}} */>{props.data.body}</Typography>
             </CardContent>
           </CardActionArea>

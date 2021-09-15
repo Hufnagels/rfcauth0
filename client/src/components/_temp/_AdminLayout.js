@@ -29,8 +29,8 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 
 // custom
-import AuthenticationButton from './Auth/Authenticationbutton';
-import routes from '../features/routes/routes'
+import AuthenticationButton from '../Auth/Authenticationbutton';
+import routes from '../../features/routes/routes'
 
 //const theme = createTheme();
 const useStyles = makeStyles(theme => {

@@ -7,7 +7,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 
 //custom
-import AuthenticationButton from '../Auth/Authenticationbutton';
+import AuthenticationButton from '../../Auth/Authenticationbutton';
 
 
 export default function Navigation() {

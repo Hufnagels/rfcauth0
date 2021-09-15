@@ -38,8 +38,9 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 // custom
 import routes from '../../features/routes/routes';
 import AuthenticationButton from '../Auth/Authenticationbutton';
-import Layout from './Container';
+import ContentWrapper from './ContentWrapper';
 import RouterBreadcrumbs from '../RouterBreadcrumbs';
+import Footer from "./Footer";
 
 // ScrollToTop
 function HideOnScroll(props) {
@@ -96,7 +97,7 @@ console.log('click')
       <Box
         onClick={handleClick}
         role="presentation"
-        sx={{ position: 'fixed', bottom: 16, right: 16 }}
+        sx={{ position: 'fixed', bottom: 16, right: 16 , zIndex: '1000'}}
       >
         {children}
       </Box>
@@ -198,11 +199,6 @@ const MainLayout = (props) => {
   const { mobileView, drawerOpen } = state;
 
   useEffect(() => {
-    fetch(process.env.REACT_APP_WEBSITE_NAME)
-      .then(response => setAppname(response.url.slice(response.url.lastIndexOf('/') + 1)))
-      //let appname = response.url.slice(response.url.lastIndexOf('/') + 1);
-console.log(appname)
-
     const setResponsiveness = () => {
       return window.innerWidth < 900
         ? setState((prevState) => ({ ...prevState, mobileView: true }))
@@ -320,12 +316,14 @@ console.log(appname)
       </HideOnScroll>
       <Toolbar id="back-to-top-anchor" />
       <RouterBreadcrumbs />
-      <Layout margin='2' />
+      <ContentWrapper margin='2' />
+      
       <ScrollTop {...props}>
         <Fab color="secondary" size="small" aria-label="scroll back to top">
           <KeyboardArrowUpIcon />
         </Fab>
       </ScrollTop>
+      <Footer className={header} title={'footer'}/>
     </React.Fragment>
   );
 }

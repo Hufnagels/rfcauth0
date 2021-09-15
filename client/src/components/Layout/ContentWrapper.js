@@ -8,14 +8,14 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 
 
-const Layout = (props) => {
+const ContentWrapper = ({margin}) => {
   return (
-    <Container maxWidth={false}>
-      <Box sx={{ my: props.margin || 0 }}>
+    <Container maxWidth={false} style={{minHeight: '82vh', marginTop:'8px'}}>
+      <Box sx={{ my: margin || 0 }} md={{ my: margin || 0 }} m={0}>
         <Outlet />
       </Box>
     </Container>
   )
 }
 
-export default Layout;
+export default ContentWrapper;

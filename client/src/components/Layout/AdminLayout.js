@@ -33,7 +33,7 @@ import MailIcon from '@mui/icons-material/Mail';
 // custom
 import AuthenticationButton from '../Auth/Authenticationbutton';
 import routes from '../../features/routes/routes'
-import Layout from './Container';
+import ContentWrapper from './ContentWrapper';
 
 //const theme = createTheme();
 const useStyles = makeStyles(theme => {
@@ -84,7 +84,7 @@ const AdminLayout = () => {
 
   return (
     <div>
-      <AppBar position="fixed">
+      <AppBar position="fixed" id="appbar">
         <Toolbar>
           {/* <Button onClick={toggleDrawer('left', true)} color='secondary'>{'left'}</Button> */}
           <IconButton
@@ -128,23 +128,24 @@ const AdminLayout = () => {
               console.log('prop', prop)
               //const Icon = icons[icon];
               if(title)
-              return (
-                <NavLink end className={classes.navlink} to={path} activeClassName={classes.active} key={`routeLink-${index}}`}>
-                  <ListItem button key={`routeListItem-${index}}`} >
-                    <ListItemIcon>
-                      <prop.icon />
-                    </ListItemIcon>  
-                    <Typography variant="inherit">{title}</Typography>
-                  </ListItem>
-                </NavLink>
-              );
+                return (
+                  <NavLink end className={classes.navlink} to={path} activeClassName={classes.active} key={`routeLink-${index}}`}>
+                    <ListItem button key={`routeListItem-${index}}`} >
+                      <ListItemIcon>
+                        <prop.icon />
+                      </ListItemIcon>  
+                      <Typography variant="inherit">{title}</Typography>
+                    </ListItem>
+                  </NavLink>
+                );
               })
             }
             </List>
           </Box>
         </Drawer>
       </React.Fragment>
-      <Layout />
+
+      <ContentWrapper />
     </div>
   );
 }

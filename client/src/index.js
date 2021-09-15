@@ -7,12 +7,13 @@ import {
 import { Provider } from 'react-redux';
 
 //Material
-import { 
+import {
   createTheme,
   StyledEngineProvider,
   ThemeProvider 
 } from  '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
+import CssBaseline from '@mui/material/CssBaseline'
 
 // custom
 import App from './App';
@@ -35,16 +36,8 @@ const useStyles = makeStyles((theme) => {
 ReactDOM.render(
   <React.StrictMode>
     <StyledEngineProvider injectFirst>
-      
-      <ThemeProvider theme={createTheme({
-    components: {
-      MuiAppBar: {
-        defaultProps: {
-          enableColorOnDark: true,
-        },
-      },
-    },
-  })}>
+      <CssBaseline />
+      <ThemeProvider theme={theme}>
         <Provider store={store}>
           <Router>
             <Auth0ProviderWithHistory>
