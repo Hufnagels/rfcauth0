@@ -12,6 +12,7 @@ const theme = createTheme({
       common:{
          black:'#000',
          white:'#fff',
+         backdrop:'rgba(0, 30, 60, 0.67)',
       },
       background:{
          paper:'#fff',

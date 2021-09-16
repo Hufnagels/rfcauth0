@@ -70,6 +70,8 @@ class SketchField extends PureComponent {
     onMouseUp: PropTypes.func,
     // event mouse out
     onMouseOut: PropTypes.func,
+    // event mouse wheel
+    onMouseWheel: PropTypes.func,
     // event object move
     onObjectMoving: PropTypes.func,
     // event object scale
@@ -100,6 +102,7 @@ class SketchField extends PureComponent {
     onMouseMove: () => null,
     onMouseUp: () => null,
     onMouseOut: () => null,
+    onMouseWheel: () => null,
     onObjectMoving: () => null,
     onObjectScaling: () => null,
     onObjectRotating: () => null,
@@ -248,6 +251,10 @@ class SketchField extends PureComponent {
   _onMouseDown = (e) => {
     const { onMouseDown } = this.props;
     this._selectedTool.doMouseDown(e);
+    if(e.e.altKey === true) this._selectedTool=this._tools[Tool.DefaultTool]
+    console.log(this._tools[Tool.DefaultTool])
+    console.log(this._selectedTool)
+    console.log(e.e.altKey)
     onMouseDown(e);
   };
 
@@ -257,6 +264,7 @@ class SketchField extends PureComponent {
   _onMouseMove = (e) => {
     const { onMouseMove } = this.props;
     this._selectedTool.doMouseMove(e);
+    if(e.e.altKey === true) this._selectedTool=this._tools[Tool.DefaultTool]
     onMouseMove(e);
   };
 
@@ -298,6 +306,11 @@ class SketchField extends PureComponent {
     onMouseUp(e);
   };
 
+  _onMouseWheel = (e) => {
+    const { onMouseWheel } = this.props;
+    this._selectedTool.doMouseWheel(e) //=this._tools[Tool.DefaultTool]
+    onMouseWheel(e);
+  }
   /**
    * Track the resize of the window and update our state
    *
@@ -618,6 +631,17 @@ class SketchField extends PureComponent {
     if (this._selectedTool) eventFunction(e);
   };
 
+  callTextEvent = (e, eventFunction) => {
+    //if (this._selectedTool) eventFunction(e);
+    eventFunction(e);
+  };
+  _textEdit = (e) => {
+    console.log('text:editing:entered', e.target.text)
+  }
+  _textChange = (e) => {
+    console.log('text:selection:changed', e)
+  }
+
   componentDidMount = () => {
     let { tool, value, undoSteps, defaultValue, backgroundColor } = this.props;
 
@@ -652,13 +676,14 @@ class SketchField extends PureComponent {
     canvas.on("mouse:move", (e) => this.callEvent(e, this._onMouseMove));
     canvas.on("mouse:up", (e) => this.callEvent(e, this._onMouseUp));
     canvas.on("mouse:out", (e) => this.callEvent(e, this._onMouseOut));
+    canvas.on("mouse:wheel", (e) => this.callEvent(e, this._onMouseWheel))
     canvas.on("object:moving", (e) => this.callEvent(e, this._onObjectMoving));
     canvas.on("object:scaling", (e) => this.callEvent(e, this._onObjectScaling));
     canvas.on("object:rotating", (e) => this.callEvent(e, this._onObjectRotating));
     // IText Events fired on Adding Text
     // canvas.on("text:event:changed", console.log)
-    // canvas.on("text:selection:changed", console.log)
-    // canvas.on("text:editing:entered", console.log)
+    canvas.on("text:selection:changed", (e) => this.callTextEvent(e, this._textChange))
+    canvas.on("text:editing:entered", (e) => this.callTextEvent(e, this._textEdit))
     // canvas.on("text:editing:exited", console.log)
 
     this.disableTouchScroll();
@@ -669,7 +694,7 @@ class SketchField extends PureComponent {
     (value || defaultValue) && this.fromJSON(value || defaultValue);
   };
 
-  componentWillUnmount = () => window.removeEventListener("resize", this._resize);
+  //componentWillUnmount = () => window.removeEventListener("resize", this._resize);
 
   componentDidUpdate = (prevProps, prevState) => {
     if (

@@ -13,7 +13,11 @@ const Loading = () => {
   return (
     <React.Fragment>
       <Backdrop
-        sx={{ color: '#ccc', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{  
+          color: (theme) => theme.palette.secondary.light, 
+          background: (theme) => theme.palette.common.backdrop,
+          zIndex: (theme) => theme.zIndex.drawer + 1 
+        }}
         open={true}
         onClick={handleClose}
       >

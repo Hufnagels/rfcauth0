@@ -26,8 +26,14 @@ import PanToolOutlinedIcon from '@mui/icons-material/PanToolOutlined';
 import ZoomInOutlinedIcon from '@mui/icons-material/ZoomInOutlined';
 import ZoomOutOutlinedIcon from '@mui/icons-material/ZoomOutOutlined';
 import TextFieldsOutlinedIcon from '@mui/icons-material/TextFieldsOutlined';
+import PanToolIcon from '@mui/icons-material/PanTool';
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
+import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import ClearAllOutlinedIcon from '@mui/icons-material/ClearAllOutlined';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
 
 // custom
 import ToolbarWrapper from '../../../components/ToolbarWrapper';
@@ -42,18 +48,18 @@ const WBToolbar = (props) => {
   const handleAlignment = (event, newAlignment) => {
     if (newAlignment !== null) {
       setAlignment(newAlignment);
-      props.changeTool(newAlignment)
+      props.changeToolEvent(newAlignment)
     }
   };
 
   const handleChange = (event, nextView) => {
     //console.log(event, nextView)
     setView(nextView);
-    props.changeTool(nextView)
+    props.changeToolEvent(nextView)
   };
 
   React.useEffect(() => {
-    props.changeLineColor(color)
+    props.changeLineColorEvent(color)
     //console.info('WDToolbar color changed')
   }, [color]);
   
@@ -64,24 +70,25 @@ const WBToolbar = (props) => {
           component="form"
           sx={{
             marginBottom:1,
-            '& .MuiTextField-root': { m: 0, width: '5.3ch',minHeight:30, },
+            '& .MuiTextField-root': { m: 0, width: '5.3ch',minHeight:40, },
           }}
           noValidate
           autoComplete="off"
         >
           <div>
             <TextField
-              label="Color"
+              /* label="Color" */
               id="outlined-size-large"
               size="small"
               type="color"
+              style={{}}
               value={color}
               onChange={(e) => {
                 //console.log(props)
-                props.changeLineColor(e.target.value)
+                props.changeLineColorEvent(e.target.value)
                 //console.log('Toolbar color: ', e.target.value)
                 setAlignment(null);
-                props.changeTool('DefaultTool')
+                props.changeToolEvent('DefaultTool')
                 setColor(e.target.value)
               }}
             />
@@ -95,6 +102,9 @@ const WBToolbar = (props) => {
           onChange={handleAlignment}
           aria-label="Sketch Tools"
         >
+          <ToggleButton value="Pan" aria-label="Pan">
+            <PanToolOutlinedIcon />
+          </ToggleButton>
           <ToggleButton value="Select" aria-label="Select">
             <PhotoSizeSelectSmallIcon />
           </ToggleButton>
@@ -124,16 +134,37 @@ const WBToolbar = (props) => {
             sx={{'& > *': {m:0,}}}
           >
             <Button 
-              sx={{'& > *': {m:0,minHeight:30, p:1, marginLeft:0, marginRight:0}}}
-              startIcon={<TextFieldsOutlinedIcon />}
+              sx={{'& > *': {m:0,minHeight:30, p:1, marginLeft:0, marginRight:'0 !important'}}}
+              startIcon={<DeleteOutlinedIcon />}
+              disabled={!props.removeSelectedProp}
+              onClick={props.removeSelectedEvent}
             />
             <Button 
-              sx={{'& > *': {m:0,minHeight:30, p:1, marginLeft:0, marginRight:0}}}
+              sx={{'& > *': {m:0,minHeight:30, p:1, marginLeft:0, marginRight:'0 !important'}}}
+              startIcon={<TextFieldsOutlinedIcon />}
+              onClick={props.addTextEvent}
+            />
+            <Button 
+              sx={{'& > *': {m:0,minHeight:30, p:1, marginLeft:0, marginRight:'0 !important'}}}
               startIcon={<UndoIcon />}
+              disabled={!props.canUndoProp}
+              onClick={props.canUndoEvent}
             />
             <Button
-              sx={{'& > *': {m:0,minHeight:30, p:1, marginLeft:0, marginRight:0}}}
+              sx={{'& > *': {m:0,minHeight:30, p:1, marginLeft:0, marginRight:'0 !important'}}}
               startIcon={<RedoIcon />}
+              disabled={!props.canRedoProp}
+              onClick={props.canRedoEvent}
+            />
+            <Button
+              sx={{'& > *': {m:0,minHeight:30, p:1, marginLeft:0, marginRight:'0 !important'}}}
+              startIcon={<SaveOutlinedIcon />}
+              onClick={props.saveEvent}
+            />
+            <Button
+              sx={{'& > *': {m:0,minHeight:30, p:1, marginLeft:0, marginRight:'0 !important'}}}
+              startIcon={<SaveAltOutlinedIcon />}
+              onClick={props.downloadEvent}
             />
           </ButtonGroup>
         </Box>

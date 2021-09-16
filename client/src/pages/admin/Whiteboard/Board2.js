@@ -1,4 +1,4 @@
-import React, { useEffect, useState} from 'react'
+import React, { useEffect, useState, useRef, useLayoutEffect } from 'react'
 import io from 'socket.io-client';
 import PropTypes from 'prop-types'
 import { useAuth0 } from '@auth0/auth0-react';
@@ -7,13 +7,35 @@ import useSocket from 'use-socket.io-client';
 //Material
 import { makeStyles } from '@mui/styles';
 import { styled, useTheme } from '@mui/material/styles';
-import TextField from '@mui/material/TextField';
+
+import Box from '@mui/material/Box';
+import SpeedDial from '@mui/material/SpeedDial';
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
+import SpeedDialAction from '@mui/material/SpeedDialAction';
+import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
+import SaveIcon from '@mui/icons-material/Save';
+import PrintIcon from '@mui/icons-material/Print';
+import ShareIcon from '@mui/icons-material/Share';
+
 
 // custom
 // import {SketchField, Tools} from 'react-sketch';
 import { SketchField, Tools } from "./src";
 import WBToolbar from './WBToolbar';
 import dataJson from "./src/data.json";
+
+function useWindowSize() {
+  const [size, setSize] = useState([0, 0]);
+  useLayoutEffect(() => {
+    function updateSize() {
+      setSize([window.innerWidth, window.innerHeight]);
+    }
+    window.addEventListener('resize', updateSize);
+    updateSize();
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+  return size;
+}
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -72,15 +94,14 @@ const SketchWrapper = styled('div')(({ theme }) => ({
 }));
 
 let headers = new Headers();
-// headers.append('Content-Type', 'application/json');
-// headers.append('Accept', 'application/json');
 headers.append('Access-Control-Allow-Origin', 'http://localhost:3000');
 headers.append('Access-Control-Allow-Credentials', 'true');
-// headers.append('GET', 'POST', 'OPTIONS');
+
 
 const Board2 = (props) => {
   const classes = useStyles();
-
+  const imgDown = useRef();
+  let sketchWrapper = null;
   const [socket] = useSocket('http://localhost:4000', {
     withCredentials: true,
     headers: headers
@@ -103,7 +124,7 @@ const Board2 = (props) => {
   })
 
   const [sketcher, setSketcher] = useState({
-    lineWidth: 10,
+    lineWidth: 3,
     lineColor: "#f6b73c",
     fillColor: "#68CCCA",
     backgroundColor: "transparent",
@@ -125,26 +146,31 @@ const Board2 = (props) => {
     originX: "left",
     originY: "top",
     imageUrl: "https://files.gamebanana.com/img/ico/sprays/4ea2f4dad8d6f.png",
-    expandTools: false,
+    /* expandTools: false,
     expandControls: false,
     expandColors: false,
     expandBack: false,
     expandImages: false,
-    expandControlled: false,
+    expandControlled: false, */
     text: "add text",
-    enableCopyPaste: false,
+    enableCopyPaste: true,
   });
 
+  const [canvasData, setCanvasData] = useState(dataJson)
   const tools = {
     "Select": Tools.Select, 
     "Pencil": Tools.Pencil,
     "Line": Tools.Line,
     "Rectangle": Tools.Rectangle,
+    "RectangleLabel": Tools.RectangleLabel,
     "Circle": Tools.Circle,
+    "Pan": Tools.Pan,
+    "Highlighter": Tools.Highlighter,
     "DefaultTool": Tools.DefaultTool
   };
 
   let _sketch = null;
+  let timeout = null;
 
   useEffect(() => {
     socket.on('connect', () => {
@@ -157,17 +183,76 @@ const Board2 = (props) => {
       setConnection({...connection, username: response.username});
       setConnection({...connection, socketid: response.socketid});
     })
-    let sketch = document.getElementById('sketch');
-    let sketch_style = getComputedStyle(sketch);
-    setCanvasoption({...canvasoption,
-      canvasWidth:parseInt(sketch_style.getPropertyValue('width')),
-      canvasHeight:parseInt(sketch_style.getPropertyValue('height'))
-    })
+    
+    sketchWrapper = document.getElementById('sketch');
+    let sketchWrapper_style = getComputedStyle(sketchWrapper);
+    setCanvasoption({...canvasoption, 
+      canvasWidth: parseInt(sketchWrapper_style.getPropertyValue('width')),
+      canvasHeight: parseInt(sketchWrapper_style.getPropertyValue('height'))
+    });
+    
+    function handleResize() {
+      let sketchWrapper_style = getComputedStyle(sketchWrapper);
+      setCanvasoption({...canvasoption, 
+        canvasWidth: parseInt(sketchWrapper_style.getPropertyValue('width')),
+        canvasHeight: parseInt(sketchWrapper_style.getPropertyValue('height'))
+      });
+    }
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+    // Call handler right away so state gets updated with initial window size
+    handleResize();
+    // Remove event listener on cleanup
+    
 
-    console.log("didmount")
-    console.log(Tools)
-    console.log(canvasoption)
+    // console.log("didmount")
+    // console.log(Tools)
+    // console.log(canvasoption)
+    
+   // (function (console) {
+      console.save = function (data, filename) {
+        if (!data) {
+          console.error("Console.save: No data");
+          return;
+        }
+        if (!filename) filename = "console.json";
+        if (typeof data === "object") {
+          data = JSON.stringify(data, undefined, 4);
+        }
+        var blob = new Blob([data], { type: "text/json" }),
+          e = document.createEvent("MouseEvents"),
+          a = document.createElement("a");
+        a.download = filename;
+        a.href = window.URL.createObjectURL(blob);
+        a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
+        e.initMouseEvent(
+          "click",
+          true,
+          false,
+          window,
+          0,
+          0,
+          0,
+          0,
+          0,
+          false,
+          false,
+          false,
+          false,
+          0,
+          null
+        );
+        a.dispatchEvent(e);
+      };
+    //})(console);
+    return () => window.removeEventListener("resize", handleResize);
   },[socket])
+
+  // useEffect(()=>{
+  //   setCanvasoption({...canvasoption, canvasWidth: sketchWrapper.offsetWidth});
+  //   setCanvasoption({...canvasoption, canvasHeight: sketchWrapper.offsetHeight});
+  //   console.log(canvasoption)
+  // },[sketchWrapper.offsetWidth, sketchWrapper.offsetHeight])
 
   const _save = () => {
     let drawings = sketcher.drawings;
@@ -178,17 +263,17 @@ const Board2 = (props) => {
   };
 
   const _download = () => {
-    console.save(_sketch.toDataURL(), "toDataURL.txt");
+    //console.save(_sketch.toDataURL("image/png"), "toDataURL.png");
     console.save(JSON.stringify(_sketch.toJSON()), "toDataJSON.txt");
 
     /*eslint-enable no-console*/
 
-    let { imgDown } = this.refs;
+    
     let event = new Event("click", {});
 
-    imgDown.href = _sketch.toDataURL();
-    imgDown.download = "toPNG.png";
-    imgDown.dispatchEvent(event);
+    imgDown.current.href = _sketch.toDataURL("image/png");
+    imgDown.current.download = "toPNG.png";
+    imgDown.current.click() //dispatchEvent(event);
   };
 
   const _undo = () => {
@@ -237,11 +322,14 @@ const Board2 = (props) => {
   };
 
   const _onSketchChange = () => {
+    //console.info('sketch changed fired')
     let prev = sketcher.canUndo;
     let now = _sketch.canUndo();
+    //console.error(prev, now)
     if (prev !== now) {
-      setSketcher({...sketcher, canUndo: now });
+      setSketcher({...sketcher, canUndo: now }); 
     }
+    
   };
 
   const _onBackgroundImageDrop = (accepted /*, rejected*/) => {
@@ -264,8 +352,16 @@ const Board2 = (props) => {
       reader.readAsDataURL(accepted[0]);
     }
   };
-
-  const _addText = () => _sketch.addText(sketcher.text);
+  const options = {
+    fontFamily: 'inherit',
+    fontSize:20,
+    fill: sketcher.lineColor,
+    lineHeight: 1.1,
+  }
+  const _addText = () => {
+    _sketch.addText(sketcher.text, options);
+    _changeTool('Select')
+  };
 
   const _linecolor = (value) => {
     console.log('value: ',value)
@@ -297,9 +393,15 @@ const Board2 = (props) => {
       enableCopyPaste: event.target.value === Tools.Select,
     });
   };
-
+  const actions = [
+    { icon: <FileCopyIcon />, name: 'Copy', cb: _undo},
+    { icon: <SaveIcon />, name: 'Save',  cb: _redo },
+    { icon: <PrintIcon />, name: 'Print', cb: _addText},
+    { icon: <ShareIcon />, name: 'Share' },
+  ];
   return (
     <React.Fragment>
+      <a ref={imgDown} hidden href="" />
       <SketchWrapper id="sketch">
         <SketchField
           width={canvasoption.canvasWidth}
@@ -311,26 +413,61 @@ const Board2 = (props) => {
           ref={(c) => (_sketch = c)}
           lineColor={sketcher.lineColor}
           lineWidth={sketcher.lineWidth}
-          fillColor={
-            sketcher.fillWithColor ? sketcher.fillColor : "transparent"
-          }
-          backgroundColor={
-            sketcher.fillWithBackgroundColor ? sketcher.backgroundColor : "transparent" 
-          }
-          defaultValue={dataJson}
+          fillColor={sketcher.fillWithColor ? sketcher.fillColor : "transparent"}
+          backgroundColor={sketcher.fillWithBackgroundColor ? sketcher.backgroundColor : "transparent"}
+          defaultValue={canvasData}
           /* value={sketcher} */
           forceValue
           onChange={_onSketchChange}
           tool={sketcher.tool}
         />
       </SketchWrapper>
-      {console.log('Render linecolor: ', sketcher.lineColor)}
       <WBToolbar 
-          changeLineColor={_linecolor}
-          defaultLineColor={sketcher.lineColor}
-          changeTool={_changeTool}
+          changeLineColorEvent={_linecolor}
+          defaultLineColorProp={sketcher.lineColor}
+          changeToolEvent={_changeTool}
+          removeSelectedProp={sketcher.enableRemoveSelected}
+          removeSelectedEvent={_removeSelected}
+          canUndoProp={sketcher.canUndo}
+          canUndoEvent={_undo}
+          canRedoProp={sketcher.canRedo}
+          canRedoEvent={_redo}
+          addTextEvent={_addText}
+          saveEvent={_save}
+          downloadEvent={_download}
         />
-        
+       {/*  <Box sx={{ height: 320, transform: 'translateZ(0px)', flexGrow: 1 }}>
+      <SpeedDial
+        ariaLabel="SpeedDial basic example"
+        sx={{ position: 'absolute', bottom: 92, right: 16 }}
+        icon={<SpeedDialIcon />}
+        direction='left'
+      >
+        {actions.map((action) => (
+          <SpeedDialAction
+            key={action.name}
+            icon={action.icon}
+            onClick={action.cb}
+            tooltipTitle={action.name}
+          />
+        ))}
+      </SpeedDial>
+      <SpeedDial
+        ariaLabel="SpeedDial basic example"
+        sx={{ position: 'absolute', bottom: 16, right: 16 }}
+        icon={<SpeedDialIcon />}
+        direction='left'
+      >
+        {actions.map((action) => (
+          <SpeedDialAction
+            key={action.name}
+            icon={action.icon}
+            onClick={action.cb}
+            tooltipTitle={action.name}
+          />
+        ))}
+      </SpeedDial>
+    </Box> */}
     </React.Fragment>
   )
 }
