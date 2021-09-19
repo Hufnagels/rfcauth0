@@ -4,6 +4,7 @@ import {
   Outlet,
   useLocation
 } from 'react-router-dom';
+import { useAuth0 } from "@auth0/auth0-react";
 
 // Material
 import { styled, useTheme, createTheme } from '@mui/material/styles';
@@ -24,6 +25,7 @@ import {
 } from '@mui/material';
 
 // Material icons
+import SvgIcon from '@mui/material/SvgIcon';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -64,7 +66,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
-
 const drawerWidth = 250;
 
 const AdminLayout = () => {
@@ -73,14 +74,25 @@ const AdminLayout = () => {
   let location = useLocation();
   const [appname, setAppname] = React.useState(null)
   const [state, setState] = React.useState(false);
-  
+  const { isAuthenticated } = useAuth0();
+  const routesData = routes(isAuthenticated)[0].children;
   const toggleDrawer = () => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
     }
-
     setState(!state);
   };
+  const ref = React.createRef();
+  const SideMenuIcon = React.forwardRef((props, ref) => {
+    console.log('SideMenuIcon')
+    console.log(props, ref.current.type.render.displayName)
+    return (
+      <SvgIcon ref={ref} component={ref.current.type.render.displayName} className="">
+        {props.children}
+      </SvgIcon>
+    )
+  });
+  
 
   return (
     <div>
@@ -124,20 +136,25 @@ const AdminLayout = () => {
           >
             <List>
             {
-              routes[0].children.map(({ path, title, ...prop }, index) => {
-              console.log('prop', prop)
+              routesData.map(({ path, title,icon, ...prop }, index) => {
+              //console.log('prop', prop)
               //const Icon = icons[icon];
-              if(title)
-                return (
-                  <NavLink end className={classes.navlink} to={path} activeClassName={classes.active} key={`routeLink-${index}}`}>
-                    <ListItem button key={`routeListItem-${index}}`} >
-                      <ListItemIcon>
-                        <prop.icon />
-                      </ListItemIcon>  
-                      <Typography variant="inherit">{title}</Typography>
-                    </ListItem>
-                  </NavLink>
-                );
+                if(title){
+                  ref.current= icon;
+                  console.log(ref.current)
+                  
+                  return (
+                    <NavLink end className={classes.navlink} to={path} activeClassName={classes.active} key={`routeLink-${index}}`}>
+                      <ListItem button key={`routeListItem-${index}}`} >
+                        <ListItemIcon>
+                          {/* <prop.icon /> */}
+                          <ref.current.type />
+                        </ListItemIcon>  
+                        <Typography variant="inherit">{title}</Typography>
+                      </ListItem>
+                    </NavLink>
+                  );
+                }
               })
             }
             </List>

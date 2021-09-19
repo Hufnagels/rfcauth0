@@ -2,8 +2,9 @@ import React from 'react';
 
 // Material
 import { styled, useTheme } from '@mui/material/styles';
-
 import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+
 
 const ToolBarWrapper = styled('div')(({ theme }) => ({
   position:'absolute',
@@ -21,7 +22,9 @@ const ToolbarWrapper = ({children}) => {
   return (
     <ToolBarWrapper>
       <Box sx={{ height: 330, transform: 'translateZ(0px)', flexGrow: 1 }}>
-        {children}
+        <Paper elevation={3}>
+          {children}
+        </Paper>
       </Box>
     </ToolBarWrapper>
   );

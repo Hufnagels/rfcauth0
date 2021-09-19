@@ -37,7 +37,7 @@ import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
 
 // custom
 import ToolbarWrapper from '../../../components/ToolbarWrapper';
-import {SketchField, Tools} from 'react-sketch';
+//import {SketchField, Tools} from 'react-sketch';
 
 const WBToolbar = (props) => {
   const [view, setView] = React.useState('Pencil');
@@ -84,11 +84,11 @@ const WBToolbar = (props) => {
               style={{}}
               value={color}
               onChange={(e) => {
-                //console.log(props)
+
                 props.changeLineColorEvent(e.target.value)
                 //console.log('Toolbar color: ', e.target.value)
                 setAlignment(null);
-                props.changeToolEvent('DefaultTool')
+                //props.changeToolEvent('DefaultTool')
                 setColor(e.target.value)
               }}
             />

@@ -22,9 +22,17 @@ const useStyles = makeStyles({
     flexGrow: 1,
     maxWidth: 400,
   },
+  navlink: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    textDecoration:'none',
+  },
+  active: {
+    color: '#e55cb3',
+    backgroundColor: '#90d6e3',
+  }
 });
-
-
 
 function nestedLoop(obj,searchKey, searchValue) {
   const res = {};
@@ -67,11 +75,13 @@ function findObjectByLabel(obj, key, value) {
 const Home = props => {
   const [list, setList] = useState([]);
   const classes = useStyles();
+  const routesData = routes(false)[0].children;
 
   useEffect(() => {
-    const path = nestedLoop(routes, 'path', 'app')
-    setList(path.path);
-    //console.log(path.path)
+    // const path = nestedLoop(routesData, 'path', 'app')
+    // setList(path.path);
+    // console.log(path)
+    console.log(routesData)
   },[]);
 
   return (
@@ -80,30 +90,24 @@ const Home = props => {
       <div>
         <Paper className="">
           <List>
-            {routes[0].children.map(({ path, title, ...prop }, index) => {
-              console.log('prop', prop)
-              //const Icon = icons[icon];
-               return (
-                
-                  <NavLink to={path} key={`routeLink-${index}}`}>
-                    
-                    <ListItem button >
-                      <ListItemIcon>
-                        <prop.icon />
-                      </ListItemIcon>
-                      
-                      <Typography variant="inherit">{title}</Typography>
-                    </ListItem>
-                    
-                  </NavLink>
-                
-              );
-            })
+            {
+              routesData.map(({ path, title, ...prop }, index) => {
+                if(title)
+                  return (
+                    <NavLink end className={classes.navlink} to={path} activeClassName={classes.active} key={`routeLink-${index}}`}>
+                      <ListItem button key={`routeListItem-${index}}`} >
+                        <ListItemIcon>
+                          <prop.icon />
+                        </ListItemIcon>  
+                        <Typography variant="inherit">{title}</Typography>
+                      </ListItem>
+                    </NavLink>
+                  );
+              })
             }
-            
           </List>
         </Paper>
-        <JSONPretty data={JSON.stringify(routes[0].children, null, 2)} theme={styles} />
+        {/* <JSONPretty data={JSON.stringify(routesData, null, 2)} theme={styles} /> */}
       </div>
     </div>
   )

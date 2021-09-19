@@ -190,7 +190,8 @@ const drawerWidth = 250;
 
 const MainLayout = (props) => {
   const { header, logo, links, menuButton, activeClassSidenav, activeClassNavbar, navlink, navlinkNavbar, toolbar, drawerContainer } = useStyles();
-  const headersData = routes[1].children;
+//console.log(routes(false))
+  const headersData = routes(false)[1].children;
   const [appname, setAppname] = useState(null)
   const [state, setState] = useState({
     mobileView: false,
@@ -309,7 +310,7 @@ const MainLayout = (props) => {
       <HideOnScroll {...props}>
         <AppBar className={header}>
           <Toolbar className={toolbar}>
-          {mobileView ? displayMobile() : displayDesktop()}
+            {mobileView ? displayMobile() : displayDesktop()}
             <AuthenticationButton />
           </Toolbar>
         </AppBar>

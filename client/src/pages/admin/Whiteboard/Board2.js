@@ -101,6 +101,8 @@ headers.append('Access-Control-Allow-Credentials', 'true');
 const Board2 = (props) => {
   const classes = useStyles();
   const imgDown = useRef();
+  const canvasRef = useRef();
+
   let sketchWrapper = null;
   const [socket] = useSocket('http://localhost:4000', {
     withCredentials: true,
@@ -156,7 +158,7 @@ const Board2 = (props) => {
     enableCopyPaste: true,
   });
 
-  const [canvasData, setCanvasData] = useState(dataJson)
+  const [canvasData, setCanvasData] = useState()
   const tools = {
     "Select": Tools.Select, 
     "Pencil": Tools.Pencil,
@@ -169,7 +171,7 @@ const Board2 = (props) => {
     "DefaultTool": Tools.DefaultTool
   };
 
-  let _sketch = null;
+  let _sketch = canvasRef.current;
   let timeout = null;
 
   useEffect(() => {
@@ -183,6 +185,13 @@ const Board2 = (props) => {
       setConnection({...connection, username: response.username});
       setConnection({...connection, socketid: response.socketid});
     })
+    socket.off('onObjectAdded')
+    socket.on('onObjectAdded', (response) => {
+      console.log('onObjectAdded: ', response)
+      canvasRef.current.fromJSON(response)
+      canvasRef.current.render()
+      console.log(canvasRef.current)
+    })
     
     sketchWrapper = document.getElementById('sketch');
     let sketchWrapper_style = getComputedStyle(sketchWrapper);
@@ -193,10 +202,13 @@ const Board2 = (props) => {
     
     function handleResize() {
       let sketchWrapper_style = getComputedStyle(sketchWrapper);
-      setCanvasoption({...canvasoption, 
-        canvasWidth: parseInt(sketchWrapper_style.getPropertyValue('width')),
-        canvasHeight: parseInt(sketchWrapper_style.getPropertyValue('height'))
-      });
+      let width = parseInt(sketchWrapper_style.getPropertyValue('width'));
+      let height = parseInt(sketchWrapper_style.getPropertyValue('height'))
+      if (!(width === 0) || !(height === 0))
+        setCanvasoption({...canvasoption, 
+          canvasWidth: width,
+          canvasHeight: height
+        });
     }
     // Add event listener
     window.addEventListener("resize", handleResize);
@@ -410,7 +422,8 @@ const Board2 = (props) => {
           height={sketcher.controlledSize ? sketcher.canvas.height : null} */
           className={classes.board} 
           name="sketch"
-          ref={(c) => (_sketch = c)}
+          /* ref={(c) => (_sketch = c)} */
+          ref={canvasRef}
           lineColor={sketcher.lineColor}
           lineWidth={sketcher.lineWidth}
           fillColor={sketcher.fillWithColor ? sketcher.fillColor : "transparent"}
@@ -420,6 +433,8 @@ const Board2 = (props) => {
           forceValue
           onChange={_onSketchChange}
           tool={sketcher.tool}
+          socket={connection.socket}
+          socketEventNames={['onObjectAdded','onObjetcModified', 'onObjectRemoved']}
         />
       </SketchWrapper>
       <WBToolbar 
@@ -435,6 +450,7 @@ const Board2 = (props) => {
           addTextEvent={_addText}
           saveEvent={_save}
           downloadEvent={_download}
+          
         />
        {/*  <Box sx={{ height: 320, transform: 'translateZ(0px)', flexGrow: 1 }}>
       <SpeedDial

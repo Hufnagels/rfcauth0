@@ -82,6 +82,9 @@ class SketchField extends PureComponent {
     className: PropTypes.string,
     // Style options to pass to container div of canvas
     style: PropTypes.object,
+    //socket
+    socket: PropTypes.object,
+    socketEventNames: PropTypes.array,
   };
 
   static defaultProps = {
@@ -95,6 +98,8 @@ class SketchField extends PureComponent {
     widthCorrection: 0,
     heightCorrection: 0,
     forceValue: false,
+    // socket:null,
+    // socketEventNames:[],
     onObjectAdded: () => null,
     onObjectModified: () => null,
     onObjectRemoved: () => null,
@@ -125,6 +130,10 @@ class SketchField extends PureComponent {
     this._tools[Tool.DefaultTool] = new DefaultTool(fabricCanvas);
   };
 
+  _initSocket = (socket, socketEventNames) => {
+    this._socket = socket;
+    this._socketEventNames = socketEventNames;
+  }
   /**
    * Enable touch Scrolling on Canvas
    */
@@ -178,6 +187,8 @@ class SketchField extends PureComponent {
    * Action when an object is added to the canvas
    */
   _onObjectAdded = (e) => {
+    // console.log(this._socket)
+    // console.log(this._socketEventNames)
     const { onObjectAdded } = this.props;
     if (!this.state.action) {
       this.setState({ action: true });
@@ -185,12 +196,19 @@ class SketchField extends PureComponent {
     }
     let obj = e.target;
     obj.__version = 1;
+    e.target.id = uuid4();
+    obj.id = e.target.id;
     // record current object state as json and save as originalState
     let objState = obj.toJSON();
+    objState.id = e.target.id;
+    //console.log('object:added obj', obj)
     obj.__originalState = objState;
     let state = JSON.stringify(objState);
     // object, previous state, current state
+    //console.log('object:added', state)
     this._history.keep([obj, state, state]);
+    this._socket.emit('onObjectAdded', state)
+    //console.log('object:added e', e)
     onObjectAdded(e);
   };
 
@@ -221,14 +239,21 @@ class SketchField extends PureComponent {
   _onObjectModified = (e) => {
     const { onObjectModified } = this.props;
     let obj = e.target;
+    console.log('object:modified e1', e)
     obj.__version += 1;
+    obj.__originalState.id = e.target.id;
     let prevState = JSON.stringify(obj.__originalState);
+    console.log('object:modified __originalState', obj.__originalState)
     let objState = obj.toJSON();
     // record current object state as json and update to originalState
-    obj.__originalState = objState;
+    //obj.__originalState = objState;
+    objState.id = e.target.id;
     let currState = JSON.stringify(objState);
+    console.log('object:modified currState', currState)
     this._history.keep([obj, prevState, currState]);
+    this._socket.emit('onObjectModified', currState)
     onObjectModified(e);
+    console.log('object:modified e2', e)
   };
 
   /**
@@ -237,6 +262,8 @@ class SketchField extends PureComponent {
   _onObjectRemoved = (e) => {
     const { onObjectRemoved } = this.props;
     let obj = e.target;
+    console.log('_onObjectRemoved', obj)
+    this._socket.emit('onObjectRemoved', obj.id)
     if (obj.__removed) {
       obj.__version += 1;
       return;
@@ -252,9 +279,9 @@ class SketchField extends PureComponent {
     const { onMouseDown } = this.props;
     this._selectedTool.doMouseDown(e);
     if(e.e.altKey === true) this._selectedTool=this._tools[Tool.DefaultTool]
-    console.log(this._tools[Tool.DefaultTool])
-    console.log(this._selectedTool)
-    console.log(e.e.altKey)
+    // console.log(this._tools[Tool.DefaultTool])
+    // console.log(this._selectedTool)
+    // console.log(e.e.altKey)
     onMouseDown(e);
   };
 
@@ -493,21 +520,21 @@ class SketchField extends PureComponent {
    *
    * @param json JSON string or object
    */
-  fromJSON = (json) => {
+   fromJSON = (json) => {
     if (!json) return;
     let canvas = this._fc;
     setTimeout(() => {
       canvas.loadFromJSON(json, () => {
-        if (this.props.tool === Tool.DefaultTool) {
+        if(this.props.tool === Tool.DefaultTool){
           canvas.isDrawingMode = canvas.selection = false;
-          canvas.forEachObject((o) => (o.selectable = o.evented = false));
+          canvas.forEachObject((o) => o.selectable = o.evented = false);
         }
         canvas.renderAll();
         if (this.props.onChange) {
-          this.props.onChange();
+          this.props.onChange()
         }
-      });
-    }, 100);
+      })
+    }, 100)
   };
 
   /**
@@ -643,7 +670,7 @@ class SketchField extends PureComponent {
   }
 
   componentDidMount = () => {
-    let { tool, value, undoSteps, defaultValue, backgroundColor } = this.props;
+    let { tool, value, undoSteps, defaultValue, backgroundColor, socket, socketEventNames } = this.props;
 
     let canvas = (this._fc = new fabric.Canvas(
       this._canvas /*, {
@@ -652,7 +679,10 @@ class SketchField extends PureComponent {
          skipTargetFind: true
          }*/
     ));
-
+    
+    this._initSocket(socket, socketEventNames);
+    console.log(this.props)
+    console.log(socket, socketEventNames)
     this._initTools(canvas);
 
     // set initial backgroundColor
@@ -704,6 +734,9 @@ class SketchField extends PureComponent {
       this._resize();
     }
 
+    if (this.props.socket !== prevProps.socket) {
+      this._initSocket(this.props.socket, this.props.socketEventNames);
+    }
     if (this.props.tool !== prevProps.tool) {
       this._selectedTool = this._tools[this.props.tool];
       //Bring the cursor back to default if it is changed by a tool

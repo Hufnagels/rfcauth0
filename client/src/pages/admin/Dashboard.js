@@ -1,9 +1,11 @@
 import React from 'react';
+import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
 // Material
 import { styled } from '@mui/styles';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
+import RestrictedArea from '../../components/RestrictedArea';
 // import DashboardNavbar from './DashboardNavbar';
 // import DashboardSidebar from './DashboardSidebar';
 
@@ -98,4 +100,7 @@ const DashboardLayout = () => {
   );
 };
 
-export default DashboardLayout;
+//export default DashboardLayout;
+export default withAuthenticationRequired(DashboardLayout, {
+  onRedirecting: () => <RestrictedArea />,
+});

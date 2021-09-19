@@ -1,6 +1,6 @@
 import React from 'react'
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
-import Loading from "../../components/Loading";
+import RestrictedArea from "../../components/RestrictedArea";
 import JSONPretty from 'react-json-pretty';
 
 
@@ -14,5 +14,5 @@ const Profile = () => {
 }
 
 export default withAuthenticationRequired(Profile, {
-  onRedirecting: () => <Loading />,
+  onRedirecting: () => <RestrictedArea />,
 });

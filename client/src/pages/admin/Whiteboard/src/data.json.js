@@ -378,6 +378,7 @@ export default {
       backgroundColor: "",
       fillRule: "nonzero",
       globalCompositeOperation: "source-over",
+      clipTo: null,
       rx: 0,
       ry: 0,
     },

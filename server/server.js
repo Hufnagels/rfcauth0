@@ -65,6 +65,21 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('canvas-data', data)
     //console.clear()
   });
+  socket.on('onObjectAdded', (data) => {
+    console.log('onObjectAdded-canvas-data: ', data)
+    socket.broadcast.emit('onObjectAdded', data)
+    //console.clear()
+  });
+  socket.on('onObjectModified', (data) => {
+    console.log('onObjectModified-canvas-data: ', data)
+    socket.broadcast.emit('onObjectModified', data)
+    //console.clear()
+  });
+  socket.on('onObjectRemoved', (data) => {
+    console.log('onObjectRemoved-canvas-data: ', data)
+    socket.broadcast.emit('onObjectModified', data)
+    //console.clear()
+  });
 
   socket.on('disconnect', () => {
     

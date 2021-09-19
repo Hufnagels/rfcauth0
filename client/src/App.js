@@ -12,7 +12,8 @@ import routes from './features/routes/routes'
 
 export default function App() {
   const { isLoading, isAuthenticated } = useAuth0();
-  let content = useRoutes(routes);
+  //let content = useRoutes(routes);
+  const content = useRoutes(routes(isAuthenticated));
 
   console.log(isAuthenticated)
   

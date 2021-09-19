@@ -1,13 +1,14 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate,Outlet } from 'react-router-dom';
 
 // Icons
-import { 
-  AccountTree,
-  Dashboard,
-  BorderColor,
-  TableView,
-  ContactPage,
-} from '@mui/icons-material'
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
+import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
+import TableViewOutlinedIcon from '@mui/icons-material/TableViewOutlined';
+import HourglassEmptyOutlinedIcon from '@mui/icons-material/HourglassEmptyOutlined';
+import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
+import ContactMailOutlinedIcon from '@mui/icons-material/ContactMailOutlined';
 
 //Layouts
 import AdminLayout from '../../components/Layout/AdminLayout';
@@ -33,6 +34,7 @@ import PostItem from '../../components/Posts/PostItem';
 import loadable from "@loadable/component"
 import Posts from '../../components/Posts/Posts';
 import Loading from '../../components/Loading'
+import RestrictedArea from '../../components/RestrictedArea';
 
 // const Loading = () => {
 //   return <div>Loading...</div>
@@ -41,28 +43,30 @@ const DashboardPage = loadable(() => import("../../pages/admin/Dashboard.js"), {
   fallback: <Loading />,
 })
 
-const routes = [
+const routes = (isAuthenticated) => [
   {
     path: 'app',
+    //element: isAuthenticated ? <AdminLayout /> : <RestrictedArea />, //<Navigate to="/" />,
     element: <AdminLayout />,
     children: [
-      { path: '', element: <DashboardPage />, title: 'Dashboard',icon: Dashboard, children: [] },
-      { path: 'mindmap', element: <MindMap />, title: 'MindMap',icon: AccountTree, children: [] },
-      { path: 'whiteboard', element: <Whiteboard />, title: 'WhiteBoard',icon: BorderColor, children: [] },
-      { path: 'counter', element: <Counter />, title: 'Counter',icon: Dashboard, children: [] },
-      { path: 'tables', element: <BasicFilteringGrid />, title: 'Tables',icon: TableView, children: [] },
-      { path: 'users', element: <DataFetching />, title: 'Users',icon: ContactPage,
+      { path: '', element: <DashboardPage />, title: 'Dashboard',icon: DashboardOutlinedIcon, children: [] },
+      { path: 'mindmap', element: <MindMap />, title: 'MindMap',icon: AccountTreeOutlinedIcon, children: [] },
+      { path: 'whiteboard', element: <Whiteboard />, title: 'WhiteBoard',icon: BorderColorOutlinedIcon, children: [] },
+      { path: 'counter', element: <Counter />, title: 'Counter',icon: HourglassEmptyOutlinedIcon, children: [] },
+      { path: 'tables', element: <BasicFilteringGrid />, title: 'Tables',icon: TableViewOutlinedIcon, children: [] },
+      { path: 'users', element: <DataFetching />, title: 'Users',icon: PeopleAltOutlinedIcon,
         children: [
-          { path: ':id', element: <DataFetching />, title: 'User',icon: Dashboard },
+          { path: ':id', element: <DataFetching />, title: 'User',icon: PersonOutlinedIcon },
           
         ]
       },
-      { path: 'profile', element: <Profile />, title: 'Profile',icon: Dashboard ,children: [] },
-      { path: '*', element: <Navigate to="/404" />,icon: Dashboard,children: [] }
+      { path: 'profile', element: <Profile />, title: 'Profile',icon: ContactMailOutlinedIcon ,children: [] },
+      { path: '*', element: <Navigate to="/404" />,icon: DashboardOutlinedIcon,children: [] }
     ]
   },
   {
     path: '/',
+    //element: !isAuthenticated ? <MainLayout /> : <Navigate to="/app/dashboard" />,
     element: <MainLayout />,
     children: [
       { path: '/', element: <Home />, title: 'Home' },
