@@ -1,8 +1,8 @@
 let c_users = [];
 
-function join_User(id, username, roomname) {
-  const p_user = { id, username, roomname};
-  filterUserAndRoom(username,roomname)
+function join_User(id, username, email, roomname) {
+  const p_user = { id, username, email, roomname};
+  filterUserAndRoom(username, email, roomname)
   c_users.push(p_user);
   console.log('users: ', c_users)
   return p_user;
@@ -10,10 +10,10 @@ function join_User(id, username, roomname) {
 
 console.log("user out: ", c_users);
 
-function filterUserAndRoom(username,roomname) {
+function filterUserAndRoom(username, email, roomname) {
   return c_users = c_users.filter(function( obj ) {
     //return (obj.username !== username) && (obj.roomname !== roomname || obj.roomname == 'undefined');
-    return (obj.roomname !== 'undefined' || !(obj.username == username) && (obj.roomname == roomname));
+    return (obj.roomname !== 'undefined' || !((obj.username == username) && (obj.roomname == roomname) && (obj.email == email)));
   });
 };
 

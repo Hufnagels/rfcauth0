@@ -29,12 +29,13 @@ io = socket(server, {
 io.on('connection', (socket) => {
   
   
-  socket.on("joinRoom", ({ username, roomname }) => {
+  socket.on("joinRoom", ({ username, email, roomname }) => {
     
     //* create user
-    const p_user = join_User(socket.id, username, roomname);
+    const p_user = join_User(socket.id, username, email, roomname);
     
     console.log(`User (${p_user.username}) is online`.brightYellow)
+    console.log(`User (${p_user.email}) is online`.brightYellow)
     console.log(`socket.id is: ${socket.id}`.brightRed);
     socket.join(p_user.roomname);
     console.log(`User (${p_user.username}) is joined to (${p_user.roomname})`.brightBlue)
@@ -53,12 +54,27 @@ io.on('connection', (socket) => {
       username: p_user.username,
       text: `${p_user.username} has joined the chat`,
     });
-    // socket.to("whiteboardRoom").emit('onObjectAdded', (data) => {
-    //   console.log('onObjectAdded-whiteboardRoom: ', data)
-    //   //socket.broadcast.emit('onObjectAdded', data)
-    //   //console.clear()
-    // });
     
+    socket.on('onObjectAdded', (data) => {
+      console.log('onObjectAdded-canvas-data: ', data)
+      socket.to(data.roomname).emit('onObjectAdded', data);
+      //console.clear()
+    });
+    socket.on('onObjectModified', (data) => {
+      console.log('onObjectModified-canvas-data: ', data.owner)
+      socket.broadcast.emit('onObjectModified', data)
+      //console.clear()
+    });
+    socket.on('onObjectRemoved', (data) => {
+      console.log('onObjectRemoved-canvas-data: ', data)
+      socket.broadcast.emit('onObjectRemoved', data)
+      //console.clear()
+    });
+    socket.on('onPathCreated', (data) => {
+      console.log('onPathCreated-canvas-data: ', data)
+      socket.broadcast.emit('onPathCreated', data)
+      //console.clear()
+    });
   });
 
   socket.on('join', ({username, roomname}) => {
@@ -70,24 +86,10 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('canvas-data', data)
     //console.clear()
   });
-  socket.on('onObjectAdded', (data) => {
-    console.log('onObjectAdded-canvas-data: ', data)
-    socket.to(data.roomname).emit('onObjectAdded', data);
-    //console.clear()
-  });
-  socket.on('onObjectModified', (data) => {
-    console.log('onObjectModified-canvas-data: ', data)
-    socket.broadcast.emit('onObjectModified', data)
-    //console.clear()
-  });
-  socket.on('onObjectRemoved', (data) => {
-    console.log('onObjectRemoved-canvas-data: ', data)
-    socket.broadcast.emit('onObjectRemoved', data)
-    //console.clear()
-  });
+  
 
   socket.on('disconnect', () => {
-    
+    //console.log(socket)
     const p_user = user_Disconnect(socket.id);
     //console.log(`user (${p_user.username}) disconnecting`);
     if (p_user) {
