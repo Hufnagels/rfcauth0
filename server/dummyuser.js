@@ -12,7 +12,8 @@ console.log("user out: ", c_users);
 
 function filterUserAndRoom(username,roomname) {
   return c_users = c_users.filter(function( obj ) {
-    return (obj.username !== username) && (obj.roomname !== roomname || obj.roomname == 'undefined');
+    //return (obj.username !== username) && (obj.roomname !== roomname || obj.roomname == 'undefined');
+    return (obj.roomname !== 'undefined' || !(obj.username == username) && (obj.roomname == roomname));
   });
 };
 
@@ -27,6 +28,7 @@ function user_Disconnect(id) {
   if (index !== -1) {
     return c_users.splice(index, 1)[0];
   }
+
 }
 
 module.exports = {

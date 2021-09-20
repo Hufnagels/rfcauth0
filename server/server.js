@@ -53,7 +53,12 @@ io.on('connection', (socket) => {
       username: p_user.username,
       text: `${p_user.username} has joined the chat`,
     });
-
+    // socket.to("whiteboardRoom").emit('onObjectAdded', (data) => {
+    //   console.log('onObjectAdded-whiteboardRoom: ', data)
+    //   //socket.broadcast.emit('onObjectAdded', data)
+    //   //console.clear()
+    // });
+    
   });
 
   socket.on('join', ({username, roomname}) => {
@@ -67,7 +72,7 @@ io.on('connection', (socket) => {
   });
   socket.on('onObjectAdded', (data) => {
     console.log('onObjectAdded-canvas-data: ', data)
-    socket.broadcast.emit('onObjectAdded', data)
+    socket.to(data.roomname).emit('onObjectAdded', data);
     //console.clear()
   });
   socket.on('onObjectModified', (data) => {
@@ -77,7 +82,7 @@ io.on('connection', (socket) => {
   });
   socket.on('onObjectRemoved', (data) => {
     console.log('onObjectRemoved-canvas-data: ', data)
-    socket.broadcast.emit('onObjectModified', data)
+    socket.broadcast.emit('onObjectRemoved', data)
     //console.clear()
   });
 

@@ -39,7 +39,7 @@ import ContentWrapper from './ContentWrapper';
 
 //const theme = createTheme();
 const useStyles = makeStyles(theme => {
-  console.log(theme)
+// console.log(theme)
   return {
     root: {
       display: 'flex',
@@ -141,7 +141,7 @@ const AdminLayout = () => {
               //const Icon = icons[icon];
                 if(title){
                   ref.current= icon;
-                  console.log(ref.current)
+// console.log(ref.current)
                   
                   return (
                     <NavLink end className={classes.navlink} to={path} activeClassName={classes.active} key={`routeLink-${index}}`}>
