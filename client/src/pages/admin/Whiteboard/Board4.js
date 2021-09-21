@@ -1,43 +1,25 @@
-import React, { useEffect, useState, useRef, useLayoutEffect } from 'react'
-// import io from 'socket.io-client';
-// import PropTypes from 'prop-types'
+import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
+import { fabric } from 'fabric';
+import { v4 as uuid } from 'uuid';
 import { useAuth0 } from '@auth0/auth0-react';
-import useSocket from 'use-socket.io-client';
-import { fabric } from 'fabric'
-import { v4 as uuid } from 'uuid'
 
 //Material
 import { makeStyles } from '@mui/styles';
 import { styled, useTheme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
 
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import PrintIcon from '@mui/icons-material/Print';
 import ShareIcon from '@mui/icons-material/Share';
 
-// Custom
-import dataJson from "./src/data.json";
-
-// Toolbar imports
-// Material
-import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import TextField from '@mui/material/TextField';
-import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
-
-// Material icons
-import ViewListIcon from '@mui/icons-material/ViewList';
-import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import ViewQuiltIcon from '@mui/icons-material/ViewQuilt';
-import FormatColorFillIcon from '@mui/icons-material/FormatColorFill';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-
 import PhotoSizeSelectSmallIcon from '@mui/icons-material/PhotoSizeSelectSmall';
 import GestureOutlinedIcon from '@mui/icons-material/GestureOutlined';
 import CreateIcon from '@mui/icons-material/Create';
@@ -62,22 +44,26 @@ import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
 
 // custom
 import ToolbarWrapper from '../../../components/ToolbarWrapper';
-
-/* 
-function useWindowSize() {
-  const [size, setSize] = useState([0, 0]);
-  useLayoutEffect(() => {
-    function updateSize() {
-      setSize([window.innerWidth, window.innerHeight]);
-    }
-    window.addEventListener('resize', updateSize);
-    updateSize();
-    return () => window.removeEventListener('resize', updateSize);
-  }, []);
-  return size;
-} */
+import {
+  addDrawEmitter,
+  addObjectEmitter, 
+  modifyObjectEmitter, 
+  removeObjectEmitter,
+  addDrawListener,
+  addObjectListener, 
+  modifyObjectListener, 
+  removeObjectListener
+} from './socket';
+import {SocketContext, socket} from '../../../features/context/socketcontext';
 
 const useStyles = makeStyles((theme) => ({
+  mb:{
+    borderRadius:'0 !important',
+    width:'40px !important',
+    height:'40px !important',
+    minHeight:'40px !important',
+    minWidth:'40px !important',
+  },
   root: {
     background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
     border: 0,
@@ -119,42 +105,37 @@ const SketchWrapper = styled('div')(({ theme }) => ({
   height:'100%',
 }));
 
-let headers = new Headers();
-headers.append('Access-Control-Allow-Origin', `http://${window.location.hostname}:3000`)//'http://localhost:3000');
-headers.append('Access-Control-Allow-Credentials', 'true');
-
-const LabeledRect = fabric.util.createClass(fabric.Rect, {
-
-  type: 'labeledRect',
-  // initialize can be of type function(options) or function(property, options), like for text.
-  // no other signatures allowed.
-  initialize: function(options) {
-    options || (options = { });
-
-    this.callSuper('initialize', options);
-    this.set('label', options.label || '');
-  },
-
-  toObject: function() {
-    return fabric.util.object.extend(this.callSuper('toObject'), {
-      label: this.get('label')
-    });
-  },
-
-  _render: function(ctx) {
-    this.callSuper('_render', ctx);
-
-    ctx.font = '20px Helvetica';
-    ctx.fillStyle = '#333';
-    ctx.fillText(this.label, -this.width/2, -this.height/2 + 20);
-  }
-});
-
-const Board3 = () => {
+const Board4 = () => {
   const classes = useStyles();
+  const imgDown = React.useRef();
+  const canvasRef = React.useRef(null);
+  const toolsRef = React.useRef(null);
+  const colorsRef = React.useRef('#f6b73c');
+  const { user } = useAuth0();
+  const { name, picture, email } = user;
+  const [connection, setConnection] = useState({
+    username: name,
+    roomname: 'whiteboardRoom',
+    email:email,
+    socket: null, //socket,
+    socketid: null, //socket.id,
+  });
   //Toolbar section begin
   let currentMode;
-  const [tool, setTool] = useState(null);
+  let mousepressed = false;
+  //SpeedDial
+  // const [open, setOpen] = React.useState(false);
+  // const handleOpen = () => setOpen(true);
+  // const handleClose = () => setOpen(false);
+  // const actions = [
+  //   { icon: <FileCopyIcon />, name: 'Copy' , type: 'circle'},
+  //   { icon: <SaveIcon />, name: 'Save', type: 'triangle' },
+  //   { icon: <PrintIcon />, name: 'Print', type: 'rectangle' },
+  //   { icon: <ShareIcon />, name: 'Share', type: ''},
+  // ];
+  // ToggleButtonGroup
+  const [lineColor, setLineColor] = useState('#f6b73c')
+  const [tool, setTool] = React.useState(null);
   const handleChange = (event, nextView) => {
     event.preventDefault();
     console.log('handelchange', event)
@@ -183,288 +164,30 @@ const Board3 = () => {
   }
 
   // Toolbar section end
-  const imgDown = useRef();
-  const canvasRef = useRef(null);
-  const toolsRef = useRef(null);
-  const colorsRef = useRef('#f6b73c');
-  
-  const [socket] = useSocket(`http://${window.location.hostname}:4000`, {
-    withCredentials: true,
-    headers: headers
-  });
-  socket.connect();
-  const { user } = useAuth0();
-  const { name, picture, email } = user;
-  const [connection, setConnection] = useState({
-    username: name,
-    roomname: 'whiteboardRoom',
-    email:email,
-    socket: null, //socket,
-    socketid: null, //socket.id,
-  });
+  const [offset,setOffset] = React.useState(null);
+// console.log(offset)
+// console.log('canvasFn', canvas)
+  let origX, origY, drawingObject = null;  
 
-  // let sketchWrapper = null;
-  let mousepressed = false;
-
-  const [lineColor, setLineColor] = useState('#f6b73c')
-  const [lineWith, setLineWith] = useState(5)
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [sketcher, setSketcher] = useState({
-    lineWidth: 3,
-    lineColor: "#f6b73c",
-    fillColor: "#68CCCA",
-    backgroundColor: "transparent",
-    drawings: [],
-    canUndo: false,
-    canRedo: false,
-    shadowWidth: 0,
-    shadowOffset: 0,
-    tool: 'Tools.DefaultTool',
-    enableRemoveSelected: false,
-    fillWithColor: false,
-    fillWithBackgroundColor: false,
-    isDrawing: false,
-    text: "add text",
-    enableCopyPaste: true,
-
-    // controlledSize: false,
-    // sketchWidth: 600,
-    // sketchHeight: 600,
-    // stretched: true,
-    // stretchedX: false,
-    // stretchedY: false,
-    // originX: "left",
-    // originY: "top",
-    
-  });
-  const [canvasf, setCanvasf] = useState('');
-  const [canvasData, setCanvasData] = useState(dataJson)
+  const [canvas, setCanvas] = React.useState('');
 
   const getCanvasPosition = (el) => {
     var viewportOffset = el.getBoundingClientRect();
     // these are relative to the viewport, i.e. the window
     return {top:viewportOffset.top, left:viewportOffset.left}
   }
-  useEffect(()=>{
-    const sketchWrapper = document.getElementById('sketchWrapper');
-    let sketchWrapper_style = getComputedStyle(sketchWrapper);
-    initFabricCanvas();
 
-    const onResize = () => {
-      let width = parseInt(sketchWrapper_style.getPropertyValue('width'));
-      let height = parseInt(sketchWrapper_style.getPropertyValue('height'));
-      if(width !== 0 || height !== 0) {
-        canvasRef.current.setDimensions({
-          width: width, 
-          height:height
-        });
-        canvasRef.current.renderAll();
-        console.info('W-H: ', width, height)
-      }
-    }
-    window.addEventListener('resize', onResize, false);
-    onResize();
-    setCanvasf(canvasRef.current)
-    canvasFn(canvasRef.current);
-    
-    return () => {
-      window.removeEventListener("resize", onResize);
-    }
-  },[])
-
-  useEffect(() => {
-
-    socket.on('connect', () => {
-      setConnection({...connection, 
-        socket,
-        socketid: socket.id 
-      });
-    })
-    socket.emit('joinRoom', {username: connection.username, email: connection.email, roomname: connection.roomname})
-    socket.on('connection-message', (response) => {
-      console.log('connection-message: ', response)
-      setConnection({...connection, username: response.username});
-      setConnection({...connection, socketid: response.socketid});
-    })
-    //socket.off('onObjectAdded')
-    socket.on('onObjectAdded', response => {
-console.log('onObjectAdded: ', response)
-      const { username, email, roomname, data, id } = response;
-console.log(username, email, roomname, data, id)
-console.log(data.hasOwnProperty('id'), data.id)
-console.log(data.hasOwnProperty('owner'), data.owner)
-fabric.util.enlivenObjects([data], (objects) => {
-  objects.forEach(function(o) {
-    canvasRef.current.add(o);
-  });
+  const initCanvas = () =>
+    new fabric.Canvas('canvas', {
+      isDrawingMode: false,
+      lineWidth: 5,
+      freeDrawingBrush:{
+        color:colorsRef.current,
+        width: 5
+      },
+      backgroundColor: 'white'
+  })
   
-  canvasRef.current.renderAll();
-})
-return
-      if((data.hasOwnProperty('id') && data.id !== '') && (data.owner !== connection.email)){
-        
-        
-        switch (typeof data){
-          case 'string':
-            displaySocketDataFromJSONString(data, canvasRef.current);
-            break;
-          case 'object':
-            displaySocketDataFromJSONString(JSON.stringify(data), canvasRef.current);
-            break;
-          default:
-            break;
-        }
-        
-        // var canvasString = "{\"objects\":[";
-        // canvasString += JSON.stringify(data);
-        // canvasString += "], \"background\":\"\"}";
-        // var tmpCanvas = new fabric.Canvas();
-        // tmpCanvas.loadFromJSON(canvasString);
-        // for(var k in tmpCanvas.getObjects()) {
-        //   canvasRef.current.add(tmpCanvas._objects[k]);
-        // }
-      }
-      canvasRef.current.renderAll();
-console.log(canvasRef.current.toDatalessJSON)
-
-    })
-
-    socket.on('onObjectModified', (response) => {
-      console.log('onObjectModified: ', response)
-      const { username, roomname, data, id } = response;
-      console.log(username, roomname, data, id)
-      if(typeof data === 'undefined' || data === '') return
-      canvasRef.current.getObjects().forEach(object => {
-        if (object.id === id) {
-          object.set(data)
-          object.setCoords()
-          canvasRef.current.renderAll()
-        }
-      })
-      // canvasRef.current.render()
-      //console.log(canvasRef.current)
-    })
-    socket.on('onObjectRemoved', (response) => {
-      console.log('onObjectRemoved: ', response)
-      const { username, email, roomname, /* data, */ id } = response;
-      console.log(username, email, roomname, id)
-      if(typeof id === 'undefined' || id === '') return
-      canvasRef.current.getObjects().forEach(object => {
-        if (object.id === id) {
-          canvasRef.current.remove(object)
-          canvasRef.current.renderAll()
-        }
-      })
-      // canvasRef.current.render()
-      console.log(canvasRef.current)
-    })
-    socket.on('onPathCreated', (response) => {
-      console.log('onPathCreated: ', response)
-      const { username, email, roomname, data, id } = response;
-      console.log(username, email, roomname, id)
-      if(typeof id === 'undefined' || id === '') return
-      displaySocketDataFromJSONString(data, canvasRef.current);
-      // fabric.loadSVGFromString(data, function(objects, options) {
-      //   var obj = fabric.util.groupSVGElements(objects, options);
-      //   canvasRef.current.add(obj).centerObject(obj).renderAll();
-      //   obj.setCoords();
-      //   obj.id = id;
-      //   obj.owner = email;
-      // });
-    })
-    
-    return () => {
-      socket.off();
-    }
-  },[socket])
-
-  useEffect(() => {
-    if (canvasf) {
-      canvasf.on('path:created', function(e){
-console.info('path:created')
-console.info(e)
-console.log(JSON.stringify(e.path))
-e.path.id = uuid();
-e.path.owner = connection.email;
-// console.info(e)
-// console.log(e.path.toSVG())
-        socket.emit('onPathCreated', {
-          username: connection.username,
-          email: connection.email,
-          roomname: connection.roomname, 
-          data: JSON.stringify(e.path), // e.path.toSVG(), // JSON.stringify(e),
-          id: e.path.id,
-        })
-      })
-
-      canvasf.on('object:added', function(e){
-console.info('object:added')
-// console.log(e)
-// console.log(e.target)
-console.info(e.target.id, e.target.owner)
-// console.log(e.target.hasOwnProperty('id'), e.target.id)
-// console.log(e.target.hasOwnProperty('owner'), e.target.owner)
-// console.log(e.target.hasOwnProperty('type'), e.target.type)
-// console.log(JSON.stringify(e))
-// console.log(e.target.toJSON([]))
-// console.log(JSON.stringify(e.target.toJSON()))
-// console.log(e.target.toDatalessJSON())
-console.log(e.target.toObject())
-// var c = this.toJSON();
-// this.clear();
-// this.loadFromJSON(c);
-this.requestRenderAll();
-return
-        if((e.target.hasOwnProperty('id') && e.target.id !== '') && (e.target.hasOwnProperty('owner') && e.target.owner == connection.email)){
-          socket.emit('onObjectAdded', {
-            username: connection.username,
-            email: connection.email,
-            roomname: connection.roomname, 
-            data: e.target.toObject(),//JSON.stringify(e.target), //e.target.toJSON([]), //e.target, //JSON.stringify(e.target),
-            id: e.target.id,
-          })
-        }
-      })
-
-      canvasf.on('object:modified', function(e){
-console.info('object:modified')
-console.log(e.target)
-console.info(e.target.id)
-        if(!e.target.hasOwnProperty('id') || e.target.id === '') return
-        socket.emit('onObjectModified', {
-          username: connection.username, 
-          roomname: connection.roomname, 
-          data: e.target, //JSON.stringify(e.target), //e.target, // JSON.stringify(e.target),
-          id: e.target.id,
-        })
-      })
-
-      canvasf.on('object:removed', function(e){
-console.info('object:removed')
-console.info(e.target.id)
-return
-        if(!e.target.hasOwnProperty('id') || e.target.id === '') return
-        socket.emit('onObjectRemoved', {
-          username: connection.username, 
-          email: connection.email,
-          roomname: connection.roomname, 
-          //data: e.target, //JSON.stringify(e.target),
-          id: e.target.id,
-        })
-      })
-
-      // canvasf.on('selection:created', function(e){
-      //   console.info('selection:created')
-      //   console.info(e)
-      // })
-
-      // canvasf.on('after:render', function(e){
-      //   console.info('after:render')
-      //   console.info(e)
-      // })
-    }
-  },[canvasf])
-
   const initFabricCanvas = () => {
     canvasRef.current = new fabric.Canvas('canvas',{
       isDrawingMode: false,
@@ -474,6 +197,9 @@ return
         width: 5
       }
     });
+
+    canvasRef.current.selectionColor = 'rgba(0,255,0,0.3)';
+    //setOffset(getCanvasPosition(document.getElementById('canvas')))
     // fabric.Object.prototype.transparentCorners = true;
     // fabric.Object.prototype.cornerColor = 'red';
     // fabric.Object.prototype.cornerStyle = 'rectangle';
@@ -482,7 +208,13 @@ return
       return function () {
           return fabric.util.object.extend(toObject.call(this), {
               id: this.id,
-              owner:this.owner
+              owner:this.owner,
+              //circle
+              radius: this.radius,
+              //text
+              text: this.text,
+              textAlign: this.textAlign,
+
           });
       };
     })(fabric.Object.prototype.toObject);
@@ -491,7 +223,7 @@ return
       type        : 'custom-itext',
       initialize  : function(element, options) {
           this.callSuper('initialize', element, options);
-          options && this.set('textID', options.textID);
+          options && this.set('id', options.id);
       },
       toObject: function() {
           return fabric.util.object.extend(this.callSuper('toObject'), {
@@ -499,7 +231,8 @@ return
             owner:this.owner
           });
       }
-    });    
+    });
+
     fabric.CustomIText.fromObject = function(object) {
         return new fabric.CustomIText(object.text, object);
     };
@@ -543,12 +276,206 @@ return
     img.src = deleteIcon;
   }
 
+  const initSocketConnection = () => {
+    socket.emit('joinRoom', {
+      username: name, 
+      email: email, 
+      roomname: connection.roomname
+    })
+  }
+
+  const updateFreeDrawingBrush = () => {
+    canvasRef.current.freeDrawingBrush.color = colorsRef.current;
+    canvasRef.current.freeDrawingBrush.width = 5;
+  }
+
+  useEffect(() => {
+    const sketchWrapper = document.getElementById('sketchWrapper');
+    let sketchWrapper_style = getComputedStyle(sketchWrapper);
+    //setCanvas(canvasRef.current);
+    initFabricCanvas();
+    initSocketConnection();
+    canvasFn(canvasRef.current)
+    const onResize = () => {
+      let width = parseInt(sketchWrapper_style.getPropertyValue('width'));
+      let height = parseInt(sketchWrapper_style.getPropertyValue('height'));
+      if(width !== 0 || height !== 0) {
+        canvasRef.current.setDimensions({
+          width: width, 
+          height:height
+        });
+        canvasRef.current.renderAll();
+        console.info('W-H: ', width, height)
+      }
+    }
+    window.addEventListener('resize', onResize, false);
+    onResize();
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+    }
+  }, []);
+
+  useEffect(() => {
+      if (canvasRef.current) {
+
+        canvasRef.current.on('path:created', function(e){
+          if (e.path) {
+            console.info('path:created')
+            console.info(e)
+            console.log(JSON.stringify(e.path))
+            e.path.id = uuid();
+            e.path.owner = connection.email;
+            const modifiedObj = {
+              obj: JSON.stringify(e.path),
+              id: e.path.id,
+              username: connection.username,
+              email: connection.email,
+              roomname: connection.roomname, 
+            }
+            addDrawEmitter(modifiedObj)
+          }
+        })
+
+        canvasRef.current.on('object:modified', function (options) {
+          if (options.target) {
+            const modifiedObj = {
+              obj: options.target,
+              id: options.target.id,
+              username: connection.username,
+              email: connection.email,
+              roomname: connection.roomname, 
+            }
+            modifyObjectEmitter(modifiedObj)
+          }
+        })
+
+        canvasRef.current.on('object:moving', function (options) {
+          if (options.target) {
+            const modifiedObj = {
+              obj: options.target,
+              id: options.target.id,
+              username: connection.username,
+              email: connection.email,
+              roomname: connection.roomname, 
+            }
+            modifyObjectEmitter(modifiedObj)
+          }
+        })
+
+        canvasRef.current.on('object:removed', function (options) {
+          if (options.target) {
+            const removedObj = {
+              obj: options.target,
+              id: options.target.id,
+              username: connection.username,
+              email: connection.email,
+              roomname: connection.roomname, 
+            }
+            removeObjectEmitter(removedObj)
+          }
+        })
+
+        canvasRef.current.on('object:added', function(options){
+          // if (options.target) {
+          //   const modifiedObj = {
+          //     obj: options.target,
+          //     id: options.target.id,
+          //     username: connection.username,
+          //     email: connection.email,
+          //     roomname: connection.roomname, 
+          //   }
+          //   addObjectEmitter(modifiedObj)
+          // }
+          
+        })
+        /* canvasRef.current.on('mouse:wheel', function(e) {
+          const event = e.e;
+          const delta = event.deltaY;
+          var zoom = canvasRef.current.getZoom();
+          zoom *= 0.999 ** delta;
+          if (zoom > 20) zoom = 20;
+          if (zoom < 0.01) zoom = 0.01;
+          canvasRef.current.zoomToPoint({ x: event.offsetX, y: event.offsetY }, zoom);
+          event.preventDefault();
+          event.stopPropagation();
+        }); */
+
+        addDrawListener(canvasRef.current)
+        addObjectListener(canvasRef.current)
+        modifyObjectListener(canvasRef.current)
+        removeObjectListener(canvasRef.current)
+      }
+  },[canvasRef.current])
+
+  const addShape = (e) => {
+    let type = e.target.name;
+    let object
+    /* 
+    // Speeddial
+    console.log(e.target.nodeName, e)
+    if (e.target.parentNode.nodeName === 'BUTTON')
+      type = e.target.parentNode.getAttribute('name')
+    else if (e.target.parentNode.nodeName === 'DIV')
+      type = e.target.getAttribute('name')
+    else if (e.target.nodeName === 'path')
+      type = e.target.parentNode.parentNode.getAttribute('name')
+    //console.log(e.target.parentNode.nodeName)
+    console.log(type)
+    // return 
+    */
+    if (type === 'rectangle') {
+      object = new fabric.Rect({
+        height: 75,
+        width: 150,
+        stroke: colorsRef.current,
+        strokeWidth: 5,
+        fill: 'transparent',
+        transparentCorners: false,
+        globalCompositeOperation: "source-over",
+        clipTo: null,
+      });
+
+    } else if (type === 'triangle') {
+      object = new fabric.Triangle({
+        width: 100,
+        height: 100,
+        stroke: colorsRef.current,
+        strokeWidth: 5,
+        fill: 'transparent',
+        transparentCorners: false,
+        globalCompositeOperation: "source-over",
+        clipTo: null,
+      })
+
+    } else if (type === 'circle') {
+      object = new fabric.Circle({
+        radius: 50,
+        stroke: colorsRef.current,
+        strokeWidth: 5,
+        fill: colorsRef.current,
+      })
+    }
+
+    object.set({id: uuid()})
+    object.set({owner: connection.email})
+    canvasRef.current.add(object)
+    canvasRef.current.renderAll()
+    addObjectEmitter({
+      obj: object, 
+      id: object.id,
+      username: connection.username,
+      email: connection.email,
+      roomname: connection.roomname, 
+    })
+
+  };
+
   const canvasFn = (canvas) => {
     const offset = getCanvasPosition(document.getElementById('canvas'));
 // console.log(offset)
 // console.log('canvasFn', canvas)
     let origX, origY, drawingObject = null;
-    canvas.selectionColor = 'rgba(0,255,0,0.3)';
     
     //loadJSONData(canvas, canvasData);
 
@@ -801,7 +728,7 @@ canvas.selection=false;
       if(drawingObject !== null ) {
         drawingObject.owner = connection.email;
 console.log('mouse up drawinObject')
-const obj = drawingObject.toObject()
+/* const obj = drawingObject.toObject()
 //obj.set({id:uuid()})
 console.log(obj)
 console.log('remove drawingobject')
@@ -820,7 +747,16 @@ fabric.util.enlivenObjects(elements, function(objects) {
 //console.log(drawingObject)
           //canvas.remove(drawingObject);
           //dropObject(drawingObject, canvas)//, 'drawingObject.id', 'drawingObject.awtype')
+         }*/
+        const modifiedObj = {
+          obj: drawingObject,
+          id: drawingObject.id,
+          username: connection.username,
+          email: connection.email,
+          roomname: connection.roomname, 
         }
+        //canvas.remove(drawingObject);
+        addObjectEmitter(modifiedObj)
         drawingObject = null;
         canvas.selection = true;
 console.log(canvas.getObjects())
@@ -870,40 +806,55 @@ console.log(canvas.getObjects())
     }
   }
 
-  const loadJSONData = (canvas, canvasData) => {
-    canvas.loadFromJSON(canvasData, () => {
-      // console.info('loadFromJSON canvasData')
-      // console.info(canvasData)
-      canvas.renderAll();
-    })
-  }
-
-  const updateFreeDrawingBrush = () => {
-    canvasRef.current.freeDrawingBrush.color = colorsRef.current;
-    canvasRef.current.freeDrawingBrush.width = 5;
-  }
-
-  const displaySocketDataFromJSONString = (data, canvasS) => {
-    var canvasString = "{\"objects\":[";
-    canvasString += data;
-    canvasString += "], \"background\":\"\"}";
-    var tmpCanvas = new fabric.Canvas();
-    tmpCanvas.loadFromJSON(canvasString);
-    for(var k in tmpCanvas.getObjects()) {
-      canvasS.add(tmpCanvas._objects[k]);
-    }
-    tmpCanvas = null;
-    canvasS.renderAll();
-  }
-
   return (
-    <React.Fragment>
-      <a ref={imgDown} hidden href="" />
-      <SketchWrapper id="sketchWrapper">
-        <canvas id="canvas" ref={canvasRef} className={classes.board} ></canvas>
-      </SketchWrapper>
-      <ToolbarWrapper>
-      <Box
+      <React.Fragment>
+        <a ref={imgDown} hidden href="" />
+        <SketchWrapper id="sketchWrapper">
+          <canvas id="canvas" ref={canvasRef} className={classes.board} ></canvas>
+        </SketchWrapper>
+        <ToolbarWrapper>
+          <Box
+            component="form"
+            sx={{
+              marginBottom:1,
+              '& .MuiTextField-root': { m: 0, width: '5.3ch',minHeight:40, },
+            }}
+            noValidate
+            autoComplete="off"
+            style={{display: 'flex',
+              flexDirection: 'column',
+              flexWrap: 'nowrap',
+              alignContent: 'flex-start',
+              alignItems: 'stretch',
+              justifyContent: 'center',
+            }}
+          >
+            <button type='button' name='circle' onClick={addShape}>Circ</button>
+            <button type='button' name='triangle' onClick={addShape}>Tria</button>
+            <button type='button' name='rectangle' onClick={addShape}>Rect</button>
+          </Box>
+          {/* <Box sx={{ height: 70, transform: 'translateZ(0px)', flexGrow: 1, position:'relative', }}>
+            <SpeedDial
+              ariaLabel="SpeedDial uncontrolled open example"
+              sx={{ position: 'absolute', bottom: 16, right: 16, }}
+              icon={<AddOutlinedIcon size='large' />}
+              onClose={handleClose}
+              onOpen={handleOpen}
+              open={open}
+              direction='left'
+            >
+              {actions.map((action) => (
+                <SpeedDialAction
+                  key={action.name}
+                  icon={action.icon}
+                  tooltipTitle={action.type}
+                  onClick={addShape}
+                  name={action.type}
+                />
+              ))}
+            </SpeedDial>
+          </Box> */}
+          <Box
           component="form"
           sx={{
             marginBottom:1,
@@ -967,9 +918,9 @@ console.log(canvas.getObjects())
           </ToggleButton>
           
         </ToggleButtonGroup>
-      </ToolbarWrapper>
-    </React.Fragment>
-  )
+        </ToolbarWrapper>
+      </React.Fragment>
+  );
 }
 
-export default Board3
+export default Board4;

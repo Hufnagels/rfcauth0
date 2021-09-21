@@ -2,48 +2,48 @@ import { createTheme } from '@mui/material/styles';
 import { green, purple } from '@mui/material/colors';
 
 const theme = createTheme({
-   typography: {
-      fontFamily: [
-        'Roboto',
-        'sans-serif',
-      ].join(','),
-   },
-   palette: {
-      common:{
-         black:'#000',
-         white:'#fff',
-         backdrop:'rgba(0, 30, 60, 0.67)',
-      },
-      background:{
-         paper:'#fff',
-         default:'#fafafa',
-         active: '#cccccc',
-      },
-      primary:{
-         light:'#59b9d3',
-         main:'#378daf',
-         dark:'#285c7b',
-         contrastText:'#fff',
-      },
-      secondary:{
-         light:'#ff4081',
-         main:'#f50057',
-         dark:'#c51162',
-         contrastText:'#fff',
-      },
-      error:{
-         light:'#e57373',
-         main:'#f44336',
-         dark:'#d32f2f',
-         contrastText:'#fff',
-      },
-      text:{
-         primary:'rgba(0, 0, 0, 0.87)',
-         secondary:'rgba(0, 0, 0, 0.54)',
-         disabled:'rgba(0, 0, 0, 0.38)',
-         hint:'rgba(0, 0, 0, 0.38)',
-         nav:'rgba(128, 28, 122, 0.38)',
-      },
+  typography: {
+    fontFamily: [
+      'Roboto',
+      'sans-serif',
+    ].join(','),
+  },
+  palette: {
+    common:{
+      black:'#000',
+      white:'#fff',
+      backdrop:'rgba(0, 30, 60, 0.67)',
+    },
+    background:{
+      paper:'#fff',
+      default:'#fafafa',
+      active: '#cccccc',
+    },
+    primary:{
+      light:'#59b9d3',
+      main:'#378daf',
+      dark:'#285c7b',
+      contrastText:'#fff',
+    },
+    secondary:{
+      light:'#ff4081',
+      main:'#f50057',
+      dark:'#c51162',
+      contrastText:'#fff',
+    },
+    error:{
+      light:'#e57373',
+      main:'#f44336',
+      dark:'#d32f2f',
+      contrastText:'#fff',
+    },
+    text:{
+      primary:'rgba(0, 0, 0, 0.87)',
+      secondary:'rgba(0, 0, 0, 0.54)',
+      disabled:'rgba(0, 0, 0, 0.38)',
+      hint:'rgba(0, 0, 0, 0.38)',
+      nav:'rgba(128, 28, 122, 0.38)',
+    },
     // Used by `getContrastText()` to maximize the contrast between
     // the background and the text.
     contrastThreshold: 3,
@@ -52,16 +52,31 @@ const theme = createTheme({
     // E.g., shift from Red 500 to Red 300 or Red 700.
     tonalOffset: 0.2,
     components : {
+      MuiButtonBase: {
+        root: {
+          // Some CSS
+          borderRadius: 0,
+        },
+        styleOverrides: {
+          // Name of the slot
+          root: {
+            // Some CSS
+            borderRadius: 0,
+          },
+        },
+      },
       MuiAppBar: {
-         defaultProps: {
-           enableColorOnDark: true,
-         },
+        defaultProps: {
+          enableColorOnDark: true,
+        },
       },
       body: {
-         margin:0,
-         padding:0,
+        margin:0,
+        padding:0,
       },
     }
+  },
+  overrides: {
   },
 });
 

@@ -1,18 +1,21 @@
-import React from 'react'
-import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
+import * as React from 'react'
+import { withAuthenticationRequired } from "@auth0/auth0-react";
 
 // custom
 import Wrapper from '../../../components/Wrapper';
-import WBToolbar from './WBToolbar';
-import Board3 from './Board3';
+//import WBToolbar from './WBToolbar';
+import Board4 from './Board4';
 import RestrictedArea from '../../../components/RestrictedArea';
+import {SocketContext, socket} from '../../../features/context/socketcontext';
 
 const Whiteboard = () => {
   return (
-    <Wrapper>
-      {/* <WBToolbar /> */}
-      <Board3 />
-    </Wrapper>
+    <SocketContext.Provider value={socket}>
+      <Wrapper>
+        {/* <WBToolbar /> */}
+        <Board4 />
+      </Wrapper>
+    </SocketContext.Provider>
   )
 }
 

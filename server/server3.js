@@ -5,7 +5,7 @@ const cors = require("cors");
 const color = require("colors");
 
 const { get_Current_User, user_Disconnect, join_User } = require("./dummyuser");
-const router = require('./router')
+const router = require('./server3-router')
 const port = process.env.SERVER_PORT || 4000;
 
 app.use(express());
@@ -27,7 +27,6 @@ io = socket(server, {
 });
 
 io.on('connection', (socket) => {
-  
   
   socket.on("joinRoom", ({ username, email, roomname }) => {
     

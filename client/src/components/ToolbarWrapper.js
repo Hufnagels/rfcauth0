@@ -21,7 +21,7 @@ const ToolBarWrapper = styled('div')(({ theme }) => ({
 const ToolbarWrapper = ({children}) => {
   return (
     <ToolBarWrapper>
-      <Box sx={{ height: 330, transform: 'translateZ(0px)', flexGrow: 1 }}>
+      <Box sx={{ height: 'auto', transform: 'translateZ(0px)', flexGrow: 1 }}>
         <Paper elevation={3}>
           {children}
         </Paper>

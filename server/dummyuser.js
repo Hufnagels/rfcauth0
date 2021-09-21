@@ -2,7 +2,7 @@ let c_users = [];
 
 function join_User(id, username, email, roomname) {
   const p_user = { id, username, email, roomname};
-  filterUserAndRoom(username, email, roomname)
+  filterUserAndRoom(id, username, email, roomname)
   c_users.push(p_user);
   console.log('users: ', c_users)
   return p_user;
@@ -10,10 +10,12 @@ function join_User(id, username, email, roomname) {
 
 console.log("user out: ", c_users);
 
-function filterUserAndRoom(username, email, roomname) {
+function filterUserAndRoom(id, username, email, roomname) {
   return c_users = c_users.filter(function( obj ) {
+    
     //return (obj.username !== username) && (obj.roomname !== roomname || obj.roomname == 'undefined');
-    return (obj.roomname !== 'undefined' || !((obj.username == username) && (obj.roomname == roomname) && (obj.email == email)));
+    //return (obj.roomname !== 'undefined' || !((obj.username == username) && (obj.roomname == roomname) && (obj.email == email)));
+    return !(obj.username === username && obj.email === email && obj.roomname === roomname)
   });
 };
 
