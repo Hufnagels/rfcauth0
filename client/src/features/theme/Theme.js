@@ -20,9 +20,9 @@ const theme = createTheme({
       active: '#cccccc',
     },
     primary:{
-      light:'#59b9d3',
-      main:'#378daf',
-      dark:'#285c7b',
+      light:'#ff4081',
+      main:'#f50057',
+      dark:'#c51162',
       contrastText:'#fff',
     },
     secondary:{
@@ -52,31 +52,73 @@ const theme = createTheme({
     // E.g., shift from Red 500 to Red 300 or Red 700.
     tonalOffset: 0.2,
     components : {
-      MuiButtonBase: {
-        root: {
-          // Some CSS
-          borderRadius: 0,
-        },
-        styleOverrides: {
-          // Name of the slot
-          root: {
-            // Some CSS
-            borderRadius: 0,
-          },
-        },
-      },
-      MuiAppBar: {
-        defaultProps: {
-          enableColorOnDark: true,
-        },
-      },
-      body: {
-        margin:0,
-        padding:0,
-      },
     }
   },
   overrides: {
+    body: {
+      margin:0,
+      padding:0,
+    },
+    MuiButtonBase: {
+      root: {
+        borderRadius: 0,
+      },
+      styleOverrides: {
+        root: {
+          borderRadius: 0,
+          '&selected':{
+            color: '#ff4081 !important'
+          } 
+        },
+      },
+    },
+    MuiToggleButtonGroup: {
+      root: {
+        '&selected':{
+          color: '#ff4081 !important'
+        } 
+      },
+      styleOverrides: {
+        // Name of the slot
+        root: {
+          // Some CSS
+          borderRadius: 0,
+          '&selected':{
+            color: '#ff4081 !important'
+          } 
+        },
+      },
+    },
+    MuiToggleButton: {
+      root: {
+        '&Mui-selected':{
+          color: '#ff4081 !important'
+        } 
+      },
+      styleOverrides: {
+        // Name of the slot
+        root: {
+          // Some CSS
+          borderRadius: 0,
+          '&selected':{
+            color: '#ff4081 !important'
+          } 
+        },
+      },
+    },
+    MuiAppBar: {
+      defaultProps: {
+        enableColorOnDark: true,
+      },
+      root: {
+        backgroundColor: '#f50057',
+        "@media (max-width: 900px)": {
+          paddingLeft: 0,
+        },
+      }
+    },
+    
+    
   },
 });
 

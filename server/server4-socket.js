@@ -3,7 +3,7 @@ const color = require("colors");
 
 module.exports = (io) => {  
   io.on('connection', socket => {
-   socket.on("joinRoom", ({ username, email, roomname }) => {
+   socket.on("joinWhiteboardRoom", ({ username, email, roomname }) => {
     
       //* create user
       const p_user = join_User(socket.id, username, email, roomname);

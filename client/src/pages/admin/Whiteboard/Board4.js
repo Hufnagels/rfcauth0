@@ -57,13 +57,6 @@ import {
 import {SocketContext, socket} from '../../../features/context/socketcontext';
 
 const useStyles = makeStyles((theme) => ({
-  mb:{
-    borderRadius:'0 !important',
-    width:'40px !important',
-    height:'40px !important',
-    minHeight:'40px !important',
-    minWidth:'40px !important',
-  },
   root: {
     background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
     border: 0,
@@ -77,6 +70,9 @@ const useStyles = makeStyles((theme) => ({
     left:0,
     right:0,
     bottom:0,
+    '&selected':{
+      color: '#ff4081 !important'
+    }
   },
   board: {
     width:'100%',
@@ -146,6 +142,8 @@ const Board4 = () => {
     }
     canvasRef.current.isDrawingMode = (toolsRef.current === drawingMode.pencil) ? true : false;
     canvasRef.current.selection = (toolsRef.current === drawingMode.pan || toolsRef.current === drawingMode.select) ? true : false;
+    console.log('selection')
+    console.log(canvasRef.current.selection)
     if (nextView === drawingMode.pencil) {
       updateFreeDrawingBrush();
     }
@@ -277,7 +275,7 @@ const Board4 = () => {
   }
 
   const initSocketConnection = () => {
-    socket.emit('joinRoom', {
+    socket.emit('joinWhiteboardRoom', {
       username: name, 
       email: email, 
       roomname: connection.roomname
@@ -321,9 +319,10 @@ const Board4 = () => {
 
         canvasRef.current.on('path:created', function(e){
           if (e.path) {
-            console.info('path:created')
-            console.info(e)
-            console.log(JSON.stringify(e.path))
+            if(e.path.owner === connection.email) return
+// console.info('path:created')
+// console.info(e)
+// console.log(JSON.stringify(e.path))
             e.path.id = uuid();
             e.path.owner = connection.email;
             const modifiedObj = {
@@ -351,6 +350,10 @@ const Board4 = () => {
         })
 
         canvasRef.current.on('object:moving', function (options) {
+console.log('object:moving')
+console.log(options.target)
+console.log(options.target.getBoundingRect())
+
           if (options.target) {
             const modifiedObj = {
               obj: options.target,
@@ -377,6 +380,9 @@ const Board4 = () => {
         })
 
         canvasRef.current.on('object:added', function(options){
+console.log('object:added')
+console.log(options.target)
+console.log(options.target.getBoundingRect())
           // if (options.target) {
           //   const modifiedObj = {
           //     obj: options.target,
@@ -389,17 +395,6 @@ const Board4 = () => {
           // }
           
         })
-        /* canvasRef.current.on('mouse:wheel', function(e) {
-          const event = e.e;
-          const delta = event.deltaY;
-          var zoom = canvasRef.current.getZoom();
-          zoom *= 0.999 ** delta;
-          if (zoom > 20) zoom = 20;
-          if (zoom < 0.01) zoom = 0.01;
-          canvasRef.current.zoomToPoint({ x: event.offsetX, y: event.offsetY }, zoom);
-          event.preventDefault();
-          event.stopPropagation();
-        }); */
 
         addDrawListener(canvasRef.current)
         addObjectListener(canvasRef.current)
@@ -461,6 +456,7 @@ const Board4 = () => {
     object.set({owner: connection.email})
     canvasRef.current.add(object)
     canvasRef.current.renderAll()
+    //canvasRef.current.selection = true;
     addObjectEmitter({
       obj: object, 
       id: object.id,
@@ -481,8 +477,7 @@ const Board4 = () => {
 
     canvas.on('mouse:move', function(e) {
       const event = e.e;
-      canvas.selection=false;
-      if(mousepressed) console.info('mouse:move toolsRef',toolsRef.current)
+      //if(mousepressed) console.info('mouse:move toolsRef',toolsRef.current)
       //Pan
       //if (mousepressed && toolsRef.current == drawingMode.pan && this.isDragging) {
       switch (toolsRef.current) {
@@ -556,7 +551,8 @@ console.info('begin pan')
       const event = e.e;
       mousepressed = true;
 console.info('mouse:down event',e)
-canvas.selection=false;
+console.log('selection')
+console.log(canvasRef.current.selection)
       if (event.altKey === true ) {
         this.setCursor('grab')
         canvasRef.current.selection = false;
@@ -582,41 +578,13 @@ canvas.selection=false;
             strokeWidth: 5,
             fill: colorsRef.current,
             stroke: colorsRef.current,
-            originX: 'center',
-            originY: 'center'
+            // originX: 'center',
+            // originY: 'center'
           });
-          drawingObject.set({id: uuid()})
-          drawingObject.owner = connection.email;
-          drawingObject.set({owner: connection.email})
+          drawingObject.set({id: uuid(), owner: connection.email})
           canvas.add(drawingObject);
           break;
         case drawingMode.rect:
-          if (e.target !== null) return
-          //canvas.selection = false;
-          var pointer = canvas.getPointer(event.e);
-          origX = pointer.x;
-          origY = pointer.y;
-          var pointer = canvas.getPointer(event.e);
-          drawingObject = new fabric.Rect({
-            left: origX,
-            top: origY,
-            width: pointer.x-origX,
-            height: pointer.y-origY,
-            angle: 0,
-            //selectable:false,
-            //hasBorders: true,
-            stroke: colorsRef.current,
-            strokeWidth: 5,
-            fill: 'transparent',
-            transparentCorners: false,
-            globalCompositeOperation: "source-over",
-            clipTo: null,
-          });
-          drawingObject.set({id: uuid()})
-          drawingObject.owner = connection.email;
-          drawingObject.set({owner: connection.email})
-          canvas.add(drawingObject);
-          break;
         case drawingMode.fillrect:
           if (e.target !== null) return
           //canvas.selection = false;
@@ -632,40 +600,15 @@ canvas.selection=false;
             //selectable:true,
             stroke: colorsRef.current,
             strokeWidth: 5,
-            fill: colorsRef.current,
+            fill: toolsRef.current === drawingMode.fillrect ? colorsRef.current : 'transparent',
             transparentCorners: false,
             globalCompositeOperation: "source-over",
             clipTo: null,
           });
-          drawingObject.id = uuid();
-          drawingObject.owner = connection.email;
-          drawingObject.set({id: uuid()})
-          drawingObject.set({owner: connection.email})
+          drawingObject.set({id: uuid(), owner: connection.email})
           canvas.add(drawingObject);
           break;
         case drawingMode.circle:
-          if (e.target !== null) return
-          //canvas.selection = false;
-          var pointer = canvas.getPointer(event);
-          origX = pointer.x;
-          origY = pointer.y;
-          drawingObject = new fabric.Circle({
-            left: origX,
-            top: origY,
-            radius: pointer.x-origX,
-            angle: 0,
-            fill: '',
-            stroke: colorsRef.current,
-            strokeWidth: 5,
-            globalCompositeOperation: "source-over",
-            clipTo: null,
-          });
-          drawingObject.id = uuid();
-          drawingObject.owner = connection.email;
-          drawingObject.set({id: uuid()})
-          drawingObject.set({owner: connection.email})
-          canvas.add(drawingObject);
-          break;
         case drawingMode.fillcircle:
           if (e.target !== null) return
           //canvas.selection = false;
@@ -677,16 +620,13 @@ canvas.selection=false;
             top: origY,
             radius: pointer.x-origX,
             angle: 0,
-            fill: colorsRef.current,
+            fill: toolsRef.current === drawingMode.fillcircle ? colorsRef.current : 'transparent',
             stroke: colorsRef.current,
             strokeWidth: 5,
             globalCompositeOperation: "source-over",
             clipTo: null,
           });
-          drawingObject.id = uuid();
-          drawingObject.owner = connection.email;
-          drawingObject.set({id: uuid()})
-          drawingObject.set({owner: connection.email})
+          drawingObject.set({id: uuid(), owner: connection.email})
           canvas.add(drawingObject);
           break;
         case drawingMode.text:
@@ -708,10 +648,7 @@ canvas.selection=false;
               // backgroundColor
             },
           })
-          drawingObject.id = uuid();
-          drawingObject.owner = connection.email;
-          drawingObject.set({id: uuid()})
-          drawingObject.set({owner: connection.email})
+          drawingObject.set({id: uuid(), owner: connection.email})
           canvas.add(drawingObject);
           break;
         default:
@@ -723,31 +660,13 @@ canvas.selection=false;
       const event = e.e;
       mousepressed = false;
       this.isDragging = false;
-      //canvas.isDrawingMode = false;
+console.log('mouse:up')
+console.log(e.target)
       canvas.selection=true;
       if(drawingObject !== null ) {
         drawingObject.owner = connection.email;
 console.log('mouse up drawinObject')
-/* const obj = drawingObject.toObject()
-//obj.set({id:uuid()})
-console.log(obj)
-console.log('remove drawingobject')
-canvas.remove(drawingObject);
-console.log('add obj')
-var elements = []
-elements.push(obj);
-fabric.util.enlivenObjects(elements, function(objects) {
-  objects.forEach(function(o) {
-    canvas.add(o);
-  });
-  
-  canvas.renderAll();
-});
-        if(!(drawingObject instanceof fabric.IText) || !(drawingObject instanceof fabric.Circle)) {
-//console.log(drawingObject)
-          //canvas.remove(drawingObject);
-          //dropObject(drawingObject, canvas)//, 'drawingObject.id', 'drawingObject.awtype')
-         }*/
+
         const modifiedObj = {
           obj: drawingObject,
           id: drawingObject.id,
@@ -758,9 +677,10 @@ fabric.util.enlivenObjects(elements, function(objects) {
         //canvas.remove(drawingObject);
         addObjectEmitter(modifiedObj)
         drawingObject = null;
-        canvas.selection = true;
+        
 console.log(canvas.getObjects())
       }
+      canvasRef.current.selection = (toolsRef.current === drawingMode.pan || toolsRef.current === drawingMode.select) ? true : false;
       origX=null;
       origY=null;
       this.renderAll();//requestRenderAll()
@@ -898,7 +818,7 @@ console.log(canvas.getObjects())
           <ToggleButton value="Pencil" aria-label="Pencil">
             <GestureOutlinedIcon />
           </ToggleButton>
-          <ToggleButton value="Line" aria-label="Line">
+          <ToggleButton value="Line" aria-label="Line" disabled>
             <DriveFileRenameOutlineOutlinedIcon />
           </ToggleButton>
           <ToggleButton value="FilledRectangle" aria-label="FilledRectangle">

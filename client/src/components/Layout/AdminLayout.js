@@ -1,13 +1,12 @@
 import * as React from 'react';
 import {
   NavLink,
-  Outlet,
   useLocation
 } from 'react-router-dom';
 import { useAuth0 } from "@auth0/auth0-react";
 
 // Material
-import { styled, useTheme, createTheme } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import {
   Typography,
@@ -36,23 +35,33 @@ import MailIcon from '@mui/icons-material/Mail';
 import AuthenticationButton from '../Auth/Authenticationbutton';
 import routes from '../../features/routes/routes'
 import ContentWrapper from './ContentWrapper';
+import { palette } from '@mui/system';
 
 //const theme = createTheme();
-const useStyles = makeStyles(theme => {
+const useStyles = makeStyles((theme) => {
 // console.log(theme)
   return {
     root: {
       display: 'flex',
+      '& *:hover':{
+        color: theme.palette.primary.contrastText,
+        backgroundColor: theme.palette.primary.light,
+      }
     },
     navlink: {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'flex-start',
       textDecoration:'none',
+      color: theme.palette.text.primary,
+      '& > *:hover':{
+        color: theme.palette.primary.contrastText,
+        backgroundColor: theme.palette.primary.light,
+      }
     },
     active: {
-      color: '#e55cb3',
-      backgroundColor: '#90d6e3',
+      color: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette.primary.main,
     }
   }
   

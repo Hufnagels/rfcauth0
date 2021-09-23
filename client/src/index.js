@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => {
   
   return {
     root: {
-      color: theme.palette.primary.main,
+      color: theme.palette.secondary.main,
     }
   }
 });
@@ -36,8 +36,8 @@ const useStyles = makeStyles((theme) => {
 ReactDOM.render(
   <React.StrictMode>
     <StyledEngineProvider injectFirst>
-      <CssBaseline />
       <ThemeProvider theme={theme}>
+      <CssBaseline />
         <Provider store={store}>
           <Router>
             <Auth0ProviderWithHistory>
