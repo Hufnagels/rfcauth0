@@ -19,7 +19,7 @@ import PrintIcon from '@mui/icons-material/Print';
 import ShareIcon from '@mui/icons-material/Share';
 
 // Custom
-import dataJson from "./src/data.json";
+import dataJson from "../../pages/admin/Whiteboard/src/data.json";
 
 // Toolbar imports
 // Material
@@ -61,7 +61,7 @@ import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
 
 // custom
-import ToolbarWrapper from '../../../components/ToolbarWrapper';
+import ToolbarWrapper from '../../ToolbarWrapper';
 
 /* 
 function useWindowSize() {

@@ -9,9 +9,9 @@ headers.append('Access-Control-Allow-Credentials', 'true');
 export const socket = io.connect(SOCKET_URL, {
   'withCredentials': true,
   'headers': headers,
-  // 'reconnection': true,
-  // 'reconnectionDelay': 500,
-  // 'reconnectionAttempts': 10,
+  'reconnection': true,
+  'reconnectionDelay': 500,
+  'reconnectionAttempts': 10,
   // 'forceNew': true,
 });
 
@@ -24,7 +24,7 @@ socket.on('connect', () => {
 //   setConnection({...connection, username: response.username});
 //   setConnection({...connection, socketid: response.socketid});
 // })
-export const SocketContext = React.createContext();
+export const SocketContext = React.createContext(socket);
 
 // import { createContext, useState } from 'react';
 // import io from "socket.io-client";

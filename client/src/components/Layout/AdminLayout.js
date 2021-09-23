@@ -35,13 +35,13 @@ import MailIcon from '@mui/icons-material/Mail';
 import AuthenticationButton from '../Auth/Authenticationbutton';
 import routes from '../../features/routes/routes'
 import ContentWrapper from './ContentWrapper';
-import { palette } from '@mui/system';
 
 //const theme = createTheme();
 const useStyles = makeStyles((theme) => {
 // console.log(theme)
   return {
     root: {
+      zIndex:'100',
       display: 'flex',
       '& *:hover':{
         color: theme.palette.primary.contrastText,
@@ -105,7 +105,7 @@ const AdminLayout = () => {
 
   return (
     <div>
-      <AppBar position="fixed" id="appbar">
+      <AppBar position="fixed" id="appbar" className={classes.root}>
         <Toolbar>
           {/* <Button onClick={toggleDrawer('left', true)} color='secondary'>{'left'}</Button> */}
           <IconButton

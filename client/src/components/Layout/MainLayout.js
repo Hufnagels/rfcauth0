@@ -6,6 +6,7 @@ import {
 import PropTypes from 'prop-types';
 
 // Material
+import { green, purple } from '@mui/material/colors';
 import { styled, useTheme, createTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import {
@@ -153,14 +154,14 @@ const useStyles = makeStyles((theme) => ({
   },
   navlinkNavbar : {
     textDecoration:'none',
-    color: theme.palette.primary.light,
+    color: theme.palette.primary.link,
   },
   activeClassSidenav: {
-    color: '#e55cb3',
-    backgroundColor: '#90d6e3',
+    color: theme.palette.primary.dark,
+    //backgroundColor: '#90d6e3',
   },
   activeClassNavbar: {
-    color: '#ffeeee',
+    color: theme.palette.primary.contrastText,
     borderBottom: '1px solid #ffeeee',
   },
   toolbar: {
@@ -308,7 +309,7 @@ const MainLayout = (props) => {
     <React.Fragment>
       <CssBaseline />
       <HideOnScroll {...props}>
-        <AppBar className={header}>
+        <AppBar className={green}>
           <Toolbar className={toolbar}>
             {mobileView ? displayMobile() : displayDesktop()}
             <AuthenticationButton />

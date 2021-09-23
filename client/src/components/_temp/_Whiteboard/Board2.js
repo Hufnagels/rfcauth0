@@ -20,9 +20,9 @@ import ShareIcon from '@mui/icons-material/Share';
 
 // custom
 // import {SketchField, Tools} from 'react-sketch';
-import { SketchField, Tools } from "./src";
-import WBToolbar from './WBToolbar';
-import dataJson from "./src/data.json";
+import { SketchField, Tools } from "../../pages/admin/Whiteboard/src";
+import WBToolbar from '../../../pages/admin/Whiteboard/WBToolbar';
+import dataJson from "../../pages/admin/Whiteboard/src/data.json";
 
 function useWindowSize() {
   const [size, setSize] = useState([0, 0]);

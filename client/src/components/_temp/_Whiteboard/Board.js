@@ -10,7 +10,7 @@ import { withStyles } from '@mui/styles';
 // custom
 // import {SketchField, Tools} from 'react-sketch';
 import { SketchField, Tools } from "../../pages/admin/Whiteboard/src";
-import WBToolbar from '../../pages/admin/Whiteboard/WBToolbar';
+import WBToolbar from '../../../pages/admin/Whiteboard/WBToolbar';
 import dataJson from "../../pages/admin/Whiteboard/src/data.json";
 
 const styles = theme => ({

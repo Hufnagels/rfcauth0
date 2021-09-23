@@ -35,10 +35,10 @@ const useStyles = makeStyles((theme) => ({
   },
   navlinkNavbar : {
     textDecoration:'none',
-    color: theme.palette.primary.light,
+    color: theme.palette.primary.link,
   },
   activeClassNavbar: {
-    color: '#ffeeee',
+    color: theme.palette.primary.contrastText,
     outlinBottom: '1px solid #90d6e3',
   },
 

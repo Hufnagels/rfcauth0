@@ -12,6 +12,7 @@ const theme = createTheme({
     common:{
       black:'#000',
       white:'#fff',
+      grey:'grey',
       backdrop:'rgba(0, 30, 60, 0.67)',
     },
     background:{
@@ -23,6 +24,7 @@ const theme = createTheme({
       light:'#ff4081',
       main:'#f50057',
       dark:'#c51162',
+      link:'#cbcad6',
       contrastText:'#fff',
     },
     secondary:{
@@ -51,8 +53,20 @@ const theme = createTheme({
     // two indexes within its tonal palette.
     // E.g., shift from Red 500 to Red 300 or Red 700.
     tonalOffset: 0.2,
-    components : {
-    }
+  },
+  components : {
+    MuiAppBar: {
+      defaultProps: {
+        enableColorOnDark: true,
+      },
+      root: {
+        backgroundColor: '#f50057',
+        zIndex:'100',
+        "@media (max-width: 900px)": {
+          paddingLeft: 0,
+        },
+      }
+    },
   },
   overrides: {
     body: {
@@ -111,7 +125,8 @@ const theme = createTheme({
         enableColorOnDark: true,
       },
       root: {
-        backgroundColor: '#f50057',
+        //backgroundColor: '#f50057',
+        zIndex:'100',
         "@media (max-width: 900px)": {
           paddingLeft: 0,
         },

@@ -15,31 +15,32 @@ module.exports = (io) => {
       console.log(`User (${p_user.username}) is joined to (${p_user.roomname})`.brightBlue)
       
       //display a welcome message to the user who have joined a room
-      socket.emit("connection-message", {
+      const message = {
         userId: p_user.id,
         username: p_user.username,
         text: `Welcome ${p_user.username} in ${p_user.roomname} room!`,
         socketid: socket.id,
-      });
+      }
+      socket.broadcast.to(p_user.roomname).emit("connection-message", { message });
 
       socket.on('onPathCreated', data => {
         socket.broadcast.to(data.roomname).emit('new-path', data);
-        console.log('object added: ', data.obj)
+        console.log('onPathCreated: ', data.username)
       })
 
       socket.on('onObjectAdded', data => {
         socket.broadcast.to(data.roomname).emit('new-add', data);
-        //console.log('object added: ', data.obj.type)
+        console.log('onObjectAdded: ', data.username)
       })
    
       socket.on('onObjectModified', data => {
          socket.broadcast.to(data.roomname).emit('new-modification', data);
-         // console.log('object modified: ', data.obj.type)
+         console.log('onObjectModified: ', data.username, data.id)
       })
 
       socket.on('onObjectRemoved', data => {
          socket.broadcast.to(data.roomname).emit('new-remove', data);
-         console.log('object removed: ', data.obj.id)
+         console.log('onObjectRemoved: ', data.username, data.obj.id)
       })
    })
 
@@ -48,7 +49,7 @@ module.exports = (io) => {
       const p_user = user_Disconnect(socket.id);
       //console.log(`user (${p_user.username}) disconnecting`);
       if (p_user) {
-        io.to(p_user.room).emit("message", {
+        io.to(p_user.room).emit("disconnect-message", {
           userId: p_user.id,
           username: p_user.username,
           text: `${p_user.username} has left the room`,

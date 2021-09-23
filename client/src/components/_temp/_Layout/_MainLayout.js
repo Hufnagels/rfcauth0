@@ -17,7 +17,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Zoom from '@mui/material/Zoom';
 
 // custom
-import AuthenticationButton from '../Auth/Authenticationbutton';
+import AuthenticationButton from '../../Auth/Authenticationbutton';
 import Layout from './Container';
 
 function HideOnScroll(props) {

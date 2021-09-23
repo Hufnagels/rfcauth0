@@ -1,5 +1,5 @@
 import React, {useState, useContext, useCallback, useEffect} from 'react';
-import {socket, SocketContext} from '../../../features/context/socketcontext';
+import {socket} from '../../features/context/socketcontext_whiteboard';
 import {fabric} from 'fabric'
 
 // export default function Socket() {
@@ -53,6 +53,7 @@ export const addDrawListener = canvas => {
   })
   
 }
+
 export const addObjectListener = canvas => {
   socket.off('new-add')
   socket.on('new-add', data => {
@@ -104,33 +105,36 @@ export const addObjectListener = canvas => {
           globalCompositeOperation: "source-over",
           clipTo: null,
         })
-      } else if (obj.type === 'line' ) {
-        var points = [obj.x1,obj.y1,obj.x2,obj.y2];
-        object = new fabric.Line(points, {
-          left:obj.left,
-          top:obj.top,
-          strokeWidth: obj.strokeWidth,
-          fill: obj.fill,
-          stroke: obj.stroke,
-          x1:obj.x1,
-          y1:obj.y1,
-          x2:obj.x2,
-          y2:obj.y2,
-          originX: 'center',
-          originY: 'center'
-        });
-      } else if (obj.type === 'text') {
-        object = new fabric.Text('Sample', { 
+      // } else if (obj.type === 'line' ) {
+      //   console.log('listener')
+      //   console.log(obj)
+      //   var points = [obj.left,obj.top,obj.left+obj.width,obj.top+obj.height];
+      //   console.log(points)
+      //   object = new fabric.Line(points, {
+      //     left:obj.left,
+      //     top:obj.top,
+      //     strokeWidth: obj.strokeWidth,
+      //     stroke:obj.stroke,
+      //     fill: obj.fill,
+      //     width:obj.width,
+      //     height:obj.height,
+      //     // x1:obj.left,
+      //     // y1:obj.top,
+      //     // x2:obj.top+obj.left,
+      //     // y2:obj.top+obj.height,
+      //     originX: 'left',
+      //     originY: 'top'
+      //   });
+      //   object = new fabric.Line(obj);
+      } else if (obj.type === 'text' || obj.type === 'i-text') {
+        object = new fabric.IText(obj.text, { 
           left: obj.left, 
           top: obj.top,
           fontWeight: 'normal',
           fontSize: 40,
           textAlign: 'left',
           fill: obj.fill,
-          text:'Sample',
-          colorProperties: {
-            fill: obj.fill
-          },
+          visible: true,
         })
       } else {
         return
@@ -138,7 +142,7 @@ export const addObjectListener = canvas => {
       
       object.set({id: id})
       canvas.add(object)
-      canvas.selection=true;
+      //canvas.selection=true;
       canvas.renderAll()
     }
     
