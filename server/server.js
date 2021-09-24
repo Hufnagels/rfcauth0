@@ -4,13 +4,14 @@ const app = express();
 const socket = require('socket.io')
 const cors = require("cors");
 
-const router = require('./server3-router')
+require('dotenv').config({ path: require('find-config')('.env') })
+const router = require('./components/router')
 
 app.use(express());
 app.use(cors());
 app.use(router);
 
-const port = process.env.SERVER_PORT || 4000;
+const port = process.env.SERVER_PORT || 6000;
 const server = app.listen(port, () => {
   console.log(`Server Up and running on port: ${port}`);
 });
@@ -26,4 +27,4 @@ const io = socket(server, {
   allowEIO3: true
 });
 // in a separate file we'll get more specific about the events we want our socket server to listen for and broadcast
-require('./server4-socket')(io)
+require('./components/socket')(io);
