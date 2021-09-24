@@ -60,25 +60,26 @@ module.exports = (io) => {
       })
       //Grab any events and emit action
       socket.onAny((eventName, ...args) => {
-        console.log('onAny: ', eventName, ...args)
+        if (eventName === 'ping') return
+        console.log('onAny: ', eventName, JSON.stringify(args))
+        const message = `${username} did a(n) ${eventName}`
+        socket.to(p_user.roomname).emit("action-message", message );
+      });
+      socket.on('disconnect', () => {
+        //console.log(socket)
+        const p_user = user_Disconnect(socket.id);
+        //console.log(`user (${p_user.username}) disconnecting`);
+        clients.splice(clients.indexOf(socket), 1);
+        if (p_user) {
+          socket.broadcast.to(p_user.room).emit("disconnect-message", {
+            userId: p_user.id,
+            username: p_user.username,
+            text: `${p_user.username} has left the room`,
+          });
+          console.log('user disconnected');
+          console.log('clients',clients.id);
+        }
+        
       });
    })
-
-   socket.on('disconnect', () => {
-      //console.log(socket)
-      const p_user = user_Disconnect(socket.id);
-      //console.log(`user (${p_user.username}) disconnecting`);
-      clients.splice(clients.indexOf(socket), 1);
-      if (p_user) {
-        socket.broadcast.to(p_user.room).emit("disconnect-message", {
-          userId: p_user.id,
-          username: p_user.username,
-          text: `${p_user.username} has left the room`,
-        });
-        console.log('user disconnected');
-        console.log('clients',clients.id);
-      }
-      
-    });
-    
 })}
