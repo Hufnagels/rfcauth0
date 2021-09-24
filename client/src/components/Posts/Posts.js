@@ -6,9 +6,9 @@ import {
 const Posts = () => {
   
   return (
-    <div>
+    <React.Fragment>
       <Outlet />
-    </div>
+    </React.Fragment>
   )
 }
 

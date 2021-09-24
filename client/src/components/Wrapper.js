@@ -79,10 +79,7 @@ const Wrapper = ({ children }) => {
           </Paper>
         </Grid>
       </Grid>
-      
     </React.Fragment>
-    
-    
   );
 }
 

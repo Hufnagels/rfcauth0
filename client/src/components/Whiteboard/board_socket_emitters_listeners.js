@@ -174,5 +174,3 @@ export const removeObjectListener = canvas => {
     })
   })
 }
-
-//export default socket

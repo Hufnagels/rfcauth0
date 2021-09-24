@@ -15,7 +15,6 @@ const Auth0ProviderWithHistory = ({ children }) => {
     navigate(appState?.returnTo || window.location.pathname);
   };
   
-
   return (
     <Auth0Provider
       domain={domain}

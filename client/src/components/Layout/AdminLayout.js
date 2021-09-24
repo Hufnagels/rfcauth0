@@ -101,7 +101,6 @@ const AdminLayout = () => {
       </SvgIcon>
     )
   });
-  
 
   return (
     <div>
@@ -149,9 +148,7 @@ const AdminLayout = () => {
               //console.log('prop', prop)
               //const Icon = icons[icon];
                 if(title){
-                  ref.current= icon;
-// console.log(ref.current)
-                  
+                  ref.current= icon;  
                   return (
                     <NavLink end className={classes.navlink} to={path} activeClassName={classes.active} key={`routeLink-${index}}`}>
                       <ListItem button key={`routeListItem-${index}}`} >
@@ -170,7 +167,6 @@ const AdminLayout = () => {
           </Box>
         </Drawer>
       </React.Fragment>
-
       <ContentWrapper />
     </div>
   );

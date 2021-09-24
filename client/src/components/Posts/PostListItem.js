@@ -18,12 +18,8 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Skeleton from '@mui/material/Skeleton';
 
-
-
-
 const PostListItem = (props) => {
 
-  
   const cardWidth = (text) => {
     return text.length > 20 ? '4' : '2';
   }
@@ -63,4 +59,5 @@ const PostListItem = (props) => {
     </Grid>
   );
 }
+
 export default PostListItem;

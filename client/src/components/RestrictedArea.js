@@ -53,4 +53,4 @@ const RestrictedArea = () => {
   );
 }
 
-export default RestrictedArea
+export default RestrictedArea;

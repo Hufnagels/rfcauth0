@@ -7,7 +7,6 @@ import {
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 
-
 const ContentWrapper = ({margin}) => {
   return (
     <Container maxWidth={false} style={{minHeight: '82vh', marginTop:'8px'}}>

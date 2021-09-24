@@ -8,11 +8,9 @@ import { Provider } from 'react-redux';
 
 //Material
 import {
-  createTheme,
   StyledEngineProvider,
   ThemeProvider 
 } from  '@mui/material/styles';
-import { makeStyles } from '@mui/styles';
 import CssBaseline from '@mui/material/CssBaseline'
 
 // custom
@@ -21,17 +19,6 @@ import Auth0ProviderWithHistory from './components/Auth/Auth0ProviderWithHistory
 import { store } from './redux/store/store';
 import './index.css';
 import theme from './features/theme/Theme';
-
-//const theme = createTheme();
-console.log(theme)
-const useStyles = makeStyles((theme) => {
-  
-  return {
-    root: {
-      color: theme.palette.secondary.main,
-    }
-  }
-});
 
 ReactDOM.render(
   <React.StrictMode>

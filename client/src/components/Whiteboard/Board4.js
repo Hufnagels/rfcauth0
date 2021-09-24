@@ -5,7 +5,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 
 //Material
 import { makeStyles } from '@mui/styles';
-import { styled, useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 

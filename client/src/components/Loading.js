@@ -26,4 +26,5 @@ const Loading = () => {
     </React.Fragment>
   );
 }
+
 export default Loading;

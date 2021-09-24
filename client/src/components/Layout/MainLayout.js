@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 
 // Material
 import { green, purple } from '@mui/material/colors';
-import { styled, useTheme, createTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import {
   CssBaseline,
@@ -16,13 +16,8 @@ import {
   Toolbar,
   Box,
   Drawer,
-  Container,
-  Link,
-  Button,
   List,
   ListItem,
-  ListItemIcon,
-  ListItemText,
   IconButton,
   Slide,
   Fab,
@@ -106,7 +101,6 @@ console.log('click')
   );
 }
 
-
 ScrollTop.propTypes = {
   children: PropTypes.element.isRequired,
   /**
@@ -187,7 +181,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }));
 
 const drawerWidth = 250;
-
 
 const MainLayout = (props) => {
   const { header, logo, links, menuButton, activeClassSidenav, activeClassNavbar, navlink, navlinkNavbar, toolbar, drawerContainer } = useStyles();
