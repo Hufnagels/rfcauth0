@@ -66,7 +66,7 @@ export const SocketProvider = ({ children, store }) => {
         socket.current.disconnect()
       }
     }
-  }, [])
+  }, [socket.current])
 
   return (
     <SocketContext.Provider value={socket.current}>
