@@ -40,10 +40,13 @@ import ContentWrapper from './ContentWrapper';
 const useStyles = makeStyles((theme) => {
 // console.log(theme)
   return {
+    AppBar:{
+      zIndex:'100',
+    },
     root: {
       zIndex:'100',
       display: 'flex',
-      '& *:hover':{
+      '& :hover':{
         color: theme.palette.primary.contrastText,
         backgroundColor: theme.palette.primary.light,
       }
@@ -104,7 +107,7 @@ const AdminLayout = () => {
 
   return (
     <div>
-      <AppBar position="fixed" id="appbar" className={classes.root}>
+      <AppBar position="fixed" id="appbar" className={classes.AppBar}>
         <Toolbar>
           {/* <Button onClick={toggleDrawer('left', true)} color='secondary'>{'left'}</Button> */}
           <IconButton

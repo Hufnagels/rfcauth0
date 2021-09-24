@@ -58,8 +58,8 @@ import {
   modifyObjectListener, 
   removeObjectListener
 } from './board_socket_emitters_listeners';
-//import {SocketContext, socket} from '../../features/context/socketcontext';
-import {SocketContext, socket} from '../../features/context/socketcontext_whiteboard';
+//import SocketContext from '../../features/context/socketcontext/context';
+import {socket} from '../../features/context/socketcontext_whiteboard';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -114,7 +114,7 @@ const Board4 = () => {
   const colorsRef = React.useRef('#f6b73c');
   const { user } = useAuth0();
   const { name, picture, email } = user;
-  //const { positionInLine, queueLength, socketid } = useContext(SocketContext);
+
   const [connection, setConnection] = useState({
     username: name,
     roomname: 'whiteboardRoom',
@@ -122,6 +122,7 @@ const Board4 = () => {
     socket: null, //socket,
     socketid: null, //socket.id,
   });
+  
   //Toolbar section begin
   let currentMode;
   let mousepressed = false;
@@ -359,14 +360,18 @@ const Board4 = () => {
     }
   }, []);
 
+  // useEffect(()=>{
+  //   initSocketConnection()
+  // },[socket])
+
   useEffect(() => {
       if (canvasRef.current) {
 
         canvasRef.current.on('path:created', function(e){
           if (e.path) {
             if(e.path.owner === connection.email) return
-console.info('path:created')
-// console.info(e)
+console.info('path:created', e.path)
+console.info(e.path.owner, connection.email)
 // console.log(JSON.stringify(e.path))
             e.path.id = uuid();
             e.path.owner = connection.email;
@@ -375,7 +380,8 @@ console.info('path:created')
               id: e.path.id,
               username: connection.username,
               email: connection.email,
-              roomname: connection.roomname, 
+              roomname: connection.roomname,
+              action:'path:created',
             }
             addDrawEmitter(modifiedObj)
           }
@@ -388,7 +394,8 @@ console.info('path:created')
               id: options.target.id,
               username: connection.username,
               email: connection.email,
-              roomname: connection.roomname, 
+              roomname: connection.roomname,
+              action:'object:modified',
             }
             modifyObjectEmitter(modifiedObj)
           }
@@ -405,7 +412,8 @@ console.info('path:created')
               id: options.target.id,
               username: connection.username,
               email: connection.email,
-              roomname: connection.roomname, 
+              roomname: connection.roomname,
+              action:'object:moving',
             }
             modifyObjectEmitter(modifiedObj)
           }
@@ -418,7 +426,8 @@ console.info('path:created')
               id: options.target.id,
               username: connection.username,
               email: connection.email,
-              roomname: connection.roomname, 
+              roomname: connection.roomname,
+              action:'object:removed',
             }
             removeObjectEmitter(removedObj)
           }
@@ -528,7 +537,8 @@ console.log(options.target.getBoundingRect())
       id: object.id,
       username: connection.username,
       email: connection.email,
-      roomname: connection.roomname, 
+      roomname: connection.roomname,
+      action:'object:added',
     })
     } else if (type === 'Line') { 
       object = new fabric.Path('M 200 100 L 350 100', {
@@ -548,7 +558,8 @@ console.log(options.target.getBoundingRect())
         id: object.id,
         username: connection.username,
         email: connection.email,
-        roomname: connection.roomname, 
+        roomname: connection.roomname,
+        action:'object:added',
       }
       addDrawEmitter(modifiedObj)
     }
@@ -754,7 +765,8 @@ console.log('mouse up drawinObject')
           id: drawingObject.id,
           username: connection.username,
           email: connection.email,
-          roomname: connection.roomname, 
+          roomname: connection.roomname,
+          action:'object:added',
         }
         //canvas.remove(drawingObject);
         addObjectEmitter(modifiedObj)

@@ -21,17 +21,23 @@ const theme = createTheme({
       active: '#cccccc',
     },
     primary:{
-      light:'#ff4081',
-      main:'#f50057',
-      dark:'#c51162',
+      light:'#48a999',
+      main:'#00796b',
+      dark:'#004c40',
       link:'#cbcad6',
       contrastText:'#fff',
     },
-    secondary:{
+    secondary: {
+      light:'#b2fef7',
+      main:'#80cbc4',
+      dark:'#4f9a94',
+      contrastText:'#fff',
+    },
+    custom:{
       light:'#ff4081',
       main:'#f50057',
       dark:'#c51162',
-      contrastText:'#fff',
+      contrastText:'#000',
     },
     error:{
       light:'#e57373',
