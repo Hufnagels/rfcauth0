@@ -51,6 +51,7 @@ export const SocketProvider = ({ children, store }) => {
         reconnection: true,
         reconnectionDelay: 500,
         reconnectionAttempts: 10,
+        forceNew:true,
         query: {
           roomName: 'whiteboardRoom',
         },
@@ -64,15 +65,16 @@ export const SocketProvider = ({ children, store }) => {
         setConnected(true)
       })
 
-      socket.current.on("disconnect", (reason) => {
-        // if (reason === "io server disconnect") {
-        //   // the disconnection was initiated by the server, you need to reconnect manually
-        //   socket.connect();
-        // }
-        // else the socket will automatically try to reconnect
-        console.info(`Successfully disconnected`)
-        setConnected(false)
-      });
+      // socket.current.on("disconnect", (reason) => {
+      //   // if (reason === "io server disconnect") {
+      //   //   // the disconnection was initiated by the server, you need to reconnect manually
+      //   //   socket.connect();
+      //   // }
+      //   // else the socket will automatically try to reconnect
+      //   console.info(`Successfully disconnected`)
+      //   console.info(reason)
+      //   setConnected(false)
+      // });
 
       socket.current.on('error', err => {
         console.log('Socket Error:', err.message)
@@ -81,11 +83,12 @@ export const SocketProvider = ({ children, store }) => {
       socket.current.on('message', handleOnMessage)
     }
 
-    return () => {
-      if (socket.current && socket.current.connected) {
-        socket.current.disconnect()
-      }
-    }
+    // return () => {
+    //   if (socket.current && socket.current.connected) {
+    //     socket.current.disconnect()
+    //   }
+    //   socket.current.disconnect()
+    // }
   }, [socket.current])
 
   return (

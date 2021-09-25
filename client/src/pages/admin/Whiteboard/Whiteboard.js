@@ -5,19 +5,25 @@ import { withAuthenticationRequired } from "@auth0/auth0-react";
 import Wrapper from '../../../components/Wrapper';
 import Board4 from '../../../components/Whiteboard/Board4';
 import RestrictedArea from '../../../components/RestrictedArea';
-import {SocketContext, socket} from '../../../features/context/socketcontext_whiteboard';
-//import { SocketProvider } from '../../../features/context/SocketContext'
+import { SocketContext, socket } from '../../../features/context/socketcontext_whiteboard';
+// import { SocketProvider } from '../../../features/context/SocketContext'
 import SocketMessage from '../../../components/Whiteboard/SocketMessage';
 
 const Whiteboard = () => {
   return (
+      <Wrapper>
+        <Board4 />
+        <SocketMessage />
+      </Wrapper>
+  )
+  /* return (
     <SocketContext.Provider value={socket}>
       <Wrapper>
         <Board4 />
         <SocketMessage />
       </Wrapper>
     </SocketContext.Provider>
-  )
+  ) */
   /* return (
     <SocketProvider>
       <Wrapper>

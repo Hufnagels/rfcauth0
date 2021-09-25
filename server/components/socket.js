@@ -10,6 +10,14 @@ module.exports = (io) => {
     socket.on("ping", (count) => {
       //console.log(count);
     });
+    console.info('connection')
+    console.info(socket.id)
+
+    socket.on('disconnect', (reason) => {
+      console.info('disconnect')
+      console.info(reason)
+    });
+    
     socket.on("joinWhiteboardRoom", ({ username, email, roomname }) => {
     
       //* create user
@@ -65,13 +73,13 @@ module.exports = (io) => {
         const message = `${username} did a(n) ${eventName}`
         socket.to(p_user.roomname).emit("action-message", message );
       });
-      socket.on('disconnect', () => {
+      socket.on('leave-WhiteboardRoom', () => {
         //console.log(socket)
         const p_user = user_Disconnect(socket.id);
         //console.log(`user (${p_user.username}) disconnecting`);
-        clients.splice(clients.indexOf(socket), 1);
+        //clients.splice(clients.indexOf(socket), 1);
         if (p_user) {
-          socket.broadcast.to(p_user.room).emit("disconnect-message", {
+          socket.broadcast.to(p_user.room).emit("leave-room-message", {
             userId: p_user.id,
             username: p_user.username,
             text: `${p_user.username} has left the room`,

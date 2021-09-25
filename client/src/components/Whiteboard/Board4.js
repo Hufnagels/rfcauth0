@@ -49,19 +49,18 @@ import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
 // custom
 import ToolbarWrapper from '../ToolbarWrapper';
 import {
-  addDrawEmitter,
-  addObjectEmitter, 
-  modifyObjectEmitter, 
-  removeObjectEmitter,
-  addDrawListener,
-  addObjectListener, 
-  modifyObjectListener, 
-  removeObjectListener
+  AddDrawEmitter,
+  AddObjectEmitter, 
+  ModifyObjectEmitter, 
+  RemoveObjectEmitter,
+  AddDrawListener,
+  AddObjectListener, 
+  ModifyObjectListener, 
+  RemoveObjectListener
 } from './board_socket_emitters_listeners';
 //import SocketContext from '../../features/context/socketcontext/context';
-import {socket} from '../../features/context/socketcontext_whiteboard';
-//import { useSocket } from '../../features/context/SocketContext';
-
+import { socket } from '../../features/context/socketcontext_whiteboard';
+// import { useSocket } from '../../features/context/SocketContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -108,7 +107,7 @@ const SketchWrapper = styled('div')(({ theme }) => ({
   height:'100%',
 }));
 
-const Board4 = () => {
+const Board4 = (props) => {
   const classes = useStyles();
   const imgDown = React.useRef();
   const canvasRef = React.useRef(null);
@@ -166,7 +165,7 @@ const Board4 = () => {
   // ToggleButtonGroup
   const [lineColor, setLineColor] = useState('#f6b73c')
   const [tool, setTool] = React.useState(null);
-  const handleChange = (event, nextView) => {
+  const handleToolChange = (event, nextView) => {
     event.preventDefault();
     console.log('handelchange', event)
     currentMode = nextView;
@@ -334,6 +333,13 @@ const Board4 = () => {
   }
 
   useEffect(() => {
+    if(socket && socket.connected) { 
+      setConnected(true)
+      initSocketConnection()
+    }
+  },[socket])
+
+  useEffect(() => {
     const sketchWrapper = document.getElementById('sketchWrapper');
     let sketchWrapper_style = getComputedStyle(sketchWrapper);
     //setCanvas(canvasRef.current);
@@ -360,7 +366,9 @@ const Board4 = () => {
 
     return () => {
       window.removeEventListener("resize", onResize);
-      socket.disconnect();
+      // socket.disconnect();
+      socket.leave(connection.roomname);
+      socket.to(connection.roomname).emit('user left', connection.username);
     }
   }, []);
 
@@ -389,7 +397,7 @@ console.info(e.path.owner, connection.email)
               roomname: connection.roomname,
               action:'path:created',
             }
-            addDrawEmitter(modifiedObj)
+            AddDrawEmitter(modifiedObj)
           }
         })
 
@@ -403,7 +411,7 @@ console.info(e.path.owner, connection.email)
               roomname: connection.roomname,
               action:'object:modified',
             }
-            modifyObjectEmitter(modifiedObj)
+            ModifyObjectEmitter(modifiedObj)
           }
         })
 
@@ -421,7 +429,7 @@ console.info(e.path.owner, connection.email)
               roomname: connection.roomname,
               action:'object:moving',
             }
-            modifyObjectEmitter(modifiedObj)
+            ModifyObjectEmitter(modifiedObj)
           }
         })
 
@@ -435,7 +443,7 @@ console.info(e.path.owner, connection.email)
               roomname: connection.roomname,
               action:'object:removed',
             }
-            removeObjectEmitter(removedObj)
+            RemoveObjectEmitter(removedObj)
           }
         })
 
@@ -446,10 +454,10 @@ console.log(options.target.getBoundingRect())
 
         })
 
-        addDrawListener(canvasRef.current)
-        addObjectListener(canvasRef.current)
-        modifyObjectListener(canvasRef.current)
-        removeObjectListener(canvasRef.current)
+        AddDrawListener(canvasRef.current)
+        AddObjectListener(canvasRef.current)
+        ModifyObjectListener(canvasRef.current)
+        RemoveObjectListener(canvasRef.current)
       }
   },[canvasRef.current])
 
@@ -538,7 +546,7 @@ console.log(options.target.getBoundingRect())
     canvasRef.current.add(object)
     canvasRef.current.renderAll()
     //canvasRef.current.selection = true;
-    addObjectEmitter({
+    AddObjectEmitter({
       obj: object, 
       id: object.id,
       username: connection.username,
@@ -567,7 +575,7 @@ console.log(options.target.getBoundingRect())
         roomname: connection.roomname,
         action:'object:added',
       }
-      addDrawEmitter(modifiedObj)
+      AddDrawEmitter(modifiedObj)
     }
   };
 
@@ -775,7 +783,7 @@ console.log('mouse up drawinObject')
           action:'object:added',
         }
         //canvas.remove(drawingObject);
-        addObjectEmitter(modifiedObj)
+        AddObjectEmitter(modifiedObj)
         drawingObject = null;
         //}
         
@@ -897,7 +905,7 @@ console.log(canvas.getObjects())
           orientation="vertical"
           value={tool}
           exclusive
-          onChange={handleChange}
+          onChange={handleToolChange}
           aria-label="outlined Sketch Tools"
         >
           <ToggleButton value="Pan" aria-label="Pan">

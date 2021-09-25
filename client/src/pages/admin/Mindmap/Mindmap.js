@@ -12,17 +12,13 @@ import Map from './Map';
 import MapToolbar from './MapToolbar';
 import Wrapper from '../../../components/Wrapper';
 
-
-
 const Mindmap = () => {
 
   return (
-    <Wrapper>
-      <MapToolbar />
-      <Map />
-    </Wrapper>
-    
-    
+      <Wrapper>
+        <MapToolbar />
+        <Map />
+      </Wrapper>
   );
 }
 

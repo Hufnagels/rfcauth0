@@ -1,11 +1,8 @@
 import React, {useState, useContext, useCallback, useEffect} from 'react';
 import {socket} from '../../features/context/socketcontext_whiteboard';
+// import { useSocket } from '../../features/context/SocketContext';
 import {fabric} from 'fabric'
 
-// export default function Socket() {
-//   const wbsocket = useContext(SocketContext);
-//   return wbsocket;
-// }
 const displaySocketDataFromJSONString = (data, canvasS) => {
   var canvasString = "{\"objects\":[";
   canvasString += data;
@@ -20,25 +17,25 @@ const displaySocketDataFromJSONString = (data, canvasS) => {
 }
 
 // emitters
-export const addDrawEmitter = obj => {
+export const AddDrawEmitter = obj => {
   //console.log('addDrawEmitter', obj)
-  socket.emit('onPathCreated', obj)
+  return socket.emit('onPathCreated', obj)
 }
-export const addObjectEmitter = obj => {
+export const AddObjectEmitter = obj => {
   //console.log('addObjectEmitter', obj)
   socket.emit('onObjectAdded', obj)
 }
 
-export const modifyObjectEmitter = (obj) => {
+export const ModifyObjectEmitter = (obj) => {
   socket.emit('onObjectModified', obj)
 }
 
-export const removeObjectEmitter = (obj) => {
+export const RemoveObjectEmitter = (obj) => {
   socket.emit('onObjectRemoved', obj)
 }
 
 // listeners
-export const addDrawListener = canvas => {
+export const AddDrawListener = canvas => {
   //socket.off('new-path')
   socket.on('new-path', data => {
     const { obj, id, username, email, roomname } = data;
@@ -54,7 +51,7 @@ export const addDrawListener = canvas => {
   
 }
 
-export const addObjectListener = canvas => {
+export const AddObjectListener = canvas => {
   socket.off('new-add')
   socket.on('new-add', data => {
 //console.log(data)
@@ -149,7 +146,7 @@ export const addObjectListener = canvas => {
   })
 }
 
-export const modifyObjectListener = canvas => {
+export const ModifyObjectListener = canvas => {
   socket.on('new-modification', data => {
     const { obj, id } = data
     canvas.getObjects().forEach(object => {
@@ -162,7 +159,7 @@ export const modifyObjectListener = canvas => {
   })
 }
 
-export const removeObjectListener = canvas => {
+export const RemoveObjectListener = canvas => {
   socket.off('new-remove')
   socket.on('new-remove', data => {
     const { obj, id } = data

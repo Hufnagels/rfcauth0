@@ -35,6 +35,7 @@ import MailIcon from '@mui/icons-material/Mail';
 import AuthenticationButton from '../Auth/Authenticationbutton';
 import routes from '../../features/routes/routes'
 import ContentWrapper from './ContentWrapper';
+import { SocketContext, socket } from '../../features/context/socketcontext_whiteboard';
 
 //const theme = createTheme();
 const useStyles = makeStyles((theme) => {
@@ -170,7 +171,9 @@ const AdminLayout = () => {
           </Box>
         </Drawer>
       </React.Fragment>
+      <SocketContext.Provider value={socket}>
       <ContentWrapper />
+      </SocketContext.Provider>
     </div>
   );
 }
