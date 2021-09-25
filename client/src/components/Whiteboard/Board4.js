@@ -60,6 +60,8 @@ import {
 } from './board_socket_emitters_listeners';
 //import SocketContext from '../../features/context/socketcontext/context';
 import {socket} from '../../features/context/socketcontext_whiteboard';
+//import { useSocket } from '../../features/context/SocketContext';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -112,9 +114,12 @@ const Board4 = () => {
   const canvasRef = React.useRef(null);
   const toolsRef = React.useRef(null);
   const colorsRef = React.useRef('#f6b73c');
+  const fillRef = React.useRef('#f6b73c');
   const { user } = useAuth0();
   const { name, picture, email } = user;
 
+  //const socket = useSocket();
+  const [connected, setConnected] = React.useState(false)
   const [connection, setConnection] = useState({
     username: name,
     roomname: 'whiteboardRoom',
@@ -136,7 +141,6 @@ const Board4 = () => {
   const handleClickSnack = (newState) => () => {
     setSnacktate({ open: true, ...newState });
   };
-
   const handleCloseSnack = () => {
     setSnacktate({ ...snackstate, open: false });
   };
@@ -322,7 +326,6 @@ const Board4 = () => {
       email: email, 
       roomname: connection.roomname
     })
-    console.log('useEffect', socket)
   }
 
   const updateFreeDrawingBrush = () => {
@@ -334,7 +337,8 @@ const Board4 = () => {
     const sketchWrapper = document.getElementById('sketchWrapper');
     let sketchWrapper_style = getComputedStyle(sketchWrapper);
     //setCanvas(canvasRef.current);
-    initSocketConnection();
+    console.log(socket)
+    //initSocketConnection();
 
     initFabricCanvas();
     
@@ -361,8 +365,10 @@ const Board4 = () => {
   }, []);
 
   // useEffect(()=>{
-  //   initSocketConnection()
-  // },[socket])
+  //   //setConnected(socket.connected)
+  //   console.log(socket)
+  //   if(connected) initSocketConnection()
+  // },[connected])
 
   useEffect(() => {
       if (canvasRef.current) {

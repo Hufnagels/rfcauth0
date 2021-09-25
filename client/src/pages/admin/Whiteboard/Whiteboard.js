@@ -5,27 +5,27 @@ import { withAuthenticationRequired } from "@auth0/auth0-react";
 import Wrapper from '../../../components/Wrapper';
 import Board4 from '../../../components/Whiteboard/Board4';
 import RestrictedArea from '../../../components/RestrictedArea';
-//import {SocketContext, socket} from '../../../features/context/socketcontext_whiteboard';
-import { SocketProvider } from '../../../features/context/SocketContext'
+import {SocketContext, socket} from '../../../features/context/socketcontext_whiteboard';
+//import { SocketProvider } from '../../../features/context/SocketContext'
 import SocketMessage from '../../../components/Whiteboard/SocketMessage';
 
 const Whiteboard = () => {
-  /* return (
+  return (
     <SocketContext.Provider value={socket}>
       <Wrapper>
         <Board4 />
         <SocketMessage />
       </Wrapper>
     </SocketContext.Provider>
-  ) */
-  return (
+  )
+  /* return (
     <SocketProvider>
       <Wrapper>
         <Board4 />
         <SocketMessage />
       </Wrapper>
   </SocketProvider>
-  )
+  ) */
   /* 
   https://alexboots.medium.com/using-react-context-with-socket-io-3b7205c86a6d
   return (

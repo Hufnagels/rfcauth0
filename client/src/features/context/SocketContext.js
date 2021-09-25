@@ -1,3 +1,4 @@
+// https://gist.github.com/johndavedecano/1cf05a7e9e7b42e03cb1174977fc166e
 import React, {
   createContext,
   useContext,
@@ -6,6 +7,7 @@ import React, {
   useState,
 } from 'react'
 import io from 'socket.io-client'
+import { useAuth0 } from '@auth0/auth0-react';
 
 // Custom
 import { SOCKET_URL } from "./localhost.config";
@@ -20,10 +22,20 @@ export const SocketContext = createContext()
 export const SocketProvider = ({ children, store }) => {
   
   const [isConnected, setConnected] = useState(false)
-
-  const socketUrl = `${process.env.API_URL}/socket.io`
-
   const socket = useRef(null)
+
+  //const socketUrl = `${process.env.API_URL}/socket.io`
+  
+  const { user } = useAuth0();
+  const { name, picture, email } = user;
+
+  const [connection, setConnection] = useState({
+    username: name,
+    roomname: 'whiteboardRoom',
+    email:email,
+    socket: null, //socket,
+    socketid: null, //socket.id,
+  });
 
   const handleOnMessage = message => {
     console.log(message)
@@ -39,6 +51,9 @@ export const SocketProvider = ({ children, store }) => {
         reconnection: true,
         reconnectionDelay: 500,
         reconnectionAttempts: 10,
+        query: {
+          roomName: 'whiteboardRoom',
+        },
         // query: {
         //   token: localStorage.getItem('auth_token'),
         // },
@@ -49,10 +64,15 @@ export const SocketProvider = ({ children, store }) => {
         setConnected(true)
       })
 
-      socket.current.on('disconnect', () => {
+      socket.current.on("disconnect", (reason) => {
+        // if (reason === "io server disconnect") {
+        //   // the disconnection was initiated by the server, you need to reconnect manually
+        //   socket.connect();
+        // }
+        // else the socket will automatically try to reconnect
         console.info(`Successfully disconnected`)
         setConnected(false)
-      })
+      });
 
       socket.current.on('error', err => {
         console.log('Socket Error:', err.message)
