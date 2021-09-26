@@ -2,6 +2,7 @@ let c_users = [];
 
 function join_User(id, username, email, roomname) {
   const p_user = { id, username, email, roomname};
+  
   filterUserAndRoom(id, username, email, roomname)
   c_users.push(p_user);
   console.log('users: ', c_users)

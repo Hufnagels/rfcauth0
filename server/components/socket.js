@@ -10,23 +10,23 @@ module.exports = (io) => {
     socket.on("ping", (count) => {
       //console.log(count);
     });
-    console.info('connection')
-    console.info(socket.id)
+    console.info('connected socket: ', socket.id)
 
     socket.on('disconnect', (reason) => {
       console.info('disconnect')
       console.info(reason)
     });
-    
+
     socket.on("joinWhiteboardRoom", ({ username, email, roomname }) => {
     
       //* create user
+      if(roomname == 'undefined' || roomname === '') return
       const p_user = join_User(socket.id, username, email, roomname);
       
       console.log(`User (${p_user.username}) is online`.brightYellow)
       console.log(`User (${p_user.email}) is online`.brightYellow)
       console.log(`socket.id is: ${socket.id}`.brightRed);
-      console.log('clients',clients.id);
+      
       console.log(`User (${p_user.username}) is joined to (${p_user.roomname})`.brightBlue)
       
       //join user to room
@@ -67,27 +67,29 @@ module.exports = (io) => {
          console.log('onObjectRemoved: ', data.username, data.obj.id)
       })
       //Grab any events and emit action
+      
+      socket.on('leave-WhiteboardRoom', data => {
+        //console.log(socket.id)
+        //console.log(data)
+        const p_user = get_Current_User(data);
+        //console.log(`user (${p_user.username}) disconnecting`);
+        //clients.splice(clients.indexOf(socket), 1);
+        if (p_user) {
+          socket.broadcast.to(p_user.roomname).emit("leave-room-message", {
+            userId: p_user.id,
+            username: p_user.username,
+            text: `${p_user.username} has left the room`,
+          });
+          console.log(`${p_user.username} has left the room`);
+          user_Disconnect(data)
+        }
+        
+      });
       socket.onAny((eventName, ...args) => {
         if (eventName === 'ping') return
         console.log('onAny: ', eventName, JSON.stringify(args))
         const message = `${username} did a(n) ${eventName}`
         socket.to(p_user.roomname).emit("action-message", message );
-      });
-      socket.on('leave-WhiteboardRoom', () => {
-        //console.log(socket)
-        const p_user = user_Disconnect(socket.id);
-        //console.log(`user (${p_user.username}) disconnecting`);
-        //clients.splice(clients.indexOf(socket), 1);
-        if (p_user) {
-          socket.broadcast.to(p_user.room).emit("leave-room-message", {
-            userId: p_user.id,
-            username: p_user.username,
-            text: `${p_user.username} has left the room`,
-          });
-          console.log('user disconnected');
-          console.log('clients',clients.id);
-        }
-        
       });
    })
 })}

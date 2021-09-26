@@ -5,7 +5,7 @@ import { withAuthenticationRequired } from "@auth0/auth0-react";
 import Wrapper from '../../../components/Wrapper';
 import Board4 from '../../../components/Whiteboard/Board4';
 import RestrictedArea from '../../../components/RestrictedArea';
-import { SocketContext, socket } from '../../../features/context/socketcontext_whiteboard';
+//import { SocketContext, socket } from '../../../features/context/socketcontext_whiteboard';
 // import { SocketProvider } from '../../../features/context/SocketContext'
 import SocketMessage from '../../../components/Whiteboard/SocketMessage';
 

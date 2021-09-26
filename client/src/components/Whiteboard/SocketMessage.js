@@ -57,10 +57,10 @@ export default function SocketMessage() {
       //setMessage({...message, message: response.username});
       setMessage(JSON.stringify(response));
     })
-    socket.on('leave-room-message',(response) => {
+    socket.on('leave-room-message', (response) => {
       setOpen(true);
       console.log('leave-room-message: ', response)
-      setMessage(response.username);
+      setMessage(response.text);
     })
   }
   },[isConnected])

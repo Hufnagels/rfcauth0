@@ -123,8 +123,8 @@ const Board4 = (props) => {
     username: name,
     roomname: 'whiteboardRoom',
     email:email,
-    socket: null, //socket,
-    socketid: null, //socket.id,
+    socket: {}, //socket,
+    socketid: '', //socket.id,
   });
   
   //Toolbar section begin
@@ -196,10 +196,7 @@ const Board4 = (props) => {
 
   // Toolbar section end
   const [offset,setOffset] = React.useState(null);
-// console.log(offset)
-// console.log('canvasFn', canvas)
   let origX, origY, drawingObject = null;  
-
   const [canvas, setCanvas] = React.useState('');
 
   const getCanvasPosition = (el) => {
@@ -325,6 +322,15 @@ const Board4 = (props) => {
       email: email, 
       roomname: connection.roomname
     })
+    socket.on('welcome-message', (response) => {
+      setConnection({
+        ...connection, 
+        socketid: response.userId,
+      })
+      console.log('response', response)
+      console.log('response connection', connection)
+    })
+    
   }
 
   const updateFreeDrawingBrush = () => {
@@ -334,8 +340,8 @@ const Board4 = (props) => {
 
   useEffect(() => {
     if(socket && socket.connected) { 
-      setConnected(true)
-      initSocketConnection()
+      setConnected(true);
+      initSocketConnection();
     }
   },[socket])
 
@@ -367,8 +373,8 @@ const Board4 = (props) => {
     return () => {
       window.removeEventListener("resize", onResize);
       // socket.disconnect();
-      socket.leave(connection.roomname);
-      socket.to(connection.roomname).emit('user left', connection.username);
+      console.log(connection)
+      socket.emit('leave-WhiteboardRoom', socket.id);
     }
   }, []);
 
