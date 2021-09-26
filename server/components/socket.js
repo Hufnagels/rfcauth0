@@ -36,6 +36,7 @@ module.exports = (io) => {
       const message = {
         userId: p_user.id,
         username: p_user.username,
+        email: p_user.email,
         text: `Welcome ${p_user.username} in ${p_user.roomname} room!`,
         socketid: socket.id,
       }

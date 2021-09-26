@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useLayoutEffect, useContext } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { fabric } from 'fabric';
 import { v4 as uuid } from 'uuid';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -61,6 +62,11 @@ import {
 //import SocketContext from '../../features/context/socketcontext/context';
 import { socket } from '../../features/context/socketcontext_whiteboard';
 // import { useSocket } from '../../features/context/SocketContext';
+import { 
+  adduser,
+  removeuser,
+  statechange,
+} from '../../redux/reducers/whiteboardSlice';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -108,15 +114,20 @@ const SketchWrapper = styled('div')(({ theme }) => ({
 }));
 
 const Board4 = (props) => {
+  // Styles
   const classes = useStyles();
+  // Refs
   const imgDown = React.useRef();
   const canvasRef = React.useRef(null);
   const toolsRef = React.useRef(null);
   const colorsRef = React.useRef('#f6b73c');
   const fillRef = React.useRef('#f6b73c');
+  // Authentication
   const { user } = useAuth0();
   const { name, picture, email } = user;
-
+  // Redux store & reducers
+  const dispatch = useDispatch();
+  // Socket
   //const socket = useSocket();
   const [connected, setConnected] = React.useState(false)
   const [connection, setConnection] = useState({
@@ -148,7 +159,6 @@ const Board4 = (props) => {
       setCurrentZoom(1)
       canvasRef.current.zoomToPoint(new fabric.Point(canvasRef.current.width / 2, canvasRef.current.height / 2), 1.0);
       canvasRef.current.setZoom(1);
-      
     }}>Set to default</Button>
   );
   const [currentZoom, setCurrentZoom] = React.useState(1)
@@ -193,12 +203,13 @@ const Board4 = (props) => {
     text: 'Text',
     default:null,
   }
-
+  // Canvas 
   // Toolbar section end
   const [offset,setOffset] = React.useState(null);
   let origX, origY, drawingObject = null;  
   const [canvas, setCanvas] = React.useState('');
 
+  // Functions
   const getCanvasPosition = (el) => {
     var viewportOffset = el.getBoundingClientRect();
     // these are relative to the viewport, i.e. the window
@@ -363,7 +374,7 @@ const Board4 = (props) => {
           width: width, 
           height:height
         });
-        canvasRef.current.renderAll();
+        canvasRef.current.requestRenderAll() //renderAll();
         console.info('W-H: ', width, height)
       }
     }
@@ -375,6 +386,7 @@ const Board4 = (props) => {
       // socket.disconnect();
       console.log(connection)
       socket.emit('leave-WhiteboardRoom', socket.id);
+      //dispatch(removeuser(socket.id))
     }
   }, []);
 
@@ -460,11 +472,31 @@ console.log(options.target.getBoundingRect())
 
         })
 
+        canvasRef.current.on('before:render', function(options){
+          console.log('before:render')
+          console.log(options)
+        })
+        canvasRef.current.on('after:render', function(options){
+          console.log('after:render')
+          console.log(options)
+          // let isExist = false;
+          // canvasRef.current.getObjects().forEach(object => {
+          //   if (object.id === id) {
+          //     isExist = true
+          //   }
+          // })
+          const json = JSON.stringify(canvasRef.current);
+          localStorage.setItem("whiteboard",json);
+          dispatch(statechange(json))
+        })
+
         AddDrawListener(canvasRef.current)
         AddObjectListener(canvasRef.current)
         ModifyObjectListener(canvasRef.current)
         RemoveObjectListener(canvasRef.current)
+        
       }
+      
   },[canvasRef.current])
 
   const addShape = (e) => {
@@ -550,7 +582,7 @@ console.log(options.target.getBoundingRect())
     object.set({id: uuid()})
     object.set({owner: connection.email})
     canvasRef.current.add(object)
-    canvasRef.current.renderAll()
+    canvasRef.current.requestRenderAll() //renderAll()
     //canvasRef.current.selection = true;
     AddObjectEmitter({
       obj: object, 
@@ -572,7 +604,7 @@ console.log(options.target.getBoundingRect())
       object.set({id: uuid()})
       object.set({owner: connection.email})
       canvasRef.current.add(object)
-      canvasRef.current.renderAll()
+      canvasRef.current.requestRenderAll()//renderAll()
       const modifiedObj = {
         obj: JSON.stringify(object),
         id: object.id,
@@ -665,7 +697,7 @@ console.info('begin pan')
       if (e.button === 3 && e.target) {
         canvas.sendBackwards(e.target);
         canvas.discardActiveObject();
-        canvas.renderAll();
+        canvas.requestRenderAll() //renderAll();
       }
       if (event.altKey === true ) {
         this.setCursor('grab')
@@ -799,7 +831,7 @@ console.log(canvas.getObjects())
       canvasRef.current.selection = (toolsRef.current === drawingMode.pan || toolsRef.current === drawingMode.select) ? true : false;
       origX=null;
       origY=null;
-      this.renderAll();//requestRenderAll()
+      this.requestRenderAll(); // renderAll();//
     })
 
     canvas.on('mouse:wheel', function(e) {
@@ -811,7 +843,7 @@ console.log(canvas.getObjects())
       zoom *= 0.999 ** delta;
       if (zoom > 20) zoom = 20;
       if (zoom < 0.01) zoom = 0.01;
-      console.log(zoom)
+      //console.log(zoom)
       zoom = parseFloat(zoom).toFixed(4);
       setCurrentZoom(zoom)
       canvas.zoomToPoint({ x: event.offsetX, y: event.offsetY }, zoom);

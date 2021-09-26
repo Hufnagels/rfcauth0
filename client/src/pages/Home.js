@@ -87,28 +87,6 @@ const Home = props => {
   return (
     <div>
       Home
-      <div>
-        <Paper className="">
-          <List>
-            {
-              routesData.map(({ path, title, ...prop }, index) => {
-                if(title)
-                  return (
-                    <NavLink end className={classes.navlink} to={path} activeClassName={classes.active} key={`routeLink-${index}}`}>
-                      <ListItem button key={`routeListItem-${index}}`} >
-                        <ListItemIcon>
-                          <prop.icon />
-                        </ListItemIcon>  
-                        <Typography variant="inherit">{title}</Typography>
-                      </ListItem>
-                    </NavLink>
-                  );
-              })
-            }
-          </List>
-        </Paper>
-        {/* <JSONPretty data={JSON.stringify(routesData, null, 2)} theme={styles} /> */}
-      </div>
     </div>
   )
 }

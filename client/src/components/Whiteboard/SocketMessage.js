@@ -1,17 +1,23 @@
 import * as React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
 // Material
 import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-
+import { Alert } from '@mui/material';
 // Custom
 //import { useSocket } from '../../features/context/SocketContext';
 import { socket } from '../../features/context/socketcontext_whiteboard'
+import { 
+  adduser,
+  removeuser,
+} from '../../redux/reducers/whiteboardSlice';
 
 export default function SocketMessage() {
   //const socket = useSocket();
+  const dispatch = useDispatch();
   const [isConnected, setConnected] = React.useState(false)
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
@@ -29,26 +35,51 @@ export default function SocketMessage() {
     if (reason === 'clickaway') {
       return;
     }
-
     setOpen(false);
   };
+
+  // const action = (
+  //   <React.Fragment>
+  //     <Button color="secondary" size="small" onClick={handleClose}>
+  //       UNDO
+  //     </Button>
+  //     <IconButton
+  //       size="small"
+  //       aria-label="close"
+  //       color="inherit"
+  //       onClick={handleClose}
+  //     >
+  //       <CloseIcon fontSize="small" />
+  //     </IconButton>
+  //   </React.Fragment>
+  // );
+
   React.useEffect(()=> {
     if(socket && socket.connected) setConnected(true)
-  },[socket])
+
+    return () => {
+      setConnected(false);
+    }
+  },[])
+
+
 
   React.useEffect(()=> {
 
     if(isConnected){
     socket.on('welcome-message', (response) => {
       setOpen(true);
-      console.log('welcome-message: ', response)
+console.log('welcome-message: ', response)
       //setMessage({...message, message: response.username});
       setMessage(response.text);
+      //delete response.text;
+      dispatch(adduser(response))
     })
     socket.on('connection-message', (response) => {
       setOpen(true);
       console.log('connection-message: ', response)
       //setMessage({...message, message: response.username});
+      
       setMessage(response.text);
     })
     socket.on('action-message', (response) => {
@@ -65,21 +96,7 @@ export default function SocketMessage() {
   }
   },[isConnected])
 
-  const action = (
-    <React.Fragment>
-      <Button color="secondary" size="small" onClick={handleClose}>
-        UNDO
-      </Button>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleClose}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </React.Fragment>
-  );
+  
 
   return (
     <div>
@@ -88,9 +105,11 @@ export default function SocketMessage() {
         open={open}
         autoHideDuration={6000}
         onClose={handleClose}
-        message={message}
-        action={action}
-      />
+        /*message={message}
+         action={action} */
+      >
+        <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>{message}</Alert>
+      </Snackbar>
     </div>
   );
 }

@@ -119,9 +119,8 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   logo: {
-    
     fontWeight: 900,
-    color: "#FFFEFE",
+    color: theme.palette.primary.color,
     textAlign: "left",
   },
   links: {
@@ -154,7 +153,7 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.primary.dark,
     //backgroundColor: '#90d6e3',
   },
-  activeClassNavbar: {
+  activeClassNavbarElement: {
     color: theme.palette.primary.contrastText,
     borderBottom: '1px solid #ffeeee',
   },
@@ -183,8 +182,9 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 const drawerWidth = 250;
 
 const MainLayout = (props) => {
-  const { header, logo, links, menuButton, activeClassSidenav, activeClassNavbar, navlink, navlinkNavbar, toolbar, drawerContainer } = useStyles();
-//console.log(routes(false))
+  const { header, logo, links, menuButton, activeClassSidenav, activeClassNavbarElement, navlink, navlinkNavbar, toolbar, drawerContainer } = useStyles();
+console.log('classes')
+console.log(green, header, logo, links, menuButton, activeClassSidenav, activeClassNavbarElement, navlink, navlinkNavbar, toolbar, drawerContainer)
   const headersData = routes(false)[1].children;
   const [appname, setAppname] = useState(null)
   const [state, setState] = useState({
@@ -259,7 +259,7 @@ const MainLayout = (props) => {
             <List>
               {getDrawerChoices()}
             </List>
-            <div className={drawerContainer}>{getDrawerChoices()}</div>
+           {/*  <div className={drawerContainer}>{getDrawerChoices()}</div> */}
           </Box>
         </Drawer>
 
@@ -289,8 +289,8 @@ const MainLayout = (props) => {
     return headersData.map(({ title, path }) => {
       if(title)
       return (
-        <NavLink end className={navlinkNavbar} to={path} activeClassName={activeClassNavbar} key={`routeLink-${title}}`}>
-          <ListItem button key={`routeListItem-${title}}`} >
+        <NavLink end className={navlinkNavbar} to={path} activeClassName={activeClassNavbarElement} key={`routeLink-${title}}`}>
+          <ListItem button activeClassName={activeClassNavbarElement} key={`routeListItem-${title}}`} >
             <Typography variant="span">{title}</Typography>
           </ListItem>
         </NavLink>
@@ -302,7 +302,7 @@ const MainLayout = (props) => {
     <React.Fragment>
       <CssBaseline />
       <HideOnScroll {...props}>
-        <AppBar className={green}>
+        <AppBar >
           <Toolbar className={toolbar}>
             {mobileView ? displayMobile() : displayDesktop()}
             <AuthenticationButton />
