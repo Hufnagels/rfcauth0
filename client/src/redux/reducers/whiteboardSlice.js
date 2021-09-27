@@ -3,7 +3,7 @@ import produce from 'immer';
 
 const initialState = {
   users:[],
-  actualstate:[],
+  actualstate:{},
 }
 
 // const deleteUsersArrayById = produce(state.users, draft => {

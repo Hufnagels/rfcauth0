@@ -10,6 +10,8 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 
+import { purple } from '@mui/material/colors'
+
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
@@ -46,6 +48,8 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import ClearAllOutlinedIcon from '@mui/icons-material/ClearAllOutlined';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
+import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
+import LayersClearOutlinedIcon from '@mui/icons-material/LayersClearOutlined';
 
 // custom
 import ToolbarWrapper from '../ToolbarWrapper';
@@ -63,8 +67,6 @@ import {
 import { socket } from '../../features/context/socketcontext_whiteboard';
 // import { useSocket } from '../../features/context/SocketContext';
 import { 
-  adduser,
-  removeuser,
   statechange,
 } from '../../redux/reducers/whiteboardSlice';
 
@@ -85,6 +87,21 @@ const useStyles = makeStyles((theme) => ({
     '&selected':{
       color: '#ff4081 !important'
     }
+  },
+  dropZone:{
+    display:'none',
+    width:'90vw',
+    height:'300px',
+    position:'absolute',
+    top:'10px',
+    zIndex:'1000',
+    '&.selected':{
+      backgroundColor: purple[500],
+      display:'block',
+      '&:hover':{
+        backgroundColor: purple[100],
+      },
+    },
   },
   board: {
     width:'100%',
@@ -118,6 +135,8 @@ const Board4 = (props) => {
   const classes = useStyles();
   // Refs
   const imgDown = React.useRef();
+  const jsonDown = React.useRef();
+  const fileInputRef = React.useRef();
   const canvasRef = React.useRef(null);
   const toolsRef = React.useRef(null);
   const colorsRef = React.useRef('#f6b73c');
@@ -244,7 +263,11 @@ const Board4 = (props) => {
     // fabric.Object.prototype.transparentCorners = true;
     // fabric.Object.prototype.cornerColor = 'red';
     // fabric.Object.prototype.cornerStyle = 'rectangle';
-
+    if(localStorage.getItem('whiteboard.data') && localStorage.getItem('whiteboard.data') !== '') {
+      canvasRef.current.loadFromJSON(localStorage.getItem('whiteboard.data'), function() {
+        canvasRef.current.requestRenderAll();
+    }); 
+    }
     const _original_initHiddenTextarea   = fabric.IText.prototype.initHiddenTextarea;
     fabric.util.object.extend(fabric.Text.prototype, /** @lends fabric.IText.prototype */ {    
       //fix for : IText not editable when canvas is in a fullscreen element on chrome
@@ -338,8 +361,8 @@ const Board4 = (props) => {
         ...connection, 
         socketid: response.userId,
       })
-      console.log('response', response)
-      console.log('response connection', connection)
+// console.log('response', response)
+// console.log('response connection', connection)
     })
     
   }
@@ -360,9 +383,8 @@ const Board4 = (props) => {
     const sketchWrapper = document.getElementById('sketchWrapper');
     let sketchWrapper_style = getComputedStyle(sketchWrapper);
     //setCanvas(canvasRef.current);
-    console.log(socket)
+console.log(socket)
     //initSocketConnection();
-
     initFabricCanvas();
     
     canvasFn(canvasRef.current)
@@ -375,7 +397,7 @@ const Board4 = (props) => {
           height:height
         });
         canvasRef.current.requestRenderAll() //renderAll();
-        console.info('W-H: ', width, height)
+console.info('W-H: ', width, height)
       }
     }
     window.addEventListener('resize', onResize, false);
@@ -473,28 +495,20 @@ console.log(options.target.getBoundingRect())
         })
 
         canvasRef.current.on('before:render', function(options){
-          console.log('before:render')
-          console.log(options)
+          // console.log('before:render')
+          // console.log(options)
         })
         canvasRef.current.on('after:render', function(options){
-          console.log('after:render')
-          console.log(options)
-          // let isExist = false;
-          // canvasRef.current.getObjects().forEach(object => {
-          //   if (object.id === id) {
-          //     isExist = true
-          //   }
-          // })
-          const json = JSON.stringify(canvasRef.current);
-          localStorage.setItem("whiteboard",json);
-          dispatch(statechange(json))
+// console.log('after:render')
+// console.log(options)
+          const object = canvasAllToJson(canvasRef.current, true);
+          dispatch(statechange(object))
         })
 
         AddDrawListener(canvasRef.current)
         AddObjectListener(canvasRef.current)
         ModifyObjectListener(canvasRef.current)
         RemoveObjectListener(canvasRef.current)
-        
       }
       
   },[canvasRef.current])
@@ -627,7 +641,7 @@ console.log(options.target.getBoundingRect())
       switch (toolsRef.current) {
         case drawingMode.pan:
           if (!this.isDragging) return
-console.info('begin pan')
+// console.info('begin pan')
           var vpt = this.viewportTransform;
           vpt[4] += event.clientX - this.lastPosX;
           vpt[5] += event.clientY - this.lastPosY;
@@ -693,7 +707,7 @@ console.info('begin pan')
     canvas.on('mouse:down', function(e) {
       const event = e.e;
       mousepressed = true;
-      console.log(e.button)
+// console.log(e.button)
       if (e.button === 3 && e.target) {
         canvas.sendBackwards(e.target);
         canvas.discardActiveObject();
@@ -802,14 +816,14 @@ console.info('begin pan')
       const event = e.e;
       mousepressed = false;
       this.isDragging = false;
-console.log('mouse:up')
-console.log(e.target)
+// console.log('mouse:up')
+// console.log(e.target)
       canvas.selection=true;
       
       if(drawingObject !== null ) {
         drawingObject.owner = connection.email;
         
-console.log('mouse up drawinObject')
+// console.log('mouse up drawinObject')
         //canvas.remove(drawingObject);
         //if(dropObject(drawingObject, canvas, drawingObject.id)){
         const modifiedObj = {
@@ -826,7 +840,7 @@ console.log('mouse up drawinObject')
         //}
         
         
-console.log(canvas.getObjects())
+//console.log(canvas.getObjects())
       }
       canvasRef.current.selection = (toolsRef.current === drawingMode.pan || toolsRef.current === drawingMode.select) ? true : false;
       origX=null;
@@ -856,9 +870,133 @@ console.log(canvas.getObjects())
 
   }
 
+  const canvasAllToJson = (json, toJson = true) => {
+    const date = new Date();
+    const data = JSON.stringify(json);
+    //if(toJson) json = data;
+    const object = {
+      board: (toJson ? data:json),
+      username: connection.username,
+      date: date.toUTCString('yyy-mm-dd hh:mm:ss'),
+      timestamp: date.getTime()
+    }
+    localStorage.setItem('whiteboard.data',data)
+    localStorage.setItem('whiteboard.username',object.username)
+    localStorage.setItem('whiteboard.date',object.date)
+    localStorage.setItem('whiteboard.timestamp',object.timestamp)
+    return object;
+  }
+
+  const saveAll = (e, filename = 'canvas') => {
+    e.preventDefault();
+    const json = JSON.stringify(canvasRef.current);
+    const object = canvasAllToJson(canvasRef.current, false);
+    //object.board = canvasRef.current;
+    filename += '_' + object.username + '_' + object.timestamp
+    const fileData = JSON.stringify(object);
+    const blob = new Blob([fileData], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    //const link = document.createElement('a');
+    jsonDown.current.download = `${filename}.json`;
+    jsonDown.current.href = url;
+    jsonDown.current.click();
+
+    const dataURL = canvasRef.current.toDataURL({
+      width: canvasRef.current.width,
+      height: canvasRef.current.height,
+      left: 0,
+      top: 0,
+      format: 'png',
+    });
+    imgDown.current.download = `${filename}.png`;
+    imgDown.current.href = dataURL;
+    imgDown.current.click();
+    imgDown.current.href = ''
+  }
+
+  const handelImage = (img) => {
+    // const file = e.target.files && e.target.files[0];
+
+    // if (file) {
+    //   let reader = new FileReader();
+    //   reader.readAsDataURL(file);
+    //   reader.onloadend = () => {
+    //     const base64data = reader.result;
+    //     selectImage(base64data);
+    //   };
+    // }
+  }
+
+  const handelJson = (data) => {
+    // simple json (canvas objects only) or 
+    // custom object converted to json (username, board, date, timestamp)
+    let json = '';
+    const parsedData = JSON.parse(data);
+    if (parsedData && parsedData.board) {
+      //custom json
+      json = JSON.stringify(parsedData.board)
+    } else if (typeof parsedData.board === 'undefined'){
+      // simple json
+      json = data;
+    }
+    canvasRef.current.clear();
+    canvasRef.current.loadFromJSON(json, function() {
+      canvasRef.current.requestRenderAll();
+    },function(o,object){
+//console.log(o,object)
+    });
+  }
+
+  const handleFiles = (files) => {
+// console.log('files:', files)
+    // validation required
+    const arr = [...files]
+    arr.forEach(file =>  {
+// console.info(file.name)
+// console.info(file.type)
+// console.info(file)
+			// if (file.type.match(textType)) {
+				var reader = new FileReader();
+				reader.onload = function(e) {
+// console.log(reader.result);
+          handelJson(reader.result)
+				}
+				reader.readAsText(file);	
+			// } else {
+			// 	console.log("File not supported!")
+			// }
+    });
+  }
+
+  const validateFile = (file) => {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/x-icon'];
+    if (validTypes.indexOf(file.type) === -1) {
+        return false;
+    }
+    return true;
+  }
+
+  const filesSelected = () => {
+    if (fileInputRef.current.files.length) {
+      handleFiles(fileInputRef.current.files);
+    }
+  }
+
+  const loadAll = (e) => {
+    e.preventDefault();
+    fileInputRef.current.click();
+    return
+  }
+
+  const clearAll = (e) => {
+    canvasRef.current.clear();
+  }
+
   return (
       <React.Fragment>
         <a ref={imgDown} hidden href="" />
+        <a ref={jsonDown} hidden href="" />
+        <input type="file" ref={fileInputRef} onChange={filesSelected} hidden />
         <div>
           <Snackbar
             anchorOrigin={{ vertical, horizontal }}
@@ -922,6 +1060,32 @@ console.log(canvas.getObjects())
             />
           </div>
         </Box>
+        <Box
+            component="form"
+            sx={{
+              marginTop:1,
+              marginBottom:1,
+              '& .MuiTextField-root': { m: 1, width: '5.3ch', },
+            }}
+            noValidate
+            autoComplete="off"
+            style={{display: 'flex',
+              flexDirection: 'column',
+              flexWrap: 'nowrap',
+              alignContent: 'flex-start',
+              alignItems: 'stretch',
+              justifyContent: 'center',
+            }}
+          >
+            <ButtonGroup
+              orientation="vertical"
+              aria-label="vertical outlined button group"
+            >
+              <Button variant="text" color='secondary' name="Text" aria-label="Text" onClick={(e) => { clearAll(e) }}>
+                <LayersClearOutlinedIcon />
+              </Button>
+            </ButtonGroup>
+          </Box>
         <Box
             component="form"
             sx={{
@@ -997,6 +1161,12 @@ console.log(canvas.getObjects())
           </Button>
           <Button variant="text" color='secondary' name="Text" aria-label="Text" onClick={(e) => { addShape(e) }}>
             <TextFieldsOutlinedIcon />
+          </Button>
+          <Button variant="text" color='secondary' name="Text" aria-label="Text" onClick={(e) => { saveAll(e) }}>
+            <SaveAltOutlinedIcon />
+          </Button>
+          <Button variant="text" color='secondary' name="Text" aria-label="Text" onClick={(e) => { loadAll(e) }}>
+            <FileUploadOutlinedIcon />
           </Button>
         </ButtonGroup>
         </Box>
