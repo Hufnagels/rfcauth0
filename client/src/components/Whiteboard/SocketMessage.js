@@ -62,14 +62,12 @@ export default function SocketMessage() {
     }
   },[])
 
-
-
   React.useEffect(()=> {
 
     if(isConnected){
     socket.on('welcome-message', (response) => {
       setOpen(true);
-console.log('welcome-message: ', response)
+//console.log('welcome-message: ', response)
       //setMessage({...message, message: response.username});
       setMessage(response.text);
       //delete response.text;
@@ -77,20 +75,20 @@ console.log('welcome-message: ', response)
     })
     socket.on('connection-message', (response) => {
       setOpen(true);
-      console.log('connection-message: ', response)
+//console.log('connection-message: ', response)
       //setMessage({...message, message: response.username});
       
       setMessage(response.text);
     })
     socket.on('action-message', (response) => {
       setOpen(true);
-      console.log('action-message: ', JSON.stringify(response))
+//console.log('action-message: ', JSON.stringify(response))
       //setMessage({...message, message: response.username});
       setMessage(JSON.stringify(response));
     })
     socket.on('leave-room-message', (response) => {
       setOpen(true);
-      console.log('leave-room-message: ', response)
+//console.log('leave-room-message: ', response)
       setMessage(response.text);
     })
   }

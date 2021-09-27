@@ -409,6 +409,7 @@ console.info('W-H: ', width, height)
       console.log(connection)
       socket.emit('leave-WhiteboardRoom', socket.id);
       //dispatch(removeuser(socket.id))
+      //socket.disconnect();
     }
   }, []);
 

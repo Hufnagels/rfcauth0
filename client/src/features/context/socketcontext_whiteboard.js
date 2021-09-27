@@ -12,16 +12,16 @@ export const socket = io.connect(SOCKET_URL, {
   'reconnection': true,
   'reconnectionDelay': 500,
   'reconnectionAttempts': 10,
-  // 'forceNew': true,
+  'forceNew': true,
 });
 
 socket.on('connect', () => {
   console.log('socket connected')
 })
-let count = 0;
-setInterval(() => {
-  socket.volatile.emit("ping", ++count);
-}, 1000);
+// let count = 0;
+// setInterval(() => {
+//   socket.volatile.emit("ping", ++count);
+// }, 1000);
 // socket.on('connection-message', (response) => {
 //   console.log('connection-message: ', response)
 //   setConnection({...connection, username: response.username});
