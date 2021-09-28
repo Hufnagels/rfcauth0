@@ -3,17 +3,17 @@ import { withAuthenticationRequired } from "@auth0/auth0-react";
 
 // custom
 import Wrapper from '../../../components/Wrapper';
-import Board4 from '../../../components/Whiteboard/Board4';
+import Board5 from '../../../components/Whiteboard/Board5';
 import RestrictedArea from '../../../components/RestrictedArea';
 //import { SocketContext, socket } from '../../../features/context/socketcontext_whiteboard';
 // import { SocketProvider } from '../../../features/context/SocketContext'
-import SocketMessage from '../../../components/Whiteboard/SocketMessage';
+import BoardSocketMessage from '../../../components/Whiteboard/BoardSocketMessage';
 
 const Whiteboard = () => {
   return (
       <Wrapper>
-        <Board4 />
-        <SocketMessage />
+        <Board5 />
+        <BoardSocketMessage />
       </Wrapper>
   )
   /* return (

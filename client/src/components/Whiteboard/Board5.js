@@ -7,52 +7,12 @@ import { useAuth0 } from '@auth0/auth0-react';
 //Material
 import { makeStyles } from '@mui/styles';
 import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-
 import { purple } from '@mui/material/colors'
-
-import SpeedDial from '@mui/material/SpeedDial';
-import SpeedDialIcon from '@mui/material/SpeedDialIcon';
-import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import SpeedDialAction from '@mui/material/SpeedDialAction';
-import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
-import SaveIcon from '@mui/icons-material/Save';
-import PrintIcon from '@mui/icons-material/Print';
-import ShareIcon from '@mui/icons-material/Share';
-
 import Snackbar from '@mui/material/Snackbar';
 import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import PhotoSizeSelectSmallIcon from '@mui/icons-material/PhotoSizeSelectSmall';
-import GestureOutlinedIcon from '@mui/icons-material/GestureOutlined';
-import ChangeHistoryOutlinedIcon from '@mui/icons-material/ChangeHistoryOutlined';
-
-import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
-
-import FolderIcon from '@mui/icons-material/Folder';
-import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
-import CircleIcon from '@mui/icons-material/Circle';
-import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import PanToolOutlinedIcon from '@mui/icons-material/PanToolOutlined';
-import ZoomInOutlinedIcon from '@mui/icons-material/ZoomInOutlined';
-import ZoomOutOutlinedIcon from '@mui/icons-material/ZoomOutOutlined';
-import TextFieldsOutlinedIcon from '@mui/icons-material/TextFieldsOutlined';
-
-import UndoIcon from '@mui/icons-material/Undo';
-import RedoIcon from '@mui/icons-material/Redo';
-import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import ClearAllOutlinedIcon from '@mui/icons-material/ClearAllOutlined';
-import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
-import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
-import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
-import LayersClearOutlinedIcon from '@mui/icons-material/LayersClearOutlined';
 
 // custom
-import ToolbarWrapper from '../ToolbarWrapper';
+import BoardToolbar from './BoardToolbar';
 import {
   AddDrawEmitter,
   AddObjectEmitter, 
@@ -63,12 +23,9 @@ import {
   ModifyObjectListener, 
   RemoveObjectListener
 } from './board_socket_emitters_listeners';
-//import SocketContext from '../../features/context/socketcontext/context';
 import { socket } from '../../features/context/socketcontext_whiteboard';
-// import { useSocket } from '../../features/context/SocketContext';
 import { 
   statechange,
-  selectBoard,
 } from '../../redux/reducers/whiteboardSlice';
 
 const useStyles = makeStyles((theme) => ({
@@ -131,7 +88,24 @@ const SketchWrapper = styled('div')(({ theme }) => ({
   height:'100%',
 }));
 
-const Board4 = (props) => {
+function tryParseJSONObject (jsonString){
+  try {
+      var o = JSON.parse(jsonString);
+
+      // Handle non-exception-throwing cases:
+      // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
+      // but... JSON.parse(null) returns null, and typeof null === "object", 
+      // so we must check for that, too. Thankfully, null is falsey, so this suffices:
+      if (o && typeof o === "object") {
+          return o;
+      }
+  }
+  catch (e) { }
+
+  return false;
+};
+
+const Board5 = (props) => {
   // Styles
   const classes = useStyles();
   // Refs
@@ -140,16 +114,18 @@ const Board4 = (props) => {
   const fileInputRef = React.useRef();
   const canvasRef = React.useRef(null);
   const toolsRef = React.useRef(null);
-  const colorsRef = React.useRef('#f6b73c');
+
+  const strokeRef = React.useRef('#f6b73c');
   const fillRef = React.useRef('#f6b73c');
+
   // Authentication
   const { user } = useAuth0();
   const { name, picture, email } = user;
+
   // Redux store & reducers
-  const actualstate = useSelector(selectBoard)
   const dispatch = useDispatch();
+
   // Socket
-  //const socket = useSocket();
   const [connected, setConnected] = React.useState(false)
   const [connection, setConnection] = useState({
     username: name,
@@ -159,7 +135,7 @@ const Board4 = (props) => {
     socketid: '', //socket.id,
   });
   
-  //Toolbar section begin
+  //Snackbar section begin
   let currentMode;
   let mousepressed = false;
   let wheeling;
@@ -184,18 +160,10 @@ const Board4 = (props) => {
   );
   const [currentZoom, setCurrentZoom] = React.useState(1)
   const [currentFile, setCurrentFile] = React.useState('')
-  //SpeedDial
-  // const [open, setOpen] = React.useState(false);
-  // const handleOpen = () => setOpen(true);
-  // const handleClose = () => setOpen(false);
-  // const actions = [
-  //   { icon: <FileCopyIcon />, name: 'Copy' , type: 'circle'},
-  //   { icon: <SaveIcon />, name: 'Save', type: 'triangle' },
-  //   { icon: <PrintIcon />, name: 'Print', type: 'rectangle' },
-  //   { icon: <ShareIcon />, name: 'Share', type: ''},
-  // ];
+  
   // ToggleButtonGroup
   const [lineColor, setLineColor] = useState('#f6b73c')
+  const [strokeColor, setStorkeColor] = useState('#f6b73c')
   const [tool, setTool] = React.useState(null);
   const handleToolChange = (event, nextView) => {
     event.preventDefault();
@@ -225,11 +193,32 @@ const Board4 = (props) => {
     text: 'Text',
     default:null,
   }
+
+
+  const setStrokeColor = (data) => {
+    strokeRef.current = data
+    console.log(strokeRef.current)
+  }
+  const setFillColor = (data) => {
+    fillRef.current = data;
+  }
+  const selectTool = (data) => {
+    console.log(data)
+    if( data !== null){
+      //setTool(nextView);
+      toolsRef.current=data;
+    }
+    canvasRef.current.isDrawingMode = (toolsRef.current === drawingMode.pencil) ? true : false;
+    canvasRef.current.selection = (toolsRef.current === drawingMode.pan || toolsRef.current === drawingMode.select) ? true : false;
+    console.log('selection')
+    console.log(canvasRef.current.selection)
+    if (data === drawingMode.pencil) {
+      updateFreeDrawingBrush();
+    }
+  }
+  const objectButtons = (data) => {}
   // Canvas 
   // Toolbar section end
-  const [offset,setOffset] = React.useState(null);
-  let origX, origY, drawingObject = null;  
-  const [canvas, setCanvas] = React.useState('');
 
   // Functions
   const getCanvasPosition = (el) => {
@@ -238,17 +227,6 @@ const Board4 = (props) => {
     return {top:viewportOffset.top, left:viewportOffset.left}
   }
 
-  const initCanvas = () =>
-    new fabric.Canvas('canvas', {
-      isDrawingMode: false,
-      lineWidth: 5,
-      freeDrawingBrush:{
-        color:colorsRef.current,
-        width: 5
-      },
-      backgroundColor: 'white'
-  })
-  
   const initFabricCanvas = () => {
     canvasRef.current = new fabric.Canvas('canvas',{
       isDrawingMode: false,
@@ -256,17 +234,12 @@ const Board4 = (props) => {
       topContextMenu: true,
       fireRightClick: true,
       freeDrawingBrush:{
-        color:colorsRef.current,
+        color:strokeRef.current,
         width: 5
-      },
-      zoom: currentZoom,
+      }
     });
 
     canvasRef.current.selectionColor = 'rgba(0,255,0,0.3)';
-    //setOffset(getCanvasPosition(document.getElementById('canvas')))
-    // fabric.Object.prototype.transparentCorners = true;
-    // fabric.Object.prototype.cornerColor = 'red';
-    // fabric.Object.prototype.cornerStyle = 'rectangle';
     
     const _original_initHiddenTextarea   = fabric.IText.prototype.initHiddenTextarea;
     fabric.util.object.extend(fabric.Text.prototype, /** @lends fabric.IText.prototype */ {    
@@ -367,11 +340,6 @@ const Board4 = (props) => {
     
   }
 
-  const updateFreeDrawingBrush = () => {
-    canvasRef.current.freeDrawingBrush.color = colorsRef.current;
-    canvasRef.current.freeDrawingBrush.width = 5;
-  }
-
   useEffect(() => {
     if(socket && socket.connected) { 
       setConnected(true);
@@ -402,8 +370,8 @@ console.info('W-H: ', width, height)
     }
     window.addEventListener('resize', onResize, false);
     onResize();
-
-    if(localStorage.getItem('whiteboard.data') && localStorage.getItem('whiteboard.data') !== '') {
+//console.error(tryParseJSONObject(localStorage.getItem('whiteboard.data')))
+    if(localStorage.getItem('whiteboard.data') && tryParseJSONObject(localStorage.getItem('whiteboard.data'))) {
       canvasRef.current.loadFromJSON(localStorage.getItem('whiteboard.data'), function() {
         canvasRef.current.requestRenderAll();
         
@@ -427,12 +395,6 @@ console.info('W-H: ', width, height)
       //socket.disconnect();
     }
   }, []);
-
-  useEffect(()=>{
-    //setConnected(socket.connected)
-// console.log(actualstate)
-    
-  },[actualstate])
 
   useEffect(() => {
       if (canvasRef.current) {
@@ -517,10 +479,8 @@ console.log(options.target.getBoundingRect())
         canvasRef.current.on('after:render', function(options){
 // console.log('after:render')
 // console.log(options)
-
           const object = canvasAllToJson(canvasRef.current, true);
           dispatch(statechange(object))
-console.log(canvasRef.current.getZoom())
         })
 
         AddDrawListener(canvasRef.current)
@@ -531,28 +491,21 @@ console.log(canvasRef.current.getZoom())
       
   },[canvasRef.current])
 
+  const updateFreeDrawingBrush = () => {
+    canvasRef.current.freeDrawingBrush.color = strokeRef.current;
+    canvasRef.current.freeDrawingBrush.width = 5;
+  }
+
   const addShape = (e) => {
     let type = e.target.name || e.currentTarget.name;
     let object
-    /* 
-    // Speeddial
-    console.log(e.target.nodeName, e)
-    if (e.target.parentNode.nodeName === 'BUTTON')
-      type = e.target.parentNode.getAttribute('name')
-    else if (e.target.parentNode.nodeName === 'DIV')
-      type = e.target.getAttribute('name')
-    else if (e.target.nodeName === 'path')
-      type = e.target.parentNode.parentNode.getAttribute('name')
-    //console.log(e.target.parentNode.nodeName)
-    console.log(type)
-    // return 
-    */
+    
     if(type !== 'Line'){
     if (type === 'Rectangle') {
       object = new fabric.Rect({
         height: 75,
         width: 150,
-        stroke: colorsRef.current,
+        stroke: strokeRef.current,
         strokeWidth: 5,
         fill: 'transparent',
         transparentCorners: false,
@@ -564,9 +517,9 @@ console.log(canvasRef.current.getZoom())
       object = new fabric.Rect({
         height: 75,
         width: 150,
-        stroke: colorsRef.current,
+        stroke: strokeRef.current,
         strokeWidth: 5,
-        fill: colorsRef.current,
+        fill: strokeRef.current,
         transparentCorners: false,
         globalCompositeOperation: "source-over",
         clipTo: null,
@@ -576,7 +529,7 @@ console.log(canvasRef.current.getZoom())
       object = new fabric.Triangle({
         width: 100,
         height: 100,
-        stroke: colorsRef.current,
+        stroke: strokeRef.current,
         strokeWidth: 5,
         fill: 'transparent',
         transparentCorners: false,
@@ -587,16 +540,16 @@ console.log(canvasRef.current.getZoom())
     } else if (type === 'Circle') {
       object = new fabric.Circle({
         radius: 50,
-        stroke: colorsRef.current,
+        stroke: strokeRef.current,
         strokeWidth: 5,
         fill: 'transparent',
       })
     } else if (type === 'FilledCircle') {
       object = new fabric.Circle({
         radius: 50,
-        stroke: colorsRef.current,
+        stroke: strokeRef.current,
         strokeWidth: 5,
-        fill: colorsRef.current,
+        fill: strokeRef.current,
       })
     } else if (type === 'Text') {
       object = new fabric.IText('IText', { 
@@ -604,7 +557,7 @@ console.log(canvasRef.current.getZoom())
         top: 50,
         fontFamily: 'Arial',
         fontSize: 20,
-        fill: colorsRef.current,
+        fill: strokeRef.current,
         text:'IText',
         visible: true,
       });
@@ -626,9 +579,9 @@ console.log(canvasRef.current.getZoom())
     })
     } else if (type === 'Line') { 
       object = new fabric.Path('M 200 100 L 350 100', {
-        stroke: colorsRef.current,
+        stroke: strokeRef.current,
         strokeWidth: 5,
-        fill: colorsRef.current,
+        fill: strokeRef.current,
         originX: 'left',
         originY: 'top'
       });
@@ -670,53 +623,6 @@ console.log(canvasRef.current.getZoom())
         case drawingMode.pencil:
           this.isDrawingMode = true;
           break;
-        // case drawingMode.line:
-        //   if(drawingObject !== null){
-        //     var pointer = canvas.getPointer(event);
-        //     drawingObject.set({ x2: pointer.x, y2: pointer.y });
-        //     this.requestRenderAll();
-        //   }
-        //   break;
-        // case drawingMode.rect:
-        // case drawingMode.fillrect:
-        //   if(drawingObject !== null){
-        //     var pointer = canvas.getPointer(event);
-        //     //drawingObject = canvas.getActiveObject();
-        //     if(origX>pointer.x){
-        //         drawingObject.set({ left: Math.abs(pointer.x) });
-        //     }
-        //     if(origY>pointer.y){
-        //         drawingObject.set({ top: Math.abs(pointer.y) });
-        //     }
-  
-        //     drawingObject.set({ width: Math.abs(origX - pointer.x) });
-        //     drawingObject.set({ height: Math.abs(origY - pointer.y) });
-        //     this.requestRenderAll()
-        //   }
-        //   break;
-        // case drawingMode.circle:
-        // case drawingMode.fillcircle:
-        //   if(drawingObject !== null){
-        //     var pointer = canvas.getPointer(event);
-        //     var radius = Math.max(Math.abs(origY - pointer.y),Math.abs(origX - pointer.x))/2;
-        //     if (radius > drawingObject.strokeWidth) {
-        //         radius -= drawingObject.strokeWidth/2;
-        //     }
-        //     drawingObject.set({ radius: radius});
-            
-        //     if(origX>pointer.x){
-        //         drawingObject.set({originX: 'right' });
-        //     } else {
-        //         drawingObject.set({originX: 'left' });
-        //     }
-        //     if(origY>pointer.y){
-        //         drawingObject.set({originY: 'bottom'  });
-        //     } else {
-        //         drawingObject.set({originY: 'top'  });
-        //     }
-        //     this.requestRenderAll()
-        //   }
-        //   break;
         default:
           break;
       }
@@ -745,86 +651,6 @@ console.log(canvasRef.current.getZoom())
           this.setCursor('crosshair');
           updateFreeDrawingBrush();
           break;
-        // case drawingMode.line:
-        //   if (e.target !== null) return
-        //   //canvas.selection = false;
-        //   var pointer = canvas.getPointer(event.e);
-        //   var points = [ pointer.x, pointer.y, pointer.x, pointer.y ];
-        //   origX = pointer.x;
-        //   origY = pointer.y;
-        //   drawingObject = new fabric.Line(points, {
-        //     strokeWidth: 5,
-        //     fill: colorsRef.current,
-        //     stroke: colorsRef.current,
-        //     // originX: 'center',
-        //     // originY: 'center'
-        //   });
-        //   drawingObject.set({id: uuid(), owner: connection.email})
-        //   canvas.add(drawingObject);
-        //   break;
-        // case drawingMode.rect:
-        // case drawingMode.fillrect:
-        //   if (e.target !== null) return
-        //   //canvas.selection = false;
-        //   var pointer = canvas.getPointer(event.e);
-        //   origX = pointer.x;
-        //   origY = pointer.y;
-        //   drawingObject = new fabric.Rect({
-        //     left: origX,
-        //     top: origY,
-        //     width: pointer.x-origX,
-        //     height: pointer.y-origY,
-        //     angle: 0,
-        //     //selectable:true,
-        //     stroke: colorsRef.current,
-        //     strokeWidth: 5,
-        //     fill: toolsRef.current === drawingMode.fillrect ? colorsRef.current : 'transparent',
-        //     transparentCorners: false,
-        //     globalCompositeOperation: "source-over",
-        //     clipTo: null,
-        //   });
-        //   drawingObject.set({id: uuid(), owner: connection.email})
-        //   canvas.add(drawingObject);
-        //   break;
-        // case drawingMode.circle:
-        // case drawingMode.fillcircle:
-        //   if (e.target !== null) return
-        //   //canvas.selection = false;
-        //   var pointer = canvas.getPointer(event);
-        //   origX = pointer.x;
-        //   origY = pointer.y;
-        //   drawingObject = new fabric.Circle({
-        //     left: origX,
-        //     top: origY,
-        //     radius: pointer.x-origX,
-        //     angle: 0,
-        //     fill: toolsRef.current === drawingMode.fillcircle ? colorsRef.current : 'transparent',
-        //     stroke: colorsRef.current,
-        //     strokeWidth: 5,
-        //     globalCompositeOperation: "source-over",
-        //     clipTo: null,
-        //   });
-        //   drawingObject.set({id: uuid(), owner: connection.email})
-        //   canvas.add(drawingObject);
-        //   break;
-        // case drawingMode.text:
-        //   if (e.target !== null) return
-        //   var pointer = canvas.getPointer(event.e);
-        //   origX = pointer.x;
-        //   origY = pointer.y;
-        //   drawingObject = new fabric.Text('Sample', { 
-        //     left: origX, 
-        //     top: origY,
-        //     fontWeight: 'normal',
-        //     fontSize: 40,
-        //     textAlign: 'left',
-        //     fill: colorsRef.current,
-        //     text:'Sample',
-        //     visible: true,
-        //   })
-        //   drawingObject.set({id: uuid(), owner: connection.email})
-        //   canvas.add(drawingObject);
-        //   break;
         default:
           break;
       }
@@ -896,48 +722,46 @@ console.log(canvasRef.current.getZoom())
       board: (toJson ? data:json),
       username: connection.username,
       date: date.toUTCString('yyy-mm-dd hh:mm:ss'),
-      timestamp: date.getTime(),
-      zoom: canvasRef.current.getZoom(),
+      timestamp: date.getTime()
     }
     localStorage.setItem('whiteboard.data',data)
     localStorage.setItem('whiteboard.username',object.username)
     localStorage.setItem('whiteboard.date',object.date)
     localStorage.setItem('whiteboard.timestamp',object.timestamp)
-    localStorage.setItem('whiteboard.zoom',object.zoom)
     return object;
   }
-
-  const saveAll = (e, filename = 'canvas') => {
-    e.preventDefault();
-    const json = JSON.stringify(canvasRef.current);
-    const object = canvasAllToJson(canvasRef.current, false);
-    //object.board = canvasRef.current;
+/**/
+const saveAll = (e, filename = 'canvas') => {
+  e.preventDefault();
+  const json = JSON.stringify(canvasRef.current);
+  const object = canvasAllToJson(canvasRef.current, false);
+  //object.board = canvasRef.current;
 console.info(currentFile)
-    if (currentFile) {
-      filename = currentFile.replace(/\.[^/.]+$/, "");
-    } else {
-      filename += '_' + object.username + '_' + object.timestamp;
-    }
-    const fileData = JSON.stringify(object);
-    const blob = new Blob([fileData], {type: "application/json"});
-    const url = URL.createObjectURL(blob);
-    //const link = document.createElement('a');
-    jsonDown.current.download = `${filename}.json`;
-    jsonDown.current.href = url;
-    jsonDown.current.click();
-
-    const dataURL = canvasRef.current.toDataURL({
-      width: canvasRef.current.width,
-      height: canvasRef.current.height,
-      left: 0,
-      top: 0,
-      format: 'png',
-    });
-    imgDown.current.download = `${filename}.png`;
-    imgDown.current.href = dataURL;
-    imgDown.current.click();
-    imgDown.current.href = ''
+  if (currentFile) {
+    filename = currentFile.replace(/\.[^/.]+$/, "");
+  } else {
+    filename += '_' + object.username + '_' + object.timestamp;
   }
+  const fileData = JSON.stringify(object);
+  const blob = new Blob([fileData], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  //const link = document.createElement('a');
+  jsonDown.current.download = `${filename}.json`;
+  jsonDown.current.href = url;
+  jsonDown.current.click();
+
+  const dataURL = canvasRef.current.toDataURL({
+    width: canvasRef.current.width,
+    height: canvasRef.current.height,
+    left: 0,
+    top: 0,
+    format: 'png',
+  });
+  imgDown.current.download = `${filename}.png`;
+  imgDown.current.href = dataURL;
+  imgDown.current.click();
+  imgDown.current.href = ''
+}
 
   const handelImage = (img) => {
     // const file = e.target.files && e.target.files[0];
@@ -969,7 +793,6 @@ console.info(currentFile)
       canvasRef.current.requestRenderAll();
     },function(o,object){
 //console.log(o,object)
-object.scale(o.scaleX, o.scaleY)
     });
   }
 
@@ -985,7 +808,6 @@ object.scale(o.scaleX, o.scaleY)
 				var reader = new FileReader();
 				reader.onload = function(e) {
 // console.log(reader.result);
-          setCurrentFile(file.name)
           handelJson(reader.result)
 				}
 				reader.readAsText(file);	
@@ -1038,169 +860,17 @@ object.scale(o.scaleX, o.scaleY)
         <SketchWrapper id="sketchWrapper">
           <canvas id="canvas" ref={canvasRef} className={classes.board} ></canvas>
         </SketchWrapper>
-        <ToolbarWrapper>
-          
-          {/* <Box sx={{ height: 70, transform: 'translateZ(0px)', flexGrow: 1, position:'relative', }}>
-            <SpeedDial
-              ariaLabel="SpeedDial uncontrolled open example"
-              sx={{ position: 'absolute', bottom: 16, right: 16, }}
-              icon={<AddOutlinedIcon size='large' />}
-              onClose={handleClose}
-              onOpen={handleOpen}
-              open={open}
-              direction='left'
-            >
-              {actions.map((action) => (
-                <SpeedDialAction
-                  key={action.name}
-                  icon={action.icon}
-                  tooltipTitle={action.type}
-                  onClick={addShape}
-                  name={action.type}
-                />
-              ))}
-            </SpeedDial>
-          </Box> */}
-          <Box
-            component="form"
-            sx={{
-              marginBottom:0,
-              '& .MuiTextField-root': { m: 0, width: '5.4ch',minHeight:40, },
-            }}
-            noValidate
-            autoComplete="off"
-          >
-          <div>
-            <TextField
-              /* label="Color" */
-              id="outlined-size-large"
-              size="small"
-              type="color"
-              style={{}}
-              value={lineColor}
-              onChange={(e) => {
-                console.info(e.target.value)
-                setLineColor(e.target.value)
-                colorsRef.current=e.target.value;
-                // canvas.freeDrawingBrush.color = lineColor;
-                console.info(lineColor)
-              }}
-            />
-          </div>
-        </Box>
-        <Box
-            component="form"
-            sx={{
-              marginTop:1,
-              marginBottom:1,
-              '& .MuiTextField-root': { m: 1, width: '5.3ch', },
-            }}
-            noValidate
-            autoComplete="off"
-            style={{display: 'flex',
-              flexDirection: 'column',
-              flexWrap: 'nowrap',
-              alignContent: 'flex-start',
-              alignItems: 'stretch',
-              justifyContent: 'center',
-            }}
-          >
-            <ButtonGroup
-              orientation="vertical"
-              aria-label="vertical outlined button group"
-            >
-              <Button variant="text" color='secondary' name="Text" aria-label="Text" onClick={(e) => { clearAll(e) }}>
-                <LayersClearOutlinedIcon />
-              </Button>
-            </ButtonGroup>
-          </Box>
-        <Box
-            component="form"
-            sx={{
-              marginBottom:2,
-              '& .MuiTextField-root': { m: 0, width: '5.3ch', },
-            }}
-            noValidate
-            autoComplete="off"
-            style={{display: 'flex',
-              flexDirection: 'column',
-              flexWrap: 'nowrap',
-              alignContent: 'flex-start',
-              alignItems: 'stretch',
-              justifyContent: 'center',
-            }}
-          >
-        <ToggleButtonGroup
-          color="primary"
-          orientation="vertical"
-          value={tool}
-          exclusive
-          onChange={handleToolChange}
-          aria-label="outlined Sketch Tools"
-        >
-          <ToggleButton value="Pan" aria-label="Pan">
-            <PanToolOutlinedIcon />
-          </ToggleButton>
-          <ToggleButton value="Select" aria-label="Select">
-            <PhotoSizeSelectSmallIcon />
-          </ToggleButton>
-          <ToggleButton value="Pencil" aria-label="Pencil">
-            <GestureOutlinedIcon />
-          </ToggleButton>
-        </ToggleButtonGroup>
-        </Box>
-        <Box
-            component="form"
-            sx={{
-              marginBottom:1,
-              '& .MuiTextField-root': { m: 1, width: '5.3ch', },
-            }}
-            noValidate
-            autoComplete="off"
-            style={{display: 'flex',
-              flexDirection: 'column',
-              flexWrap: 'nowrap',
-              alignContent: 'flex-start',
-              alignItems: 'stretch',
-              justifyContent: 'center',
-            }}
-          >
-        <ButtonGroup
-          orientation="vertical"
-          aria-label="vertical outlined button group"
-        >
-          <Button variant="text" color='secondary' name="Line" aria-label="Line" onClick={(e) => { addShape(e) }}>
-            <DriveFileRenameOutlineOutlinedIcon />
-          </Button>
-          <Button variant="text" color='secondary' name="FilledRectangle" aria-label="FilledRectangle" onClick={(e) => { addShape(e) }}>
-            <FolderIcon />
-          </Button>
-          <Button variant="text" color='secondary' name="FilledCircle" aria-label="FilledCircle" onClick={(e) => { addShape(e) }}>
-            <CircleIcon />
-          </Button>
-          <Button variant="text" color='secondary' name="Rectangle" aria-label="Rectangle" onClick={(e) => { addShape(e) }}>
-            <FolderOutlinedIcon />
-          </Button>
-          <Button variant="text" color='secondary' name="Circle" aria-label="Circle" onClick={(e) => { addShape(e) }}>
-            <CircleOutlinedIcon />
-          </Button>
-          <Button variant="text" color='secondary' name="Triangle" aria-label="Text" onClick={(e) => { addShape(e) }} >
-            <ChangeHistoryOutlinedIcon />
-          </Button>
-          <Button variant="text" color='secondary' name="Text" aria-label="Text" onClick={(e) => { addShape(e) }}>
-            <TextFieldsOutlinedIcon />
-          </Button>
-          <Button variant="text" color='secondary' name="Text" aria-label="Text" onClick={(e) => { saveAll(e) }}>
-            <SaveAltOutlinedIcon />
-          </Button>
-          <Button variant="text" color='secondary' name="Text" aria-label="Text" onClick={(e) => { loadAll(e) }}>
-            <FileUploadOutlinedIcon />
-          </Button>
-        </ButtonGroup>
-        </Box>
-        </ToolbarWrapper>
+        <BoardToolbar
+          setFillColor={setFillColor}
+          setStrokeColor={setStrokeColor}
+          selectTool={selectTool}
+          addShape={addShape}
+          loadAll={loadAll}
+          saveAll={saveAll}
+          clearAll={clearAll}
+        />
       </React.Fragment>
   );
 }
 
-export default Board4;
+export default Board5;

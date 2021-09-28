@@ -2,10 +2,8 @@ import React from 'react'
 
 // Material
 import {
-  AppBar,
   Grid,
   Link,
-  Stack,
   Toolbar,
   Typography
 } from "@material-ui/core";

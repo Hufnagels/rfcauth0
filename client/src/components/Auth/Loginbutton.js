@@ -2,26 +2,9 @@ import React from 'react'
 import { useAuth0 } from '@auth0/auth0-react';
 
 //Material
-import { styled, useTheme, createTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import {
-  CssBaseline,
-  Typography,
-  AppBar,
-  Toolbar,
-  Box,
-  Drawer,
-  Container,
-  Link,
   Button,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  IconButton,
-  Slide,
-  Fab,
-  Zoom,
   useScrollTrigger,
 } from "@mui/material";
 

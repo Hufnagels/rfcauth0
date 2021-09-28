@@ -15,7 +15,7 @@ import {
   removeuser,
 } from '../../redux/reducers/whiteboardSlice';
 
-export default function SocketMessage() {
+export default function BoardSocketMessage() {
   //const socket = useSocket();
   const dispatch = useDispatch();
   const [isConnected, setConnected] = React.useState(false)

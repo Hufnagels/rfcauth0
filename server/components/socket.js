@@ -80,17 +80,24 @@ module.exports = (io) => {
             userId: p_user.id,
             username: p_user.username,
             text: `${p_user.username} has left the room`,
+            room: p_user.roomname,
           });
-          console.log(`${p_user.username} has left the room`);
+//console.log(`${p_user.username} has left the room`);
           user_Disconnect(data)
         }
         
       });
-      socket.onAny((eventName, ...args) => {
+      /* socket.onAny((eventName, ...args) => {
         if (eventName === 'ping') return
         console.log('onAny: ', eventName, JSON.stringify(args))
         const message = `${username} did a(n) ${eventName}`
         socket.to(p_user.roomname).emit("action-message", message );
-      });
+      }); */
    })
+   socket.onAny((eventName, ...args) => {
+    if (eventName === 'ping') return
+    console.log('onAny: ', eventName, JSON.stringify(args))
+    // const message = `${username} did a(n) ${eventName}`
+   // socket.to(args.room).emit("action-message", args.text );
+  });
 })}

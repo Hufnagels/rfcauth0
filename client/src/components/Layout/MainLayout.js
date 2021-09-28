@@ -142,7 +142,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     justifyContent:'flex-start',
     textDecoration:'none',
-    color: theme.palette.text.primary,
+    //color: theme.palette.text.primary,
     color: theme.palette.text.nav,
   },
   navlinkNavbar : {

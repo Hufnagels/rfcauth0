@@ -1,12 +1,11 @@
 import * as React from 'react';
 import {
   NavLink,
-  useLocation
 } from 'react-router-dom';
 import { useAuth0 } from "@auth0/auth0-react";
 
 // Material
-import { styled, useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import {
   Typography,
@@ -15,11 +14,9 @@ import {
   Toolbar,
   Box,
   Drawer,
-  Button,
   List,
   ListItem,
   ListItemIcon,
-  ListItemText,
   IconButton,
 } from '@mui/material';
 
@@ -27,9 +24,6 @@ import {
 import SvgIcon from '@mui/material/SvgIcon';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 
 // custom
 import AuthenticationButton from '../Auth/Authenticationbutton';
@@ -82,10 +76,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 const drawerWidth = 250;
 
 const AdminLayout = () => {
-  const theme = useTheme();
   const classes = useStyles();
-  let location = useLocation();
-  const [appname, setAppname] = React.useState(null)
   const [state, setState] = React.useState(false);
   const { isAuthenticated } = useAuth0();
   const routesData = routes(isAuthenticated)[0].children;
@@ -97,8 +88,8 @@ const AdminLayout = () => {
   };
   const ref = React.createRef();
   const SideMenuIcon = React.forwardRef((props, ref) => {
-    console.log('SideMenuIcon')
-    console.log(props, ref.current.type.render.displayName)
+console.log('SideMenuIcon')
+console.log(props, ref.current.type.render.displayName)
     return (
       <SvgIcon ref={ref} component={ref.current.type.render.displayName} className="">
         {props.children}

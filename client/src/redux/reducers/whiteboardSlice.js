@@ -47,4 +47,7 @@ export const boardSlice = createSlice({
 })
 
 export const { adduser, removeuser, statechange, addobject } = boardSlice.actions;
+
+export const selectBoard = (state) => state.board.actualstate;
+
 export default boardSlice.reducer;
