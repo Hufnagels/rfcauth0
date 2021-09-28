@@ -9,11 +9,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Alert } from '@mui/material';
 // Custom
 //import { useSocket } from '../../features/context/SocketContext';
-import { socket } from '../../features/context/socketcontext_whiteboard'
+import { socket } from '../../../features/context/socketcontext_whiteboard'
 import { 
   adduser,
   removeuser,
-} from '../../redux/reducers/whiteboardSlice';
+} from '../../../redux/reducers/whiteboardSlice';
 
 export default function BoardSocketMessage() {
   //const socket = useSocket();

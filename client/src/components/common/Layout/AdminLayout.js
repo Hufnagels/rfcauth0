@@ -26,10 +26,10 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 // custom
-import AuthenticationButton from '../Auth/Authenticationbutton';
-import routes from '../../features/routes/routes'
+import AuthenticationButton from '../../Auth/Authenticationbutton';
+import routes from '../../../features/routes/routes'
 import ContentWrapper from './ContentWrapper';
-import { SocketContext, socket } from '../../features/context/socketcontext_whiteboard';
+import { SocketContext, socket } from '../../../features/context/socketcontext_whiteboard';
 
 //const theme = createTheme();
 const useStyles = makeStyles((theme) => {

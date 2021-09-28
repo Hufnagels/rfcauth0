@@ -36,7 +36,7 @@ import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
 
 // custom
-import ToolbarWrapper from '../ToolbarWrapper';
+import ToolbarWrapper from '../../common/ToolbarWrapper';
 //import {SketchField, Tools} from 'react-sketch';
 
 const WBToolbar = (props) => {

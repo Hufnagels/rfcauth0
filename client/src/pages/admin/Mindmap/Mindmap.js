@@ -10,7 +10,7 @@ import MuiBox from '@mui/material/Box';
 // custom
 import Map from './Map';
 import MapToolbar from './MapToolbar';
-import Wrapper from '../../../components/Wrapper';
+import Wrapper from '../../../components/common/Wrapper';
 
 const Mindmap = () => {
 

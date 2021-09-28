@@ -34,7 +34,7 @@ const LoginButton = () => {
   return (
     <Button 
       className={navlinkNavbar} 
-      activeClassName={activeClassNavbar}
+      /* activeClassName={activeClassNavbar} */
       onClick={() =>
         loginWithRedirect({
           screen_hint: "signup",

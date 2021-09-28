@@ -1,8 +1,11 @@
 import React from 'react'
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
-import RestrictedArea from "../../components/RestrictedArea";
 import JSONPretty from 'react-json-pretty';
 
+// Material
+
+// Custom
+import RestrictedArea from "../../components/common/RestrictedArea";
 
 const Profile = () => {
   const { user } = useAuth0();

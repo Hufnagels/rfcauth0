@@ -2,18 +2,18 @@ import * as React from 'react'
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 
 // custom
-import Wrapper from '../../../components/Wrapper';
-import Board5 from '../../../components/Whiteboard/Board5';
-import RestrictedArea from '../../../components/RestrictedArea';
+import Wrapper from '../../../components/common/Wrapper';
+import Board5 from '../../../components/admin/Whiteboard/Board5';
+import RestrictedArea from '../../../components/common/RestrictedArea';
 //import { SocketContext, socket } from '../../../features/context/socketcontext_whiteboard';
 // import { SocketProvider } from '../../../features/context/SocketContext'
-import BoardSocketMessage from '../../../components/Whiteboard/BoardSocketMessage';
+import BoardSocketMessage from '../../../components/admin/Whiteboard/BoardSocketMessage';
 
 const Whiteboard = () => {
   return (
       <Wrapper>
-        <Board5 />
         <BoardSocketMessage />
+        <Board5 />
       </Wrapper>
   )
   /* return (

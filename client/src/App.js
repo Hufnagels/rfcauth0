@@ -7,7 +7,7 @@ import {
 
 //custom
 // import AuthNav from './components/Auth/AuthNav';
-import Loading from './components/Loading';
+import Loading from './components/common/Loading';
 import routes from './features/routes/routes'
 
 export default function App() {

@@ -13,7 +13,7 @@ import PrintIcon from '@mui/icons-material/Print';
 import ShareIcon from '@mui/icons-material/Share';
 
 // custom
-import ToolbarWrapper from '../../../components/ToolbarWrapper';
+import ToolbarWrapper from '../../../components/common/ToolbarWrapper';
 
 const useStyles = makeStyles((theme) => ({
   root: {

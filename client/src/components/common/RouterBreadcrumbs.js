@@ -28,7 +28,7 @@ const RouterBreadcrumbs = () => {
   return (
     <BreadcrumbContainer>
       <Breadcrumbs aria-label="breadcrumb">
-        <NavLink underline="hover" color="inherit" to="/"><Typography variant="inherit">Home</Typography></NavLink>
+        <NavLink underline="hover" color="inherit" to="/" activeClassName='' ><Typography variant="inherit">Home</Typography></NavLink>
         {pathnames.map((value, index) => {
           const last = index === pathnames.length - 1;
           const to = `/${pathnames.slice(0, index + 1).join('/')}`;

@@ -11,8 +11,8 @@ import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import ContactMailOutlinedIcon from '@mui/icons-material/ContactMailOutlined';
 
 //Layouts
-import AdminLayout from '../../components/Layout/AdminLayout';
-import MainLayout from '../../components/Layout/MainLayout';
+import AdminLayout from '../../components/common/Layout/AdminLayout';
+import MainLayout from '../../components/common/Layout/MainLayout';
 
 // Pages -- admin
 import DashboardLayout from '../../pages/admin/Dashboard';
@@ -33,8 +33,8 @@ import PostList from '../../components/Posts/PostList';
 import PostItem from '../../components/Posts/PostItem';
 import loadable from "@loadable/component"
 import Posts from '../../components/Posts/Posts';
-import Loading from '../../components/Loading'
-import RestrictedArea from '../../components/RestrictedArea';
+import Loading from '../../components/common/Loading'
+import RestrictedArea from '../../components/common/RestrictedArea';
 
 // const Loading = () => {
 //   return <div>Loading...</div>

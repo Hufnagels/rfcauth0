@@ -32,10 +32,10 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 // custom
-import routes from '../../features/routes/routes';
-import AuthenticationButton from '../Auth/Authenticationbutton';
+import routes from '../../../features/routes/routes';
+import AuthenticationButton from '../../Auth/Authenticationbutton';
 import ContentWrapper from './ContentWrapper';
-import RouterBreadcrumbs from '../RouterBreadcrumbs';
+//import RouterBreadcrumbs from '../RouterBreadcrumbs';
 import Footer from "./Footer";
 
 // ScrollToTop
@@ -183,8 +183,8 @@ const drawerWidth = 250;
 
 const MainLayout = (props) => {
   const { header, logo, links, menuButton, activeClassSidenav, activeClassNavbarElement, navlink, navlinkNavbar, toolbar, drawerContainer } = useStyles();
-console.log('classes')
-console.log(green, header, logo, links, menuButton, activeClassSidenav, activeClassNavbarElement, navlink, navlinkNavbar, toolbar, drawerContainer)
+// console.log('classes')
+// console.log(green, header, logo, links, menuButton, activeClassSidenav, activeClassNavbarElement, navlink, navlinkNavbar, toolbar, drawerContainer)
   const headersData = routes(false)[1].children;
   const [appname, setAppname] = useState(null)
   const [state, setState] = useState({
@@ -304,13 +304,14 @@ console.log(green, header, logo, links, menuButton, activeClassSidenav, activeCl
       <HideOnScroll {...props}>
         <AppBar >
           <Toolbar className={toolbar}>
-            {mobileView ? displayMobile() : displayDesktop()}
+          {/*   {mobileView ? displayMobile() : displayDesktop()} */}
+          {displayDesktop()}
             <AuthenticationButton />
           </Toolbar>
         </AppBar>
       </HideOnScroll>
       <Toolbar id="back-to-top-anchor" />
-      <RouterBreadcrumbs />
+      {/* <RouterBreadcrumbs /> */}
       <ContentWrapper margin='2' />
       
       <ScrollTop {...props}>

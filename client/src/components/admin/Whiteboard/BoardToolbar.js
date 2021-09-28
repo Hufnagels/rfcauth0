@@ -22,12 +22,23 @@ import GestureOutlinedIcon from '@mui/icons-material/GestureOutlined';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 import FolderIcon from '@mui/icons-material/Folder';
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
+import BookmarksOutlinedIcon from '@mui/icons-material/BookmarksOutlined';
+import BookmarkRemoveOutlinedIcon from '@mui/icons-material/BookmarkRemoveOutlined';
 
 // Custom
-import ToolbarWrapper from '../ToolbarWrapper';
+import ToolbarWrapper from '../../common/ToolbarWrapper';
 
 
-const BoardToolbar = ({setStrokeColor, setFillColor, selectTool, addShape, loadAll, saveAll, clearAll }) => {
+const BoardToolbar = ({
+  setStrokeColor, 
+  setFillColor, 
+  groupUngroup, 
+  selectTool, 
+  addShape, 
+  loadAll, 
+  saveAll, 
+  clearAll 
+}) => {
   
   const strokeRef = React.useRef('#f6b73c');
   const fillRef = React.useRef('#f6b73c');
@@ -37,12 +48,15 @@ const BoardToolbar = ({setStrokeColor, setFillColor, selectTool, addShape, loadA
   const jsonDown = React.useRef();
   const fileInputRef = React.useRef();
 
+  // Color change buttons
+  const [stateStrokeColor, setStateStrokeColor] = useState('#f6b73c')
+  const [stateFillColor, setStateFillColor] = useState('#f6b73c')
   // Toggle buttons
   const [view, setView] = React.useState(null)
   const handleToolChange = (event, nextView) => {
     event.preventDefault();
 console.log('handelchange', event)
-    setView(toolsRef.current)
+    setView(nextView)
     toolsRef.current = nextView;
     selectTool(toolsRef.current)
   };
@@ -70,6 +84,9 @@ console.info(fileInputRef.current.files)
           component="form"
           sx={{
             marginBottom:0,
+            width:'48px',
+            display:'flex',
+            flexDirection:'column',
             '& .MuiTextField-root': { m: 0, width: '5.4ch',minHeight:40, },
           }}
           noValidate
@@ -79,12 +96,29 @@ console.info(fileInputRef.current.files)
             id="outlined-size-large"
             size="small"
             type="color"
+            label='stroke'
             style={{}}
-            value={strokeRef.current}
+            value={stateStrokeColor}
             onChange={(e) => {
   console.info(e.target.value)
               strokeRef.current = e.target.value
               setStrokeColor(e.target.value);
+              setStateStrokeColor(e.target.value)
+              // canvas.freeDrawingBrush.color = lineColor;
+            }}
+          />
+          <TextField
+            id="outlined-size-large"
+            size="small"
+            type="color"
+            label='fill'
+            style={{}}
+            value={stateFillColor}
+            onChange={(e) => {
+  console.info(e.target.value)
+              fillRef.current = e.target.value
+              setFillColor(e.target.value);
+              setStateFillColor(e.target.value)
               // canvas.freeDrawingBrush.color = lineColor;
             }}
           />
@@ -110,8 +144,14 @@ console.info(fileInputRef.current.files)
               orientation="vertical"
               aria-label="vertical outlined button group"
             >
-              <Button variant="text" color='secondary' name="Text" aria-label="Text" onClick={(e) => { clearAll(e) }}>
+              <Button variant="text" color='secondary' name="Clear" aria-label="Text" onClick={(e) => { clearAll(e) }}>
                 <LayersClearOutlinedIcon />
+              </Button>
+              <Button variant="text" color='secondary' name="Group" aria-label="Text" onClick={(e) => { groupUngroup(e) }}>
+                <BookmarksOutlinedIcon />
+              </Button>
+              <Button variant="text" color='secondary' name="UnGroup" aria-label="Text" onClick={(e) => { groupUngroup(e) }}>
+                <BookmarkRemoveOutlinedIcon />
               </Button>
             </ButtonGroup>
           </Box>

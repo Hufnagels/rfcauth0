@@ -23,10 +23,11 @@ import {
   ModifyObjectListener, 
   RemoveObjectListener
 } from './board_socket_emitters_listeners';
-import { socket } from '../../features/context/socketcontext_whiteboard';
+import { socket } from '../../../features/context/socketcontext_whiteboard';
 import { 
   statechange,
-} from '../../redux/reducers/whiteboardSlice';
+} from '../../../redux/reducers/whiteboardSlice';
+import History from '../../../features/history';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -158,29 +159,9 @@ const Board5 = (props) => {
       canvasRef.current.setZoom(1);
     }}>Set to default</Button>
   );
-  const [currentZoom, setCurrentZoom] = React.useState(1)
+  const [currentZoom, setCurrentZoom] = React.useState(localStorage.getItem('whiteboard.zoom') || 1)
   const [currentFile, setCurrentFile] = React.useState('')
   
-  // ToggleButtonGroup
-  const [lineColor, setLineColor] = useState('#f6b73c')
-  const [strokeColor, setStorkeColor] = useState('#f6b73c')
-  const [tool, setTool] = React.useState(null);
-  const handleToolChange = (event, nextView) => {
-    event.preventDefault();
-    console.log('handelchange', event)
-    currentMode = nextView;
-    if( nextView !== null){
-      setTool(nextView);
-      toolsRef.current=nextView;
-    }
-    canvasRef.current.isDrawingMode = (toolsRef.current === drawingMode.pencil) ? true : false;
-    canvasRef.current.selection = (toolsRef.current === drawingMode.pan || toolsRef.current === drawingMode.select) ? true : false;
-    console.log('selection')
-    console.log(canvasRef.current.selection)
-    if (nextView === drawingMode.pencil) {
-      updateFreeDrawingBrush();
-    }
-  };
   const drawingMode = {
     pan:'Pan',
     select:'Select',
@@ -194,7 +175,7 @@ const Board5 = (props) => {
     default:null,
   }
 
-
+  // Child functions
   const setStrokeColor = (data) => {
     strokeRef.current = data
     console.log(strokeRef.current)
@@ -217,7 +198,7 @@ const Board5 = (props) => {
     }
   }
   const objectButtons = (data) => {}
-  // Canvas 
+
   // Toolbar section end
 
   // Functions
@@ -260,6 +241,10 @@ const Board5 = (props) => {
               //text
               text: this.text,
               textAlign: this.textAlign,
+              fontFamily: this.fontFamily,
+              fontSize: this.fontSize,
+              fontStyle: this.fontStyle,
+              fontWeight: this.fontWeight,
 
           });
       };
@@ -371,20 +356,6 @@ console.info('W-H: ', width, height)
     window.addEventListener('resize', onResize, false);
     onResize();
 //console.error(tryParseJSONObject(localStorage.getItem('whiteboard.data')))
-    if(localStorage.getItem('whiteboard.data') && tryParseJSONObject(localStorage.getItem('whiteboard.data'))) {
-      canvasRef.current.loadFromJSON(localStorage.getItem('whiteboard.data'), function() {
-        canvasRef.current.requestRenderAll();
-        
-        
-        if(localStorage.getItem('whiteboard.zoom')){
-          const zoom = parseFloat(localStorage.getItem('whiteboard.zoom')).toFixed(4);
-          setCurrentZoom(zoom)
-          canvasRef.current.zoomToPoint({ x: parseFloat(canvasRef.current.width)*.6, y: parseFloat(canvasRef.current.height)*.6 }, zoom);
-        }
-        //canvasRef.current.setZoom(localStorage.getItem('whiteboard.zoom'))
-       
-      });
-    }
 
     return () => {
       window.removeEventListener("resize", onResize);
@@ -487,9 +458,29 @@ console.log(options.target.getBoundingRect())
         AddObjectListener(canvasRef.current)
         ModifyObjectListener(canvasRef.current)
         RemoveObjectListener(canvasRef.current)
+        
+        loadSavedState();
       }
       
   },[canvasRef.current])
+
+  const loadSavedState = () => {
+    const zoom = parseFloat(localStorage.getItem('whiteboard.zoom')).toFixed(4);
+    setCurrentZoom(zoom)
+    if(localStorage.getItem('whiteboard.data') && tryParseJSONObject(localStorage.getItem('whiteboard.data'))) {
+      canvasRef.current.loadFromJSON(localStorage.getItem('whiteboard.data'), function() {
+        canvasRef.current.requestRenderAll();
+      },function(o,object){
+  //console.log(o,object)
+  object.scale(o.scaleX, o.scaleY)
+      });
+      if(localStorage.getItem('whiteboard.zoom')){
+        const zoom = parseFloat(localStorage.getItem('whiteboard.zoom')).toFixed(4);
+        setCurrentZoom(zoom)
+        canvasRef.current.zoomToPoint({ x: parseFloat(canvasRef.current.width)*.6, y: parseFloat(canvasRef.current.height)*.6 }, zoom);
+      }
+    }
+  }
 
   const updateFreeDrawingBrush = () => {
     canvasRef.current.freeDrawingBrush.color = strokeRef.current;
@@ -519,7 +510,7 @@ console.log(options.target.getBoundingRect())
         width: 150,
         stroke: strokeRef.current,
         strokeWidth: 5,
-        fill: strokeRef.current,
+        fill: fillRef.current,
         transparentCorners: false,
         globalCompositeOperation: "source-over",
         clipTo: null,
@@ -549,7 +540,7 @@ console.log(options.target.getBoundingRect())
         radius: 50,
         stroke: strokeRef.current,
         strokeWidth: 5,
-        fill: strokeRef.current,
+        fill: fillRef.current,
       })
     } else if (type === 'Text') {
       object = new fabric.IText('IText', { 
@@ -602,6 +593,34 @@ console.log(options.target.getBoundingRect())
     }
   };
 
+  const groupUngroup = (e) => {
+    let type = e.target.name || e.currentTarget.name
+    switch (type) {
+      case 'UnGroup':
+        if (!canvasRef.current.getActiveObject()) {
+          return;
+        }
+        if (canvasRef.current.getActiveObject().type !== 'group') {
+          return;
+        }
+        canvasRef.current.getActiveObject().toActiveSelection();
+        canvasRef.current.requestRenderAll();
+        break;
+      case 'Group':
+        if (!canvasRef.current.getActiveObject()) {
+          return;
+        }
+        if (canvasRef.current.getActiveObject().type !== 'activeSelection') {
+          return;
+        }
+        canvasRef.current.getActiveObject().toGroup();
+        canvasRef.current.requestRenderAll();
+        break;
+      default:
+        break;
+    }
+    
+  }
   const canvasFn = (canvas) => {
     const offset = getCanvasPosition(document.getElementById('canvas'));
     let origX, origY, drawingObject = null;
@@ -704,6 +723,7 @@ console.log(options.target.getBoundingRect())
       //console.log(zoom)
       zoom = parseFloat(zoom).toFixed(4);
       setCurrentZoom(zoom)
+      localStorage.setItem('whiteboard.zoom',zoom)
       canvas.zoomToPoint({ x: event.offsetX, y: event.offsetY }, zoom);
       event.preventDefault();
       event.stopPropagation();
@@ -722,46 +742,48 @@ console.log(options.target.getBoundingRect())
       board: (toJson ? data:json),
       username: connection.username,
       date: date.toUTCString('yyy-mm-dd hh:mm:ss'),
-      timestamp: date.getTime()
+      timestamp: date.getTime(),
+      zoom: canvasRef.current.getZoom() !== localStorage.getItem('whiteboard.zoom') ? localStorage.getItem('whiteboard.zoom') : canvasRef.current.getZoom(),
     }
     localStorage.setItem('whiteboard.data',data)
     localStorage.setItem('whiteboard.username',object.username)
     localStorage.setItem('whiteboard.date',object.date)
     localStorage.setItem('whiteboard.timestamp',object.timestamp)
+    localStorage.setItem('whiteboard.zoom',object.zoom)
     return object;
   }
 /**/
-const saveAll = (e, filename = 'canvas') => {
-  e.preventDefault();
-  const json = JSON.stringify(canvasRef.current);
-  const object = canvasAllToJson(canvasRef.current, false);
-  //object.board = canvasRef.current;
-console.info(currentFile)
-  if (currentFile) {
-    filename = currentFile.replace(/\.[^/.]+$/, "");
-  } else {
-    filename += '_' + object.username + '_' + object.timestamp;
-  }
-  const fileData = JSON.stringify(object);
-  const blob = new Blob([fileData], {type: "application/json"});
-  const url = URL.createObjectURL(blob);
-  //const link = document.createElement('a');
-  jsonDown.current.download = `${filename}.json`;
-  jsonDown.current.href = url;
-  jsonDown.current.click();
+  const saveAll = (e, filename = 'canvas') => {
+    e.preventDefault();
+    const json = JSON.stringify(canvasRef.current);
+    const object = canvasAllToJson(canvasRef.current, false);
+    //object.board = canvasRef.current;
+  console.info(currentFile)
+    if (currentFile) {
+      filename = currentFile.replace(/\.[^/.]+$/, "");
+    } else {
+      filename += '_' + object.username + '_' + object.timestamp;
+    }
+    const fileData = JSON.stringify(object);
+    const blob = new Blob([fileData], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    //const link = document.createElement('a');
+    jsonDown.current.download = `${filename}.json`;
+    jsonDown.current.href = url;
+    jsonDown.current.click();
 
-  const dataURL = canvasRef.current.toDataURL({
-    width: canvasRef.current.width,
-    height: canvasRef.current.height,
-    left: 0,
-    top: 0,
-    format: 'png',
-  });
-  imgDown.current.download = `${filename}.png`;
-  imgDown.current.href = dataURL;
-  imgDown.current.click();
-  imgDown.current.href = ''
-}
+    const dataURL = canvasRef.current.toDataURL({
+      width: canvasRef.current.width,
+      height: canvasRef.current.height,
+      left: 0,
+      top: 0,
+      format: 'png',
+    });
+    imgDown.current.download = `${filename}.png`;
+    imgDown.current.href = dataURL;
+    imgDown.current.click();
+    imgDown.current.href = ''
+  }
 
   const handelImage = (img) => {
     // const file = e.target.files && e.target.files[0];
@@ -780,10 +802,12 @@ console.info(currentFile)
     // simple json (canvas objects only) or 
     // custom object converted to json (username, board, date, timestamp)
     let json = '';
+    let isCustom = false;
     const parsedData = JSON.parse(data);
     if (parsedData && parsedData.board) {
       //custom json
       json = JSON.stringify(parsedData.board)
+      isCustom = true;
     } else if (typeof parsedData.board === 'undefined'){
       // simple json
       json = data;
@@ -793,8 +817,15 @@ console.info(currentFile)
       canvasRef.current.requestRenderAll();
     },function(o,object){
 //console.log(o,object)
+object.scale(o.scaleX, o.scaleY)
     });
+    if(isCustom) {
+      const zoom = parsedData.zoom;
+      setCurrentZoom(zoom)
+      canvasRef.current.zoomToPoint({ x: parseFloat(canvasRef.current.width)*.6, y: parseFloat(canvasRef.current.height)*.6 }, zoom);
+    }
   }
+    
 
   const handleFiles = (files) => {
 // console.log('files:', files)
@@ -864,6 +895,7 @@ console.info(currentFile)
           setFillColor={setFillColor}
           setStrokeColor={setStrokeColor}
           selectTool={selectTool}
+          groupUngroup={groupUngroup}
           addShape={addShape}
           loadAll={loadAll}
           saveAll={saveAll}
