@@ -88,8 +88,8 @@ const AdminLayout = () => {
   };
   const ref = React.createRef();
   const SideMenuIcon = React.forwardRef((props, ref) => {
-console.log('SideMenuIcon')
-console.log(props, ref.current.type.render.displayName)
+// console.log('SideMenuIcon')
+// console.log(props, ref.current.type.render.displayName)
     return (
       <SvgIcon ref={ref} component={ref.current.type.render.displayName} className="">
         {props.children}
@@ -148,7 +148,6 @@ console.log(props, ref.current.type.render.displayName)
                     <NavLink end className={classes.navlink} to={path} activeClassName={classes.active} key={`routeLink-${index}}`}>
                       <ListItem button key={`routeListItem-${index}}`} >
                         <ListItemIcon>
-                          {/* <prop.icon /> */}
                           <ref.current.type />
                         </ListItemIcon>  
                         <Typography variant="inherit">{title}</Typography>

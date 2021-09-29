@@ -1,11 +1,8 @@
 import * as React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 // Material
-import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
 import { Alert } from '@mui/material';
 // Custom
 //import { useSocket } from '../../features/context/SocketContext';

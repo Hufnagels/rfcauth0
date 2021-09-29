@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import PropTypes from 'prop-types';
 
 // Material
-import { styled, useTheme, createTheme } from '@mui/material/styles';
+import { styled, createTheme } from '@mui/material/styles';
 import { makeStyles } from '@material-ui/styles';
 import { 
   DataGrid, 
@@ -253,9 +252,7 @@ export default function BasicFilteringGrid() {
                 disableSelectionOnClick
                 density="compact"
                 pageSize={2}
-                components={{
-                  Toolbar: GridToolbar,
-                }}
+                components={{Toolbar: GridToolbar,}}
                 filterModel={filterModel}
                 onFilterModelChange={(model) => setFilterModel(model)}
                 

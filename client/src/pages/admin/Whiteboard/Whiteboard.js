@@ -2,12 +2,11 @@ import * as React from 'react'
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 
 // custom
-import Wrapper from '../../../components/common/Wrapper';
-import Board5 from '../../../components/admin/Whiteboard/Board5';
 import RestrictedArea from '../../../components/common/RestrictedArea';
-//import { SocketContext, socket } from '../../../features/context/socketcontext_whiteboard';
-// import { SocketProvider } from '../../../features/context/SocketContext'
-import BoardSocketMessage from '../../../components/admin/Whiteboard/BoardSocketMessage';
+import Wrapper from '../../../components/common/Wrapper';
+import Board5 from '../../../components/admin/board/Board5';
+import Board4 from '../../../components/admin/Whiteboard/Board4';
+import BoardSocketMessage from '../../../components/admin/board/BoardSocketMessage';
 
 const Whiteboard = () => {
   return (
@@ -16,34 +15,9 @@ const Whiteboard = () => {
         <Board5 />
       </Wrapper>
   )
-  /* return (
-    <SocketContext.Provider value={socket}>
-      <Wrapper>
-        <Board4 />
-        <SocketMessage />
-      </Wrapper>
-    </SocketContext.Provider>
-  ) */
-  /* return (
-    <SocketProvider>
-      <Wrapper>
-        <Board4 />
-        <SocketMessage />
-      </Wrapper>
-  </SocketProvider>
-  ) */
-  /* 
-  https://alexboots.medium.com/using-react-context-with-socket-io-3b7205c86a6d
-  return (
-    <SocketProvider>
-      <Wrapper>
-        <Board4 />
-      </Wrapper>
-    </SocketProvider>
-  ) */
 }
 
-// export default Whiteboard;
-export default withAuthenticationRequired(Whiteboard, {
-  onRedirecting: () => <RestrictedArea />,
-});
+export default Whiteboard;
+// export default withAuthenticationRequired(Whiteboard, {
+//   onRedirecting: () => <RestrictedArea />,
+// });

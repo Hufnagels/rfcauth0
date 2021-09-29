@@ -211,12 +211,16 @@ const MainLayout = (props) => {
       window.removeEventListener("resize", () => setResponsiveness());
     };
   }, []);
+
+  const SiteNameAndLogo = (
+    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>{process.env.REACT_APP_WEBSITE_NAME}</Typography>
+  );
   
   const displayDesktop = () => {
     return (
       <React.Fragment>
-        <Sitename />
-        <div className={classes.links}>{getMenuButtons()}</div>
+        {SiteNameAndLogo}
+        <div className={links}>{getMenuButtons()}</div>
       </React.Fragment>
     );
   };
@@ -229,7 +233,6 @@ const MainLayout = (props) => {
 
     return (
       <React.Fragment>
-        
         <IconButton
           {...{
             edge: "start",
@@ -250,7 +253,6 @@ const MainLayout = (props) => {
           }}
         >
           <DrawerHeader>
-            <Sitename />
             <IconButton onClick={handleDrawerClose}>
               <ChevronLeftIcon />
             </IconButton>
@@ -264,10 +266,11 @@ const MainLayout = (props) => {
             <List>
               {getDrawerChoices()}
             </List>
-           
+           {/*  <div className={drawerContainer}>{getDrawerChoices()}</div> */}
           </Box>
         </Drawer>
 
+        <div>{SiteNameAndLogo}</div>
       </React.Fragment>
     );
   };
@@ -276,8 +279,8 @@ const MainLayout = (props) => {
     return headersData.map(({ title, path }) => {
       if(title)
       return (
-        <NavLink end className={classes.navlink} to={path} activeClassName={classes.activeClassSidenav} key={`routeLink-${title}}`}>
-          <ListItem button key={`routeListItem-${title}}`} activeClassName={classes.activeClassSidenav} >
+        <NavLink end className={navlink} to={path} activeClassName={activeClassSidenav} key={`routeLink-${title}}`}>
+          <ListItem button key={`routeListItem-${title}}`} activeClassName={activeClassSidenav} >
             <Typography variant="span">{title}</Typography>
           </ListItem>
         </NavLink>
@@ -291,8 +294,8 @@ const MainLayout = (props) => {
     return headersData.map(({ title, path }) => {
       if(title)
       return (
-        <NavLink end className={classes.navlinkNavbar} to={path} activeClassName={classes.activeClassNavbarElement} key={`routeLink-${title}}`}>
-          <ListItem button activeClassName={classes.activeClassNavbarElement} key={`routeListItem-${title}}`} >
+        <NavLink end className={navlinkNavbar} to={path} activeClassName={activeClassNavbarElement} key={`routeLink-${title}}`}>
+          <ListItem button activeClassName={activeClassNavbarElement} key={`routeListItem-${title}}`} >
             <Typography variant="span">{title}</Typography>
           </ListItem>
         </NavLink>
@@ -305,8 +308,9 @@ const MainLayout = (props) => {
       <CssBaseline />
       <HideOnScroll {...props}>
         <AppBar >
-          <Toolbar className={classes.toolbar}>
-          {mobileView ? displayMobile() : displayDesktop()}
+          <Toolbar className={toolbar}>
+          {/*   {mobileView ? displayMobile() : displayDesktop()} */}
+          {displayDesktop()}
             <AuthenticationButton />
           </Toolbar>
         </AppBar>
@@ -320,7 +324,7 @@ const MainLayout = (props) => {
           <KeyboardArrowUpIcon />
         </Fab>
       </ScrollTop>
-      <Footer className={classes.header} title={'footer'}/>
+      <Footer className={header} title={'footer'}/>
     </React.Fragment>
   );
 }

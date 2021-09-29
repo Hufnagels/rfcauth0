@@ -2,7 +2,6 @@ import React from 'react';
 
 // Material
 import { makeStyles } from '@mui/styles';
-import { styled, useTheme } from '@mui/material/styles';
 import Backdrop from '@mui/material/Backdrop';
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';

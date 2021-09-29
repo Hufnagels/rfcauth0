@@ -23,17 +23,16 @@ import theme from './features/theme/Theme';
 ReactDOM.render(
   <React.StrictMode>
     <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
       <CssBaseline />
         <Provider store={store}>
           <Router>
             <Auth0ProviderWithHistory>
+              <ThemeProvider theme={theme}>
               <App />
+              </ThemeProvider>
             </Auth0ProviderWithHistory>
           </Router>
         </Provider>
-      </ThemeProvider>
-      
     </StyledEngineProvider>
   </React.StrictMode>,
   document.getElementById('root')

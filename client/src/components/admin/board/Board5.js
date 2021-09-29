@@ -28,6 +28,7 @@ import {
   statechange,
 } from '../../../redux/reducers/whiteboardSlice';
 import History from '../../../features/history';
+import { tryParseJSONObject, isNumeric } from '../../../features/utils';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -89,22 +90,7 @@ const SketchWrapper = styled('div')(({ theme }) => ({
   height:'100%',
 }));
 
-function tryParseJSONObject (jsonString){
-  try {
-      var o = JSON.parse(jsonString);
 
-      // Handle non-exception-throwing cases:
-      // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
-      // but... JSON.parse(null) returns null, and typeof null === "object", 
-      // so we must check for that, too. Thankfully, null is falsey, so this suffices:
-      if (o && typeof o === "object") {
-          return o;
-      }
-  }
-  catch (e) { }
-
-  return false;
-};
 
 const Board5 = (props) => {
   // Styles
@@ -129,8 +115,8 @@ const Board5 = (props) => {
   // Socket
   const [connected, setConnected] = React.useState(false)
   const [connection, setConnection] = useState({
-    username: name,
-    roomname: 'whiteboardRoom',
+    name: name,
+    room: 'whiteboardRoom',
     email:email,
     socket: {}, //socket,
     socketid: '', //socket.id,
@@ -159,7 +145,9 @@ const Board5 = (props) => {
       canvasRef.current.setZoom(1);
     }}>Set to default</Button>
   );
-  const [currentZoom, setCurrentZoom] = React.useState(localStorage.getItem('whiteboard.zoom') || 1)
+  console.log('key exist: ',localStorage.getItem("username") === null)
+  console.log('isNumeric', isNumeric(localStorage.getItem('whiteboard.zoom')))
+  const [currentZoom, setCurrentZoom] = React.useState(1)
   const [currentFile, setCurrentFile] = React.useState('')
   
   const drawingMode = {
@@ -174,7 +162,17 @@ const Board5 = (props) => {
     text: 'Text',
     default:null,
   }
+  const zoomDefault = () => {
+    let zoom;
+    if((localStorage.getItem('whiteboard.zoom') === 'NaN') && isNumeric(localStorage.getItem('whiteboard.zoom'))) {
+      zoom = localStorage.getItem('whiteboard.zoom');
+    } else {
+      zoom = 1;
+      localStorage.setItem('whiteboard.zoom', zoom)
+    }
+    return zoom;
 
+  }
   // Child functions
   const setStrokeColor = (data) => {
     strokeRef.current = data
@@ -310,10 +308,14 @@ const Board5 = (props) => {
   const initSocketConnection = () => {
     
     socket.emit('joinWhiteboardRoom', {
-      username: name, 
+      name: name, 
       email: email, 
-      roomname: connection.roomname
-    })
+      room: connection.room
+    }, (error) => {
+      if(error) {
+        alert(error);
+      }
+    });
     socket.on('welcome-message', (response) => {
       setConnection({
         ...connection, 
@@ -351,6 +353,7 @@ console.log(socket)
         });
         canvasRef.current.requestRenderAll() //renderAll();
 console.info('W-H: ', width, height)
+        setCurrentZoom(zoomDefault())
       }
     }
     window.addEventListener('resize', onResize, false);
@@ -381,9 +384,9 @@ console.info(e.path.owner, connection.email)
             const modifiedObj = {
               obj: JSON.stringify(e.path),
               id: e.path.id,
-              username: connection.username,
+              name: connection.name,
               email: connection.email,
-              roomname: connection.roomname,
+              room: connection.room,
               action:'path:created',
             }
             AddDrawEmitter(modifiedObj)
@@ -395,9 +398,9 @@ console.info(e.path.owner, connection.email)
             const modifiedObj = {
               obj: options.target,
               id: options.target.id,
-              username: connection.username,
+              name: connection.name,
               email: connection.email,
-              roomname: connection.roomname,
+              room: connection.room,
               action:'object:modified',
             }
             ModifyObjectEmitter(modifiedObj)
@@ -413,9 +416,9 @@ console.info(e.path.owner, connection.email)
             const modifiedObj = {
               obj: options.target,
               id: options.target.id,
-              username: connection.username,
+              name: connection.name,
               email: connection.email,
-              roomname: connection.roomname,
+              room: connection.room,
               action:'object:moving',
             }
             ModifyObjectEmitter(modifiedObj)
@@ -427,9 +430,9 @@ console.info(e.path.owner, connection.email)
             const removedObj = {
               obj: options.target,
               id: options.target.id,
-              username: connection.username,
+              name: connection.name,
               email: connection.email,
-              roomname: connection.roomname,
+              room: connection.room,
               action:'object:removed',
             }
             RemoveObjectEmitter(removedObj)
@@ -488,7 +491,7 @@ console.log(options.target.getBoundingRect())
   }
 
   const addShape = (e) => {
-    let type = e.target.name || e.currentTarget.name;
+    let type = e//.target.name || e.currentTarget.name;
     let object
     
     if(type !== 'Line'){
@@ -563,9 +566,9 @@ console.log(options.target.getBoundingRect())
     AddObjectEmitter({
       obj: object, 
       id: object.id,
-      username: connection.username,
+      name: connection.name,
       email: connection.email,
-      roomname: connection.roomname,
+      room: connection.room,
       action:'object:added',
     })
     } else if (type === 'Line') { 
@@ -584,9 +587,9 @@ console.log(options.target.getBoundingRect())
       const modifiedObj = {
         obj: JSON.stringify(object),
         id: object.id,
-        username: connection.username,
+        name: connection.name,
         email: connection.email,
-        roomname: connection.roomname,
+        room: connection.room,
         action:'object:added',
       }
       AddDrawEmitter(modifiedObj)
@@ -594,7 +597,8 @@ console.log(options.target.getBoundingRect())
   };
 
   const groupUngroup = (e) => {
-    let type = e.target.name || e.currentTarget.name
+    let type = e//.target.name || e.currentTarget.name
+
     switch (type) {
       case 'UnGroup':
         if (!canvasRef.current.getActiveObject()) {
@@ -692,9 +696,9 @@ console.log(options.target.getBoundingRect())
         const modifiedObj = {
           obj: drawingObject,
           id: drawingObject.id,
-          username: connection.username,
+          name: connection.name,
           email: connection.email,
-          roomname: connection.roomname,
+          room: connection.room,
           action:'object:added',
         }
         //canvas.remove(drawingObject);
@@ -740,13 +744,13 @@ console.log(options.target.getBoundingRect())
     //if(toJson) json = data;
     const object = {
       board: (toJson ? data:json),
-      username: connection.username,
+      name: connection.name,
       date: date.toUTCString('yyy-mm-dd hh:mm:ss'),
       timestamp: date.getTime(),
       zoom: canvasRef.current.getZoom() !== localStorage.getItem('whiteboard.zoom') ? localStorage.getItem('whiteboard.zoom') : canvasRef.current.getZoom(),
     }
     localStorage.setItem('whiteboard.data',data)
-    localStorage.setItem('whiteboard.username',object.username)
+    localStorage.setItem('whiteboard.name',object.name)
     localStorage.setItem('whiteboard.date',object.date)
     localStorage.setItem('whiteboard.timestamp',object.timestamp)
     localStorage.setItem('whiteboard.zoom',object.zoom)
@@ -762,7 +766,7 @@ console.log(options.target.getBoundingRect())
     if (currentFile) {
       filename = currentFile.replace(/\.[^/.]+$/, "");
     } else {
-      filename += '_' + object.username + '_' + object.timestamp;
+      filename += '_' + object.name + '_' + object.timestamp;
     }
     const fileData = JSON.stringify(object);
     const blob = new Blob([fileData], {type: "application/json"});
@@ -800,7 +804,7 @@ console.log(options.target.getBoundingRect())
 
   const handelJson = (data) => {
     // simple json (canvas objects only) or 
-    // custom object converted to json (username, board, date, timestamp)
+    // custom object converted to json (name, board, date, timestamp)
     let json = '';
     let isCustom = false;
     const parsedData = JSON.parse(data);
@@ -863,12 +867,14 @@ object.scale(o.scaleX, o.scaleY)
   }
 
   const loadAll = (e) => {
-    e.preventDefault();
+    //e.preventDefault();
     fileInputRef.current.click();
     return
   }
 
   const clearAll = (e) => {
+    console.log('clearAll')
+    console.log(e)
     canvasRef.current.clear();
     setCurrentFile('')
   }
@@ -891,6 +897,7 @@ object.scale(o.scaleX, o.scaleY)
         <SketchWrapper id="sketchWrapper">
           <canvas id="canvas" ref={canvasRef} className={classes.board} ></canvas>
         </SketchWrapper>
+        
         <BoardToolbar
           setFillColor={setFillColor}
           setStrokeColor={setStrokeColor}
@@ -900,6 +907,7 @@ object.scale(o.scaleX, o.scaleY)
           loadAll={loadAll}
           saveAll={saveAll}
           clearAll={clearAll}
+          dummyCB={(e)=>{alert('Dummy')}}
         />
       </React.Fragment>
   );

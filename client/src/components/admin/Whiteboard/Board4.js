@@ -12,15 +12,6 @@ import TextField from '@mui/material/TextField';
 
 import { purple } from '@mui/material/colors'
 
-import SpeedDial from '@mui/material/SpeedDial';
-import SpeedDialIcon from '@mui/material/SpeedDialIcon';
-import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import SpeedDialAction from '@mui/material/SpeedDialAction';
-import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
-import SaveIcon from '@mui/icons-material/Save';
-import PrintIcon from '@mui/icons-material/Print';
-import ShareIcon from '@mui/icons-material/Share';
-
 import Snackbar from '@mui/material/Snackbar';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -52,7 +43,7 @@ import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import LayersClearOutlinedIcon from '@mui/icons-material/LayersClearOutlined';
 
 // custom
-import ToolbarWrapper from '../ToolbarWrapper';
+import ToolbarWrapper from '../../common/ToolbarWrapper';
 import {
   AddDrawEmitter,
   AddObjectEmitter, 
@@ -64,12 +55,12 @@ import {
   RemoveObjectListener
 } from './board_socket_emitters_listeners';
 //import SocketContext from '../../features/context/socketcontext/context';
-import { socket } from '../../features/context/socketcontext_whiteboard';
+import { socket } from '../../../features/context/socketcontext_whiteboard';
 // import { useSocket } from '../../features/context/SocketContext';
 import { 
   statechange,
   selectBoard,
-} from '../../redux/reducers/whiteboardSlice';
+} from '../../../redux/reducers/whiteboardSlice';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -152,8 +143,8 @@ const Board4 = (props) => {
   //const socket = useSocket();
   const [connected, setConnected] = React.useState(false)
   const [connection, setConnection] = useState({
-    username: name,
-    roomname: 'whiteboardRoom',
+    name: name,
+    room: 'whiteboardRoom',
     email:email,
     socket: {}, //socket,
     socketid: '', //socket.id,
@@ -352,9 +343,9 @@ const Board4 = (props) => {
   const initSocketConnection = () => {
     
     socket.emit('joinWhiteboardRoom', {
-      username: name, 
+      name: name, 
       email: email, 
-      roomname: connection.roomname
+      room: connection.room
     })
     socket.on('welcome-message', (response) => {
       setConnection({
@@ -448,9 +439,9 @@ console.info(e.path.owner, connection.email)
             const modifiedObj = {
               obj: JSON.stringify(e.path),
               id: e.path.id,
-              username: connection.username,
+              name: connection.username,
               email: connection.email,
-              roomname: connection.roomname,
+              room: connection.room,
               action:'path:created',
             }
             AddDrawEmitter(modifiedObj)
@@ -462,9 +453,9 @@ console.info(e.path.owner, connection.email)
             const modifiedObj = {
               obj: options.target,
               id: options.target.id,
-              username: connection.username,
+              name: connection.username,
               email: connection.email,
-              roomname: connection.roomname,
+              room: connection.room,
               action:'object:modified',
             }
             ModifyObjectEmitter(modifiedObj)
@@ -480,9 +471,9 @@ console.info(e.path.owner, connection.email)
             const modifiedObj = {
               obj: options.target,
               id: options.target.id,
-              username: connection.username,
+              name: connection.username,
               email: connection.email,
-              roomname: connection.roomname,
+              room: connection.room,
               action:'object:moving',
             }
             ModifyObjectEmitter(modifiedObj)
@@ -494,9 +485,9 @@ console.info(e.path.owner, connection.email)
             const removedObj = {
               obj: options.target,
               id: options.target.id,
-              username: connection.username,
+              name: connection.username,
               email: connection.email,
-              roomname: connection.roomname,
+              room: connection.room,
               action:'object:removed',
             }
             RemoveObjectEmitter(removedObj)
@@ -619,9 +610,9 @@ console.log(canvasRef.current.getZoom())
     AddObjectEmitter({
       obj: object, 
       id: object.id,
-      username: connection.username,
+      name: connection.username,
       email: connection.email,
-      roomname: connection.roomname,
+      room: connection.room,
       action:'object:added',
     })
     } else if (type === 'Line') { 
@@ -640,9 +631,9 @@ console.log(canvasRef.current.getZoom())
       const modifiedObj = {
         obj: JSON.stringify(object),
         id: object.id,
-        username: connection.username,
+        name: connection.username,
         email: connection.email,
-        roomname: connection.roomname,
+        room: connection.room,
         action:'object:added',
       }
       AddDrawEmitter(modifiedObj)
@@ -847,9 +838,9 @@ console.log(canvasRef.current.getZoom())
         const modifiedObj = {
           obj: drawingObject,
           id: drawingObject.id,
-          username: connection.username,
+          name: connection.username,
           email: connection.email,
-          roomname: connection.roomname,
+          room: connection.room,
           action:'object:added',
         }
         //canvas.remove(drawingObject);
@@ -894,7 +885,7 @@ console.log(canvasRef.current.getZoom())
     //if(toJson) json = data;
     const object = {
       board: (toJson ? data:json),
-      username: connection.username,
+      name: connection.username,
       date: date.toUTCString('yyy-mm-dd hh:mm:ss'),
       timestamp: date.getTime(),
       zoom: canvasRef.current.getZoom(),

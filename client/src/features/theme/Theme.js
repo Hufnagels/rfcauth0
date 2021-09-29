@@ -1,7 +1,92 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles'
 import { green, purple } from '@mui/material/colors';
 
 const theme = createTheme({
+  overrides: {
+    MuiSpeedDial: {
+      root: {
+        backgroundColor: "red",
+        borderRadius: 0,
+      },
+    },
+    MuiSpeedDialAction: {
+      staticTooltipLabel: {
+        backgroundColor: "red"
+      },
+    },
+    body: {
+      margin:0,
+      padding:0,
+    },
+    MuiButtonBas: {
+      root:{
+        MuiFab:{
+          root:{
+            borderRadius: 0,
+          },
+        }
+      },
+    },
+    /* MuiButtonBase: {
+      root: {
+        borderRadius: 0,
+      },
+      styleOverrides: {
+        root: {
+          borderRadius: 0,
+          '&selected':{
+            color: '#ff4081 !important'
+          } 
+        },
+      },
+    },
+    MuiToggleButtonGroup: {
+      root: {
+        '&selected':{
+          color: '#ff4081 !important'
+        } 
+      },
+      styleOverrides: {
+        // Name of the slot
+        root: {
+          // Some CSS
+          borderRadius: 0,
+          '&selected':{
+            color: '#ff4081 !important'
+          } 
+        },
+      },
+    },
+    MuiToggleButton: {
+      root: {
+        '&Mui-selected':{
+          color: '#ff4081 !important'
+        } 
+      },
+      styleOverrides: {
+        // Name of the slot
+        root: {
+          // Some CSS
+          borderRadius: 0,
+          '&selected':{
+            color: '#ff4081 !important'
+          } 
+        },
+      },
+    },
+    MuiAppBar: {
+      defaultProps: {
+        enableColorOnDark: true,
+      },
+      root: {
+        backgroundColor: '#f50057',
+        zIndex:'100',
+        "@media (max-width: 900px)": {
+          paddingLeft: 0,
+        },
+      }
+    }, */
+  },
   typography: {
     fontFamily: [
       'Roboto',
@@ -74,73 +159,7 @@ const theme = createTheme({
       }
     },
   },
-  overrides: {
-    body: {
-      margin:0,
-      padding:0,
-    },
-    MuiButtonBase: {
-      root: {
-        borderRadius: 0,
-      },
-      styleOverrides: {
-        root: {
-          borderRadius: 0,
-          '&selected':{
-            color: '#ff4081 !important'
-          } 
-        },
-      },
-    },
-    MuiToggleButtonGroup: {
-      root: {
-        '&selected':{
-          color: '#ff4081 !important'
-        } 
-      },
-      styleOverrides: {
-        // Name of the slot
-        root: {
-          // Some CSS
-          borderRadius: 0,
-          '&selected':{
-            color: '#ff4081 !important'
-          } 
-        },
-      },
-    },
-    MuiToggleButton: {
-      root: {
-        '&Mui-selected':{
-          color: '#ff4081 !important'
-        } 
-      },
-      styleOverrides: {
-        // Name of the slot
-        root: {
-          // Some CSS
-          borderRadius: 0,
-          '&selected':{
-            color: '#ff4081 !important'
-          } 
-        },
-      },
-    },
-    MuiAppBar: {
-      defaultProps: {
-        enableColorOnDark: true,
-      },
-      root: {
-        //backgroundColor: '#f50057',
-        zIndex:'100',
-        "@media (max-width: 900px)": {
-          paddingLeft: 0,
-        },
-      }
-    },
-    
-    
-  },
+  
 });
 
 export default theme;

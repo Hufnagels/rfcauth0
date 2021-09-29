@@ -1,20 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import JSONPretty from 'react-json-pretty';
-import { NavLink } from 'react-router-dom';
 
 // Material
 import { makeStyles } from '@mui/styles';
-import Paper from '@mui/material/Paper';
-import MenuList from '@mui/material/MenuList';
-import MenuItem from '@mui/material/MenuItem';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import Typography from '@mui/material/Typography';
 
 // custom
 import routes from '../features/routes/routes'
-import styles from '../features/theme/jsonpretty.css'; 
 
 const useStyles = makeStyles({
   root: {

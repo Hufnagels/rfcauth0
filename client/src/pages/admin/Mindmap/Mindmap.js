@@ -1,11 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 // Material
-import { makeStyles } from '@mui/styles';
-import { styled, useTheme } from '@mui/material/styles';
-import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
-import MuiBox from '@mui/material/Box';
 
 // custom
 import Map from './Map';

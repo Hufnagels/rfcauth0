@@ -55,10 +55,6 @@ const Box = styled(MuiBox, { shouldForwardProp: (prop) => prop !== 'open' })(
     display:'flex',
     position: 'relative', 
     zIndex:'100',
-    /*  backgroundColor: theme.palette.primary.main,*/
-    // borderWidth: '1px',
-    // borderStyle: 'dashed', 
-    // borderColor: theme.palette.primary.main, 
   }),
 );
 
