@@ -302,10 +302,10 @@ console.info(e.path.owner, connection.email)
           dispatch(statechange(object))
         })
 
-        // AddDrawListener(canvasRef.current)
-        // AddObjectListener(canvasRef.current)
-        // ModifyObjectListener(canvasRef.current)
-        // RemoveObjectListener(canvasRef.current)
+        AddDrawListener(canvasRef.current)
+        AddObjectListener(canvasRef.current)
+        ModifyObjectListener(canvasRef.current)
+        RemoveObjectListener(canvasRef.current)
 console.log(canvasRef.current.getZoom())
         loadSavedState();
       }
@@ -326,16 +326,18 @@ console.log(canvasRef.current.getZoom())
   }
 
   // Agree Child functions
-  const agreeToConnect = () => {
-    setConnected(true)
+  const agreeToConnect = (checked) => {
+console.log('agreeToConnect - checked: ',checked)
+console.log('agreeToConnect - socket.id: ',socket.id)
+    setConnected(checked)
 
-    initSocketConnection();
+    checked ? initSocketConnection() : socket.emit('leave-WhiteboardRoom', socket.id);
 
-    AddJsonListener(canvasRef.current);
-    AddDrawListener(canvasRef.current);
-    AddObjectListener(canvasRef.current);
-    ModifyObjectListener(canvasRef.current);
-    RemoveObjectListener(canvasRef.current);
+    // AddJsonListener(canvasRef.current);
+    // AddDrawListener(canvasRef.current);
+    // AddObjectListener(canvasRef.current);
+    // ModifyObjectListener(canvasRef.current);
+    // RemoveObjectListener(canvasRef.current);
   }
 
   const pushJSON = () => {

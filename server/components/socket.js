@@ -42,6 +42,11 @@ module.exports = (io) => {
       }
       //display a welcome message to the user who have joined a room
       socket.emit("welcome-message", message );
+console.log('users in romm: ', io.sockets.adapter.rooms.get(p_user.room))
+      io.to(p_user.room).emit('roomData', { 
+        room: p_user.room, 
+        users: io.sockets.adapter.rooms.get(p_user.room) 
+      });
 
       //display a notification message to all other users in the room
       message.text = `${p_user.name} connected to ${p_user.room} room!`
@@ -80,6 +85,7 @@ module.exports = (io) => {
         const p_user = get_Current_User(data);
         //console.log(`user (${p_user.name}) disconnecting`);
         //clients.splice(clients.indexOf(socket), 1);
+        user_Disconnect(data)
         if (p_user) {
           socket.broadcast.to(p_user.room).emit("leave-room-message", {
             userId: p_user.id,
@@ -87,10 +93,13 @@ module.exports = (io) => {
             text: `${p_user.name} has left the room`,
             room: p_user.room,
           });
-//console.log(`${p_user.name} has left the room`);
-          user_Disconnect(data)
+          const clientSocket = io.sockets.sockets.get(p_user.id);
+          //you can do whatever you need with this
+          clientSocket.leave(p_user.room)
+          const clients = io.sockets.adapter.rooms.get(p_user.room);
+console.log('users: ', clients);
         }
-        
+
       });
       /* socket.onAny((eventName, ...args) => {
         if (eventName === 'ping') return

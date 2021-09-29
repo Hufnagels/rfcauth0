@@ -15,11 +15,12 @@ export default function ConnectonAlertDialog({agreeToConnect}) {
 
   const handleClose = () => {
     setOpen(false);
+    agreeToConnect(false)
   };
 
   const agreeClose = () => {
     setOpen(false);
-    agreeToConnect()
+    agreeToConnect(true)
   };
   React.useEffect(() => {
     setOpen(true);

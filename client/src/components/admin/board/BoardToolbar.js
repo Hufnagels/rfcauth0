@@ -20,6 +20,7 @@ import BookmarksOutlinedIcon from '@mui/icons-material/BookmarksOutlined';
 import BookmarkRemoveOutlinedIcon from '@mui/icons-material/BookmarkRemoveOutlined';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import ConnectWithoutContactOutlinedIcon from '@mui/icons-material/ConnectWithoutContactOutlined';
+import Switch from '@mui/material/Switch';
 
 // Drawing icons
 import FolderIcon from '@mui/icons-material/Folder';
@@ -71,7 +72,13 @@ const BoardToolbar = ({
   const fileInputRef = React.useRef();
 
   const [enabled, setEnabled] = useState(false)
+  // connect switch
+  const [checked, setChecked] = React.useState(false);
 
+  const handleConnectChange = (event) => {
+    setChecked(event.target.checked);
+    agreeToConnect(event.target.checked)
+  };
   // Color change buttons
   const [stateStrokeColor, setStateStrokeColor] = useState('#f6b73c')
   const [stateFillColor, setStateFillColor] = useState('#f6b73c')
@@ -99,8 +106,9 @@ console.info(fileInputRef.current.files)
   }, [])
 
   useEffect(() => {
-    setEnabled(connected);
-    console.info(connected)
+    setEnabled(checked);
+    setChecked(connected ? connected : false)
+console.info(connected)
   }, [connected])
 
   return (
@@ -118,6 +126,11 @@ console.info(fileInputRef.current.files)
             '& .MuiTextField-root': { m: 0, width: '5.4ch',minHeight:40, },
           }}
         >
+          <Switch
+            checked={checked}
+            onChange={handleConnectChange}
+            inputProps={{ 'aria-label': 'controlled' }}
+          />
           <ButtonGroup
             orientation="vertical"
             aria-label="vertical outlined button group"
