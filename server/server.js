@@ -19,7 +19,7 @@ const server = app.listen(port, () => {
 // after we start listening to our server, we can set up and attach our socket.io server
 const io = socket(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.ORIGIN || 'http://localhost:3000',
     methods: ["GET", "POST"],
     transports: ['websocket', 'polling'],
     credentials: true

@@ -54,7 +54,6 @@ export default function SpeedDialTools({actions,actionIcon}) {
                 key={action.name}
                 icon={action.icon}
                 tooltipTitle={action.name}
-                style={{backgroundColor: '#452310',}}
                 onClick={(e)=> action.cb(eventName)}
               />
             )

@@ -18,6 +18,8 @@ import GestureOutlinedIcon from '@mui/icons-material/GestureOutlined';
 import LayersClearOutlinedIcon from '@mui/icons-material/LayersClearOutlined';
 import BookmarksOutlinedIcon from '@mui/icons-material/BookmarksOutlined';
 import BookmarkRemoveOutlinedIcon from '@mui/icons-material/BookmarkRemoveOutlined';
+import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
+import ConnectWithoutContactOutlinedIcon from '@mui/icons-material/ConnectWithoutContactOutlined';
 
 // Drawing icons
 import FolderIcon from '@mui/icons-material/Folder';
@@ -53,6 +55,9 @@ const BoardToolbar = ({
   saveAll, 
   clearAll,
   dummyCB,
+  agreeToConnect,
+  connected,
+  pushJSON,
 }) => {
   
   const theme = useTheme();
@@ -64,6 +69,8 @@ const BoardToolbar = ({
   const imgDown = React.useRef();
   const jsonDown = React.useRef();
   const fileInputRef = React.useRef();
+
+  const [enabled, setEnabled] = useState(false)
 
   // Color change buttons
   const [stateStrokeColor, setStateStrokeColor] = useState('#f6b73c')
@@ -91,12 +98,35 @@ console.info(fileInputRef.current.files)
     toolsRef.current = null;
   }, [])
 
+  useEffect(() => {
+    setEnabled(connected);
+    console.info(connected)
+  }, [connected])
+
   return (
     <React.Fragment>
       <a ref={imgDown} hidden href="" />
       <a ref={jsonDown} hidden href="" />
       {/* <input type="file" ref={fileInputRef} onChange={filesSelected} hidden /> */}
       <ToolbarWrapper>
+        <Box
+          sx={{
+            marginBottom:1,
+            width:'48px',
+            display:'flex',
+            flexDirection:'column',
+            '& .MuiTextField-root': { m: 0, width: '5.4ch',minHeight:40, },
+          }}
+        >
+          <ButtonGroup
+            orientation="vertical"
+            aria-label="vertical outlined button group"
+          >
+            <Button variant="text" color='secondary' name="Line" aria-label="Connect" disabled={enabled} onClick={(e) => { agreeToConnect() }}>
+              <ConnectWithoutContactOutlinedIcon />
+            </Button>
+          </ButtonGroup>
+        </Box>
         <Box
           component="form"
           sx={{
@@ -173,6 +203,7 @@ console.info(fileInputRef.current.files)
             { icon: <LayersClearOutlinedIcon />, name: 'Clear', cb: clearAll },
             { icon: <BookmarksOutlinedIcon />, name: 'Group', cb: groupUngroup },
             { icon: <BookmarkRemoveOutlinedIcon />, name: 'UnGroup', cb: groupUngroup },
+            { icon: <SendOutlinedIcon /> , name: 'Send whole canvas', cb: pushJSON},
           ]}
           actionIcon={<BuildOutlinedIcon />}
         />

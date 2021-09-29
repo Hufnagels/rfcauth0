@@ -14,21 +14,25 @@ import Button from '@mui/material/Button';
 // custom
 import BoardToolbar from './BoardToolbar';
 import {
+  AddJsonEmitter,
   AddDrawEmitter,
   AddObjectEmitter, 
   ModifyObjectEmitter, 
   RemoveObjectEmitter,
+  AddJsonListener,
   AddDrawListener,
   AddObjectListener, 
   ModifyObjectListener, 
   RemoveObjectListener
 } from './board_socket_emitters_listeners';
 import { socket } from '../../../features/context/socketcontext_whiteboard';
-import { 
+import {
   statechange,
+  selectBoard,
 } from '../../../redux/reducers/whiteboardSlice';
 import History from '../../../features/history';
 import { tryParseJSONObject, isNumeric } from '../../../features/utils';
+import ConnectonAlertDialog from './ConnectonAlertDialog';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -90,8 +94,6 @@ const SketchWrapper = styled('div')(({ theme }) => ({
   height:'100%',
 }));
 
-
-
 const Board5 = (props) => {
   // Styles
   const classes = useStyles();
@@ -139,15 +141,16 @@ const Board5 = (props) => {
     setSnacktate({ ...snackstate, open: false });
   };
   const action = (
-    <Button color="secondary" size="small" onClick={ () => {
-      setCurrentZoom(1)
+    <Button color="secondary" size="small" onClick={ (e) => {
+      e.preventDefault();
+      setCurrentZoom(1);
       canvasRef.current.zoomToPoint(new fabric.Point(canvasRef.current.width / 2, canvasRef.current.height / 2), 1.0);
       canvasRef.current.setZoom(1);
     }}>Set to default</Button>
   );
-  console.log('key exist: ',localStorage.getItem("username") === null)
-  console.log('isNumeric', isNumeric(localStorage.getItem('whiteboard.zoom')))
-  const [currentZoom, setCurrentZoom] = React.useState(1)
+  // console.log('key exist: ',localStorage.getItem("username") === null)
+  // console.log('isNumeric', isNumeric(localStorage.getItem('whiteboard.zoom')))
+  const [currentZoom, setCurrentZoom] = React.useState(localStorage.getItem('whiteboard.zoom'))
   const [currentFile, setCurrentFile] = React.useState('')
   
   const drawingMode = {
@@ -162,25 +165,202 @@ const Board5 = (props) => {
     text: 'Text',
     default:null,
   }
+
+  
+  // useEffect(() => {
+  //   if(socket && socket.connected) { 
+  //     setConnected(true);
+  //     //initSocketConnection();
+  //   }
+  // },[socket])
+
+  useEffect(() => {
+    const sketchWrapper = document.getElementById('sketchWrapper');
+    let sketchWrapper_style = getComputedStyle(sketchWrapper);
+    //setCanvas(canvasRef.current);
+//console.log(socket)
+    //initSocketConnection();
+    initFabricCanvas();
+    
+    canvasFn(canvasRef.current)
+    const onResize = () => {
+      let width = parseInt(sketchWrapper_style.getPropertyValue('width'));
+      let height = parseInt(sketchWrapper_style.getPropertyValue('height'));
+      if(width !== 0 || height !== 0) {
+        canvasRef.current.setDimensions({
+          width: width, 
+          height:height
+        });
+        canvasRef.current.requestRenderAll() //renderAll();
+//console.info('W-H: ', width, height)
+        //setCurrentZoom(canvasRef.current.getZoom())
+      }
+    }
+    window.addEventListener('resize', onResize, false);
+    onResize();
+//console.error(tryParseJSONObject(localStorage.getItem('whiteboard.data')))
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      // socket.disconnect();
+//console.log(connection)
+      socket.emit('leave-WhiteboardRoom', socket.id);
+      //dispatch(removeuser(socket.id))
+      //socket.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+      if (canvasRef.current) {
+
+        canvasRef.current.on('path:created', function(e){
+          if (e.path) {
+            if(e.path.owner === connection.email) return
+console.info('path:created', e.path)
+console.info(e.path.owner, connection.email)
+// console.log(JSON.stringify(e.path))
+            e.path.id = uuid();
+            e.path.owner = connection.email;
+            const modifiedObj = {
+              obj: JSON.stringify(e.path),
+              id: e.path.id,
+              name: connection.name,
+              email: connection.email,
+              room: connection.room,
+              action:'path:created',
+              zoom: canvasRef.current.getZoom(),
+            }
+            AddDrawEmitter(modifiedObj)
+          }
+        })
+
+        canvasRef.current.on('object:modified', function (options) {
+          console.log('obj modified: ', canvasRef.current.getZoom())
+          if (options.target) {
+            const modifiedObj = {
+              obj: options.target,
+              id: options.target.id,
+              name: connection.name,
+              email: connection.email,
+              room: connection.room,
+              action:'object:modified',
+              zoom: canvasRef.current.getZoom(),
+            }
+            ModifyObjectEmitter(modifiedObj)
+          }
+        })
+
+        canvasRef.current.on('object:moving', function (options) {
+// console.log('object:moving')
+// console.log(options.target)
+// console.log(options.target.getBoundingRect())
+
+          if (options.target) {
+            const modifiedObj = {
+              obj: options.target,
+              id: options.target.id,
+              name: connection.name,
+              email: connection.email,
+              room: connection.room,
+              action:'object:moving',
+              zoom: canvasRef.current.getZoom(),
+            }
+            ModifyObjectEmitter(modifiedObj)
+          }
+        })
+
+        canvasRef.current.on('object:removed', function (options) {
+          if (options.target) {
+            const removedObj = {
+              obj: options.target,
+              id: options.target.id,
+              name: connection.name,
+              email: connection.email,
+              room: connection.room,
+              action:'object:removed',
+              zoom: canvasRef.current.getZoom(),
+            }
+            RemoveObjectEmitter(removedObj)
+          }
+        })
+
+        canvasRef.current.on('object:added', function(options){
+// console.log('object:added')
+// console.log(options.target)
+// console.log(options.target.getBoundingRect())
+
+        })
+
+        canvasRef.current.on('before:render', function(options){
+          // console.log('before:render')
+          // console.log(options)
+        })
+        canvasRef.current.on('after:render', function(options){
+// console.log('after:render')
+// console.log(options)
+          const object = canvasAllToJson(canvasRef.current, true);
+          dispatch(statechange(object))
+        })
+
+        // AddDrawListener(canvasRef.current)
+        // AddObjectListener(canvasRef.current)
+        // ModifyObjectListener(canvasRef.current)
+        // RemoveObjectListener(canvasRef.current)
+console.log(canvasRef.current.getZoom())
+        loadSavedState();
+      }
+      
+  },[canvasRef.current])
+
   const zoomDefault = () => {
-    let zoom;
+    var zoom = 1;
     if((localStorage.getItem('whiteboard.zoom') === 'NaN') && isNumeric(localStorage.getItem('whiteboard.zoom'))) {
       zoom = localStorage.getItem('whiteboard.zoom');
     } else {
       zoom = 1;
       localStorage.setItem('whiteboard.zoom', zoom)
     }
-    return zoom;
+    //setCurrentZoom(zoom)
+    return parseFloat(zoom);
 
   }
-  // Child functions
+
+  // Agree Child functions
+  const agreeToConnect = () => {
+    setConnected(true)
+
+    initSocketConnection();
+
+    AddJsonListener(canvasRef.current);
+    AddDrawListener(canvasRef.current);
+    AddObjectListener(canvasRef.current);
+    ModifyObjectListener(canvasRef.current);
+    RemoveObjectListener(canvasRef.current);
+  }
+
+  const pushJSON = () => {
+    console.log('whole canvas sende')
+    AddJsonEmitter({
+      obj: JSON.stringify(canvasRef.current), 
+      //id: object.id,
+      name: connection.name,
+      email: connection.email,
+      room: connection.room,
+      action:'onJSONSended',
+      zoom: canvasRef.current.getZoom(),
+    })
+  }
+
+  // Toolbar Child functions
   const setStrokeColor = (data) => {
     strokeRef.current = data
     console.log(strokeRef.current)
   }
+
   const setFillColor = (data) => {
     fillRef.current = data;
   }
+
   const selectTool = (data) => {
     console.log(data)
     if( data !== null){
@@ -195,6 +375,7 @@ const Board5 = (props) => {
       updateFreeDrawingBrush();
     }
   }
+
   const objectButtons = (data) => {}
 
   // Toolbar section end
@@ -217,7 +398,7 @@ const Board5 = (props) => {
         width: 5
       }
     });
-
+    canvasRef.current.setZoom(localStorage.getItem('whiteboard.zoom'));
     canvasRef.current.selectionColor = 'rgba(0,255,0,0.3)';
     
     const _original_initHiddenTextarea   = fabric.IText.prototype.initHiddenTextarea;
@@ -327,148 +508,9 @@ const Board5 = (props) => {
     
   }
 
-  useEffect(() => {
-    if(socket && socket.connected) { 
-      setConnected(true);
-      initSocketConnection();
-    }
-  },[socket])
-
-  useEffect(() => {
-    const sketchWrapper = document.getElementById('sketchWrapper');
-    let sketchWrapper_style = getComputedStyle(sketchWrapper);
-    //setCanvas(canvasRef.current);
-console.log(socket)
-    //initSocketConnection();
-    initFabricCanvas();
-    
-    canvasFn(canvasRef.current)
-    const onResize = () => {
-      let width = parseInt(sketchWrapper_style.getPropertyValue('width'));
-      let height = parseInt(sketchWrapper_style.getPropertyValue('height'));
-      if(width !== 0 || height !== 0) {
-        canvasRef.current.setDimensions({
-          width: width, 
-          height:height
-        });
-        canvasRef.current.requestRenderAll() //renderAll();
-console.info('W-H: ', width, height)
-        setCurrentZoom(zoomDefault())
-      }
-    }
-    window.addEventListener('resize', onResize, false);
-    onResize();
-//console.error(tryParseJSONObject(localStorage.getItem('whiteboard.data')))
-
-    return () => {
-      window.removeEventListener("resize", onResize);
-      // socket.disconnect();
-      console.log(connection)
-      socket.emit('leave-WhiteboardRoom', socket.id);
-      //dispatch(removeuser(socket.id))
-      //socket.disconnect();
-    }
-  }, []);
-
-  useEffect(() => {
-      if (canvasRef.current) {
-
-        canvasRef.current.on('path:created', function(e){
-          if (e.path) {
-            if(e.path.owner === connection.email) return
-console.info('path:created', e.path)
-console.info(e.path.owner, connection.email)
-// console.log(JSON.stringify(e.path))
-            e.path.id = uuid();
-            e.path.owner = connection.email;
-            const modifiedObj = {
-              obj: JSON.stringify(e.path),
-              id: e.path.id,
-              name: connection.name,
-              email: connection.email,
-              room: connection.room,
-              action:'path:created',
-            }
-            AddDrawEmitter(modifiedObj)
-          }
-        })
-
-        canvasRef.current.on('object:modified', function (options) {
-          if (options.target) {
-            const modifiedObj = {
-              obj: options.target,
-              id: options.target.id,
-              name: connection.name,
-              email: connection.email,
-              room: connection.room,
-              action:'object:modified',
-            }
-            ModifyObjectEmitter(modifiedObj)
-          }
-        })
-
-        canvasRef.current.on('object:moving', function (options) {
-// console.log('object:moving')
-// console.log(options.target)
-// console.log(options.target.getBoundingRect())
-
-          if (options.target) {
-            const modifiedObj = {
-              obj: options.target,
-              id: options.target.id,
-              name: connection.name,
-              email: connection.email,
-              room: connection.room,
-              action:'object:moving',
-            }
-            ModifyObjectEmitter(modifiedObj)
-          }
-        })
-
-        canvasRef.current.on('object:removed', function (options) {
-          if (options.target) {
-            const removedObj = {
-              obj: options.target,
-              id: options.target.id,
-              name: connection.name,
-              email: connection.email,
-              room: connection.room,
-              action:'object:removed',
-            }
-            RemoveObjectEmitter(removedObj)
-          }
-        })
-
-        canvasRef.current.on('object:added', function(options){
-console.log('object:added')
-console.log(options.target)
-console.log(options.target.getBoundingRect())
-
-        })
-
-        canvasRef.current.on('before:render', function(options){
-          // console.log('before:render')
-          // console.log(options)
-        })
-        canvasRef.current.on('after:render', function(options){
-// console.log('after:render')
-// console.log(options)
-          const object = canvasAllToJson(canvasRef.current, true);
-          dispatch(statechange(object))
-        })
-
-        AddDrawListener(canvasRef.current)
-        AddObjectListener(canvasRef.current)
-        ModifyObjectListener(canvasRef.current)
-        RemoveObjectListener(canvasRef.current)
-        
-        loadSavedState();
-      }
-      
-  },[canvasRef.current])
-
   const loadSavedState = () => {
-    const zoom = parseFloat(localStorage.getItem('whiteboard.zoom')).toFixed(4);
+//console.log('loadsavedata')
+    const zoom = localStorage.getItem('whiteboard.zoom')//parseFloat(localStorage.getItem('whiteboard.zoom')).toFixed(4);
     setCurrentZoom(zoom)
     if(localStorage.getItem('whiteboard.data') && tryParseJSONObject(localStorage.getItem('whiteboard.data'))) {
       canvasRef.current.loadFromJSON(localStorage.getItem('whiteboard.data'), function() {
@@ -480,7 +522,7 @@ console.log(options.target.getBoundingRect())
       if(localStorage.getItem('whiteboard.zoom')){
         const zoom = parseFloat(localStorage.getItem('whiteboard.zoom')).toFixed(4);
         setCurrentZoom(zoom)
-        canvasRef.current.zoomToPoint({ x: parseFloat(canvasRef.current.width)*.6, y: parseFloat(canvasRef.current.height)*.6 }, zoom);
+        canvasRef.current.zoomToPoint({ x: parseFloat(canvasRef.current.width), y: parseFloat(canvasRef.current.height) }, zoom);
       }
     }
   }
@@ -625,6 +667,7 @@ console.log(options.target.getBoundingRect())
     }
     
   }
+
   const canvasFn = (canvas) => {
     const offset = getCanvasPosition(document.getElementById('canvas'));
     let origX, origY, drawingObject = null;
@@ -724,8 +767,7 @@ console.log(options.target.getBoundingRect())
       zoom *= 0.999 ** delta;
       if (zoom > 20) zoom = 20;
       if (zoom < 0.01) zoom = 0.01;
-      //console.log(zoom)
-      zoom = parseFloat(zoom).toFixed(4);
+console.log(zoom)
       setCurrentZoom(zoom)
       localStorage.setItem('whiteboard.zoom',zoom)
       canvas.zoomToPoint({ x: event.offsetX, y: event.offsetY }, zoom);
@@ -747,7 +789,7 @@ console.log(options.target.getBoundingRect())
       name: connection.name,
       date: date.toUTCString('yyy-mm-dd hh:mm:ss'),
       timestamp: date.getTime(),
-      zoom: canvasRef.current.getZoom() !== localStorage.getItem('whiteboard.zoom') ? localStorage.getItem('whiteboard.zoom') : canvasRef.current.getZoom(),
+      zoom: canvasRef.current.getZoom(),
     }
     localStorage.setItem('whiteboard.data',data)
     localStorage.setItem('whiteboard.name',object.name)
@@ -757,8 +799,8 @@ console.log(options.target.getBoundingRect())
     return object;
   }
 /**/
-  const saveAll = (e, filename = 'canvas') => {
-    e.preventDefault();
+  const saveAll = (filename = 'canvas') => {
+    //e.preventDefault();
     const json = JSON.stringify(canvasRef.current);
     const object = canvasAllToJson(canvasRef.current, false);
     //object.board = canvasRef.current;
@@ -823,14 +865,13 @@ console.log(options.target.getBoundingRect())
 //console.log(o,object)
 object.scale(o.scaleX, o.scaleY)
     });
-    if(isCustom) {
+    if(isCustom && parsedData.zoom) {
       const zoom = parsedData.zoom;
       setCurrentZoom(zoom)
       canvasRef.current.zoomToPoint({ x: parseFloat(canvasRef.current.width)*.6, y: parseFloat(canvasRef.current.height)*.6 }, zoom);
     }
   }
     
-
   const handleFiles = (files) => {
 // console.log('files:', files)
     // validation required
@@ -897,8 +938,12 @@ object.scale(o.scaleX, o.scaleY)
         <SketchWrapper id="sketchWrapper">
           <canvas id="canvas" ref={canvasRef} className={classes.board} ></canvas>
         </SketchWrapper>
-        
+        <ConnectonAlertDialog
+          agreeToConnect={agreeToConnect}
+        />
         <BoardToolbar
+          agreeToConnect={agreeToConnect}
+          connected={connected}
           setFillColor={setFillColor}
           setStrokeColor={setStrokeColor}
           selectTool={selectTool}
@@ -908,6 +953,7 @@ object.scale(o.scaleX, o.scaleY)
           saveAll={saveAll}
           clearAll={clearAll}
           dummyCB={(e)=>{alert('Dummy')}}
+          pushJSON={pushJSON}
         />
       </React.Fragment>
   );

@@ -17,10 +17,16 @@ const displaySocketDataFromJSONString = (data, canvasS) => {
 }
 
 // emitters
+export const AddJsonEmitter = obj => {
+  //console.log('addDrawEmitter', obj)
+  return socket.emit('onJSONSended', obj)
+}
+
 export const AddDrawEmitter = obj => {
   //console.log('addDrawEmitter', obj)
   return socket.emit('onPathCreated', obj)
 }
+
 export const AddObjectEmitter = obj => {
   //console.log('addObjectEmitter', obj)
   socket.emit('onObjectAdded', obj)
@@ -35,6 +41,23 @@ export const RemoveObjectEmitter = (obj) => {
 }
 
 // listeners
+export const AddJsonListener = canvas => {
+  socket.on('json-send', data => {
+    const { obj, id, username, email, roomname, zoom } = data;
+    let object;
+console.log('AddJsonListener', zoom)
+    //if(typeof id === 'undefined' || id === '') return
+    canvas.clear();
+    canvas.loadFromJSON(obj, function() {
+      canvas.requestRenderAll();
+    },function(o,object){
+//console.log(o,object)
+object.scale(o.scaleX, o.scaleY)
+    });
+    canvas.zoomToPoint({ x: parseFloat(canvas.width)/2, y: parseFloat(canvas.height)/2 }, zoom);
+  })
+}
+
 export const AddDrawListener = canvas => {
   //socket.off('new-path')
   socket.on('new-path', data => {

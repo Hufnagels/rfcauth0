@@ -65,8 +65,13 @@ module.exports = (io) => {
 
       socket.on('onObjectRemoved', data => {
          socket.broadcast.to(data.room).emit('new-remove', data);
-         console.log('onObjectRemoved: ', data.name, data.obj.id)
+         console.log('onObjectRemoved: ', data.name)
       })
+
+      socket.on('onJSONSended', data => {
+        socket.broadcast.to(data.room).emit('json-send', data);
+        console.log('onJSONSended: ', data.name)
+     })
       //Grab any events and emit action
       
       socket.on('leave-WhiteboardRoom', data => {
@@ -96,7 +101,7 @@ module.exports = (io) => {
    })
    socket.onAny((eventName, ...args) => {
     if (eventName === 'ping') return
-    console.log('onAny: ', eventName, JSON.stringify(args))
+    //console.log('onAny: ', eventName)//JSON.stringify(args))
     // const message = `${name} did a(n) ${eventName}`
    // socket.to(args.room).emit("action-message", args.text );
   });
