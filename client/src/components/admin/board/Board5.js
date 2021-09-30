@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useLayoutEffect, useContext } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useLayoutEffect, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fabric } from 'fabric';
 import { v4 as uuid } from 'uuid';
@@ -25,14 +25,14 @@ import {
   ModifyObjectListener, 
   RemoveObjectListener
 } from './board_socket_emitters_listeners';
-import { socket } from '../../../features/context/socketcontext_whiteboard';
+import { SocketContext } from '../../../features/context/socketcontext_whiteboard';
 import {
   statechange,
   selectBoard,
 } from '../../../redux/reducers/whiteboardSlice';
 import History from '../../../features/history';
 import { tryParseJSONObject, isNumeric } from '../../../features/utils';
-import ConnectonAlertDialog from './ConnectonAlertDialog';
+import ConnectonDecideDialog from './ConnectonDecideDialog';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -95,12 +95,15 @@ const SketchWrapper = styled('div')(({ theme }) => ({
 }));
 
 const Board5 = (props) => {
+  const socket = useContext(SocketContext);
+  const isConnected = React.useRef(false);
+
   // Styles
   const classes = useStyles();
   // Refs
-  const imgDown = React.useRef();
-  const jsonDown = React.useRef();
-  const fileInputRef = React.useRef();
+  const imgDown = React.useRef(null);
+  const jsonDown = React.useRef(null);
+  const fileInputRef = React.useRef(null);
   const canvasRef = React.useRef(null);
   const toolsRef = React.useRef(null);
 
@@ -115,7 +118,8 @@ const Board5 = (props) => {
   const dispatch = useDispatch();
 
   // Socket
-  const [connected, setConnected] = React.useState(false)
+  const [isConnectedToSocket, setIsConnectedToSocket] = React.useState(socket.connected || false)
+  const [connectedToRoom, setConnectedToRoom] = React.useState(false)
   const [connection, setConnection] = useState({
     name: name,
     room: 'whiteboardRoom',
@@ -141,12 +145,12 @@ const Board5 = (props) => {
     setSnacktate({ ...snackstate, open: false });
   };
   const action = (
-    <Button color="secondary" size="small" onClick={ (e) => {
-      e.preventDefault();
-      setCurrentZoom(1);
-      canvasRef.current.zoomToPoint(new fabric.Point(canvasRef.current.width / 2, canvasRef.current.height / 2), 1.0);
-      canvasRef.current.setZoom(1);
-    }}>Set to default</Button>
+      <Button color="secondary" size="small" onClick={ (e) => {
+        e.preventDefault();
+        setCurrentZoom(1);
+        canvasRef.current.zoomToPoint(new fabric.Point(canvasRef.current.width / 2, canvasRef.current.height / 2), 1.0);
+        canvasRef.current.setZoom(1);
+      }}>Set to default</Button>
   );
   // console.log('key exist: ',localStorage.getItem("username") === null)
   // console.log('isNumeric', isNumeric(localStorage.getItem('whiteboard.zoom')))
@@ -165,21 +169,23 @@ const Board5 = (props) => {
     text: 'Text',
     default:null,
   }
+console.log('outside')
+console.log(isConnectedToSocket)
+console.log(connectedToRoom)
 
-  
-  // useEffect(() => {
-  //   if(socket && socket.connected) { 
-  //     setConnected(true);
-  //     //initSocketConnection();
-  //   }
-  // },[socket])
+  useEffect(() => {
+    setIsConnectedToSocket(socket.connected)
+console.info('socket, isConnectedToSocket #2 useEffect')
+console.info(socket, isConnectedToSocket)
+  },[socket])
 
   useEffect(() => {
     const sketchWrapper = document.getElementById('sketchWrapper');
     let sketchWrapper_style = getComputedStyle(sketchWrapper);
-    //setCanvas(canvasRef.current);
-//console.log(socket)
-    //initSocketConnection();
+setIsConnectedToSocket(socket.connected)
+console.info('socket, isConnectedToSocket #1 useEffect')
+console.info(socket, isConnectedToSocket)
+
     initFabricCanvas();
     
     canvasFn(canvasRef.current)
@@ -202,11 +208,7 @@ const Board5 = (props) => {
 
     return () => {
       window.removeEventListener("resize", onResize);
-      // socket.disconnect();
-//console.log(connection)
       socket.emit('leave-WhiteboardRoom', socket.id);
-      //dispatch(removeuser(socket.id))
-      //socket.disconnect();
     }
   }, []);
 
@@ -329,7 +331,7 @@ console.log(canvasRef.current.getZoom())
   const agreeToConnect = (checked) => {
 console.log('agreeToConnect - checked: ',checked)
 console.log('agreeToConnect - socket.id: ',socket.id)
-    setConnected(checked)
+    setIsConnectedToSocket(checked)
 
     checked ? initSocketConnection() : socket.emit('leave-WhiteboardRoom', socket.id);
 
@@ -488,7 +490,7 @@ console.log('agreeToConnect - socket.id: ',socket.id)
     img.src = deleteIcon;
   }
 
-  const initSocketConnection = () => {
+  const initSocketConnection = useCallback(() => {
     
     socket.emit('joinWhiteboardRoom', {
       name: name, 
@@ -504,11 +506,12 @@ console.log('agreeToConnect - socket.id: ',socket.id)
         ...connection, 
         socketid: response.userId,
       })
+      setIsConnectedToSocket(true)
 // console.log('response', response)
 // console.log('response connection', connection)
     })
     
-  }
+  },[])
 
   const loadSavedState = () => {
 //console.log('loadsavedata')
@@ -769,7 +772,7 @@ console.log('agreeToConnect - socket.id: ',socket.id)
       zoom *= 0.999 ** delta;
       if (zoom > 20) zoom = 20;
       if (zoom < 0.01) zoom = 0.01;
-console.log(zoom)
+//console.log(zoom)
       setCurrentZoom(zoom)
       localStorage.setItem('whiteboard.zoom',zoom)
       canvas.zoomToPoint({ x: event.offsetX, y: event.offsetY }, zoom);
@@ -940,12 +943,15 @@ object.scale(o.scaleX, o.scaleY)
         <SketchWrapper id="sketchWrapper">
           <canvas id="canvas" ref={canvasRef} className={classes.board} ></canvas>
         </SketchWrapper>
-        <ConnectonAlertDialog
+        <ConnectonDecideDialog
           agreeToConnect={agreeToConnect}
+          connected={isConnectedToSocket}
+          connectedToRoom={connectedToRoom}
         />
         <BoardToolbar
           agreeToConnect={agreeToConnect}
-          connected={connected}
+          connected={isConnectedToSocket}
+          connectedToRoom={connectedToRoom}
           setFillColor={setFillColor}
           setStrokeColor={setStrokeColor}
           selectTool={selectTool}

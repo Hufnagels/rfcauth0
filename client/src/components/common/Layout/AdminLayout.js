@@ -162,7 +162,7 @@ const AdminLayout = () => {
         </Drawer>
       </React.Fragment>
       <SocketContext.Provider value={socket}>
-      <ContentWrapper />
+        <ContentWrapper />
       </SocketContext.Provider>
     </div>
   );

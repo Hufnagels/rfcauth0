@@ -11,20 +11,16 @@ export const socket = io.connect(SOCKET_URL, {
   'headers': headers,
   'reconnection': true,
   'reconnectionDelay': 500,
-  'reconnectionAttempts': 10,
+  'reconnectionAttempts': 100,
   'forceNew': true,
 });
 
 socket.on('connect', () => {
   console.log('socket connected')
 })
-// let count = 0;
-// setInterval(() => {
-//   socket.volatile.emit("ping", ++count);
-// }, 1000);
-// socket.on('connection-message', (response) => {
-//   console.log('connection-message: ', response)
-//   setConnection({...connection, username: response.username});
-//   setConnection({...connection, socketid: response.socketid});
-// })
-export const SocketContext = React.createContext(socket);
+
+socket.on('disconnect', () => {
+  console.log('socket disconnected')
+})
+
+export const SocketContext = React.createContext();

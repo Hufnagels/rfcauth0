@@ -1,13 +1,24 @@
 import React, {useEffect, useState} from 'react'
 
 // Material
-import { useTheme } from '@mui/styles';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import ButtonGroup from '@mui/material/ButtonGroup';
-import Button from '@mui/material/Button';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import ToggleButton from '@mui/material/ToggleButton';
+import { useTheme, styled } from '@mui/styles';
+import { 
+  Box,
+  TextField,
+  ButtonGroup,
+  Button,
+  ToggleButtonGroup,
+  ToggleButton,
+  Typography, 
+} from '@mui/material';
+// import Box from '@mui/material/Box';
+// import TextField from '@mui/material/TextField';
+// import ButtonGroup from '@mui/material/ButtonGroup';
+// import Button from '@mui/material/Button';
+// import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+// import ToggleButton from '@mui/material/ToggleButton';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+
 
 // Pan, select, FreeHandDraw Icons
 import PanToolOutlinedIcon from '@mui/icons-material/PanToolOutlined';
@@ -45,6 +56,19 @@ import SpeedDialTools from './SpeedDialTools';
 import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
 import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
+import { socket } from '../../../features/context/socketcontext_whiteboard';
+
+const HtmlTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: '#f5f5f9',
+    color: 'rgba(0, 0, 0, 0.87)',
+    maxWidth: 220,
+    fontSize: theme.typography.pxToRem(12),
+    border: '1px solid #dadde9',
+  },
+}));
 
 const BoardToolbar = ({
   setStrokeColor, 
@@ -58,6 +82,7 @@ const BoardToolbar = ({
   dummyCB,
   agreeToConnect,
   connected,
+  connectedToRoom,
   pushJSON,
 }) => {
   
@@ -67,21 +92,23 @@ const BoardToolbar = ({
   const fillRef = React.useRef('#f6b73c');
   const toolsRef = React.useRef(null);
 
-  const imgDown = React.useRef();
-  const jsonDown = React.useRef();
-  const fileInputRef = React.useRef();
+  const imgDown = React.useRef(null);
+  const jsonDown = React.useRef(null);
+  const fileInputRef = React.useRef(null);
 
-  const [enabled, setEnabled] = useState(false)
+  //const [checked, setChecked] = useState(connectedToRoom)
   // connect switch
-  const [checked, setChecked] = React.useState(false);
+  const [connectionSwitchChecked, setConnectionSwitchChecked] = React.useState(connectedToRoom);
+  const [isConnectedToSocket, setIsConnectedToSocket] = React.useState(connected)
 
-  const handleConnectChange = (event) => {
-    setChecked(event.target.checked);
+  const handleConnectToRoomChange = (event) => {
+    setConnectionSwitchChecked(event.target.checked);
     agreeToConnect(event.target.checked)
   };
   // Color change buttons
   const [stateStrokeColor, setStateStrokeColor] = useState('#f6b73c')
   const [stateFillColor, setStateFillColor] = useState('#f6b73c')
+  
   // Toggle buttons
   const [view, setView] = React.useState(null)
   const handleToolChange = (event, nextView) => {
@@ -102,14 +129,19 @@ console.info(fileInputRef.current.files)
   }
 
   useEffect(() => {
-    toolsRef.current = null;
+    setConnectionSwitchChecked(connectedToRoom)
+    setIsConnectedToSocket(connected ? connected : false)
+console.info('connected, typeof socket.id, socket.connected, isConnected')
+console.info(connected, typeof socket.id, socket.connected, isConnectedToSocket)
   }, [])
 
   useEffect(() => {
-    setEnabled(checked);
-    setChecked(connected ? connected : false)
-console.info(connected)
-  }, [connected])
+    //setEnabled(checked);
+    setConnectionSwitchChecked(connectedToRoom)
+    setIsConnectedToSocket(connected ? connected : false)
+console.info('socket isConnected')
+console.info(socket, isConnectedToSocket)
+  }, [socket, connectedToRoom])
 
   return (
     <React.Fragment>
@@ -126,19 +158,33 @@ console.info(connected)
             '& .MuiTextField-root': { m: 0, width: '5.4ch',minHeight:40, },
           }}
         >
-          <Switch
-            checked={checked}
-            onChange={handleConnectChange}
-            inputProps={{ 'aria-label': 'controlled' }}
-          />
-          <ButtonGroup
+          
+          <HtmlTooltip
+            title={
+              <React.Fragment>
+                <Typography color="inherit">Connect to 'WhiteboardRoom'</Typography>
+                <strong>{'Enabled'}</strong>{', if the app is connected to the socket server'}<br />
+                <strong>{'Disabled'}</strong>{', if the app is not connected to the socket server'}<br />
+              </React.Fragment>
+            }
+          ><span>
+            <Switch
+              checked={connectionSwitchChecked}
+              onChange={handleConnectToRoomChange}
+              inputProps={{ 'aria-label': 'controlled' }}
+              disabled={!isConnectedToSocket}
+            /></span>
+          </HtmlTooltip>
+          {/* <ButtonGroup
             orientation="vertical"
             aria-label="vertical outlined button group"
           >
-            <Button variant="text" color='secondary' name="Line" aria-label="Connect" disabled={enabled} onClick={(e) => { agreeToConnect() }}>
-              <ConnectWithoutContactOutlinedIcon />
-            </Button>
-          </ButtonGroup>
+            <Tooltip disableFocusListener title="Connect">
+              <Button variant="text" color='secondary' name="Line" aria-label="Connect" disabled={!isConnectedToSocket} onClick={(e) => { agreeToConnect() }}>
+                <ConnectWithoutContactOutlinedIcon />
+              </Button>
+            </Tooltip>
+          </ButtonGroup> */}
         </Box>
         <Box
           component="form"
