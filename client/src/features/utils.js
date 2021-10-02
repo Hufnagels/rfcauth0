@@ -20,3 +20,41 @@ export const isNumeric = (str) => {
   return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
          !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
 }
+
+export const nestedLoop = (obj,searchKey, searchValue) => {
+  const res = {};
+  function recurse(obj, current) {
+      for (const key in obj) {
+          let value = obj[key];
+          if(value !== undefined) {
+              if (value && typeof value === 'object') {
+                  recurse(value, key);
+              } else {
+                  // Do your stuff here to var value
+                  if (key === searchKey && value === searchValue) {
+                    res[key] = value;
+                    console.log(key, value, obj)
+                    res[key] = obj.children;
+                    break;
+                  }
+                  
+              }
+          }
+      }
+  }
+  recurse(obj);
+  return res;
+}
+
+export const findObjectByLabel = (obj, key, value) => {
+  for(var elements in obj){
+      if (elements === key && obj[elements] === value){
+           console.log(obj[elements]);
+           console.log(JSON.stringify(obj.children));
+           return obj.children;
+      }
+      if(typeof obj[elements] === 'object'){
+        findObjectByLabel(obj[elements], key, value );
+      }
+  }
+};

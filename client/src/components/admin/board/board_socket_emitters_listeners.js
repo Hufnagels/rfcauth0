@@ -1,6 +1,4 @@
-import React, {useState, useContext, useCallback, useEffect} from 'react';
 import {socket} from '../../../features/context/socketcontext_whiteboard';
-// import { useSocket } from '../../features/context/SocketContext';
 import {fabric} from 'fabric'
 
 const displaySocketDataFromJSONString = (data, canvasS) => {

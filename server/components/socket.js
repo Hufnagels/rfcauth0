@@ -52,7 +52,19 @@ console.log('users in romm: ', io.sockets.adapter.rooms.get(p_user.room))
       message.text = `${p_user.name} connected to ${p_user.room} room!`
       socket.broadcast.to(p_user.room).emit("connection-message", message );
       
-      
+      // send all connected user in roomm the users list
+      // return all Socket instances in the "room1" room of the main namespace
+      // const sockets = io.in(p_user.room).fetchSockets();
+      // for (const socket of sockets) {
+      //   console.log(socket.id);
+      //   console.log(socket.handshake);
+      //   console.log(socket.rooms);
+      //   console.log(socket.data);
+      //   // socket.emit(/* ... */);
+      //   // socket.join(/* ... */);
+      //   // socket.leave(/* ... */);
+      //   // socket.disconnect(/* ... */);
+      // }
       socket.on('onPathCreated', data => {
         socket.broadcast.to(data.room).emit('new-path', data);
         console.log('onPathCreated: ', data.name)

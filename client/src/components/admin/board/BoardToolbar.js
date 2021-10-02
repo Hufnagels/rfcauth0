@@ -99,7 +99,7 @@ const BoardToolbar = ({
   //const [checked, setChecked] = useState(connectedToRoom)
   // connect switch
   const [connectionSwitchChecked, setConnectionSwitchChecked] = React.useState(connectedToRoom);
-  const [isConnectedToSocket, setIsConnectedToSocket] = React.useState(connected)
+  const [connectedToSocket, setConnectedToSocket] = React.useState(connected)
 
   const handleConnectToRoomChange = (event) => {
     setConnectionSwitchChecked(event.target.checked);
@@ -130,18 +130,18 @@ console.info(fileInputRef.current.files)
 
   useEffect(() => {
     setConnectionSwitchChecked(connectedToRoom)
-    setIsConnectedToSocket(connected ? connected : false)
-console.info('connected, typeof socket.id, socket.connected, isConnected')
-console.info(connected, typeof socket.id, socket.connected, isConnectedToSocket)
+    setConnectedToSocket(connected ? connected : false)
+console.info('connected, typeof socket.id, socket.connected, connectedToRoom')
+console.info(connected, typeof socket.id, socket.connected, connectedToRoom)
   }, [])
 
   useEffect(() => {
     //setEnabled(checked);
     setConnectionSwitchChecked(connectedToRoom)
-    setIsConnectedToSocket(connected ? connected : false)
-console.info('socket isConnected')
-console.info(socket, isConnectedToSocket)
-  }, [socket, connectedToRoom])
+    setConnectedToSocket(connected ? connected : false)
+console.info('socket, isConnected, connectedToRoom')
+console.info(socket, connectedToSocket, connectedToRoom)
+  }, [socket, connectedToSocket, connectedToRoom])
 
   return (
     <React.Fragment>
@@ -172,7 +172,7 @@ console.info(socket, isConnectedToSocket)
               checked={connectionSwitchChecked}
               onChange={handleConnectToRoomChange}
               inputProps={{ 'aria-label': 'controlled' }}
-              disabled={!isConnectedToSocket}
+              disabled={!connected}
             /></span>
           </HtmlTooltip>
           {/* <ButtonGroup

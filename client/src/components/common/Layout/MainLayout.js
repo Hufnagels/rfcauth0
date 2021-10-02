@@ -285,8 +285,6 @@ const MainLayout = (props) => {
     });
   };
 
-  
-
   const getMenuButtons = () => {
     return headersData.map(({ title, path }) => {
       if(title)

@@ -5,7 +5,6 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { makeStyles } from '@mui/styles';
 import {
   Button,
-  useScrollTrigger,
 } from "@mui/material";
 
 // custom styles
@@ -28,12 +27,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const LoginButton = () => {
-  const { activeClassNavbar, navlinkNavbar } = useStyles();
+  const classes = useStyles();
   const { loginWithRedirect } = useAuth0();
   
   return (
     <Button 
-      className={navlinkNavbar} 
+      className={classes.navlinkNavbar} 
       /* activeClassName={activeClassNavbar} */
       onClick={() =>
         loginWithRedirect({

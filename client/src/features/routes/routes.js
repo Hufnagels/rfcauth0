@@ -1,4 +1,4 @@
-import { Navigate,Outlet } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
 // Icons
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
@@ -15,7 +15,6 @@ import AdminLayout from '../../components/common/Layout/AdminLayout';
 import MainLayout from '../../components/common/Layout/MainLayout';
 
 // Pages -- admin
-import DashboardLayout from '../../pages/admin/Dashboard';
 import DataFetching from '../../pages/admin/Tables/DataFetching';
 import BasicFilteringGrid from '../../pages/admin/Tables/Table';
 import MindMap from '../../pages/admin/Mindmap/Mindmap';
@@ -34,7 +33,6 @@ import PostItem from '../../components/Posts/PostItem';
 import loadable from "@loadable/component"
 import Posts from '../../components/Posts/Posts';
 import Loading from '../../components/common/Loading'
-import RestrictedArea from '../../components/common/RestrictedArea';
 
 // const Loading = () => {
 //   return <div>Loading...</div>

@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback, useRef, useLayoutEffect, useContext } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
+import { useDispatch } from 'react-redux';
 import { fabric } from 'fabric';
 import { v4 as uuid } from 'uuid';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -26,11 +26,11 @@ import {
   RemoveObjectListener
 } from './board_socket_emitters_listeners';
 import { SocketContext } from '../../../features/context/socketcontext_whiteboard';
+
 import {
   statechange,
-  selectBoard,
 } from '../../../redux/reducers/whiteboardSlice';
-import History from '../../../features/history';
+//import History from '../../../features/history';
 import { tryParseJSONObject, isNumeric } from '../../../features/utils';
 import ConnectonDecideDialog from './ConnectonDecideDialog';
 
@@ -96,7 +96,7 @@ const SketchWrapper = styled('div')(({ theme }) => ({
 
 const Board5 = (props) => {
   const socket = useContext(SocketContext);
-  const isConnected = React.useRef(false);
+  //const isConnected = React.useRef(false);
 
   // Styles
   const classes = useStyles();
@@ -129,7 +129,6 @@ const Board5 = (props) => {
   });
   
   //Snackbar section begin
-  let currentMode;
   let mousepressed = false;
   let wheeling;
   const [snackstate, setSnacktate] = React.useState({
@@ -138,9 +137,9 @@ const Board5 = (props) => {
     horizontal: 'right',
   });
   const { vertical, horizontal, open } = snackstate;
-  const handleClickSnack = (newState) => () => {
-    setSnacktate({ open: true, ...newState });
-  };
+  // const handleClickSnack = (newState) => () => {
+  //   setSnacktate({ open: true, ...newState });
+  // };
   const handleCloseSnack = () => {
     setSnacktate({ ...snackstate, open: false });
   };
@@ -169,22 +168,16 @@ const Board5 = (props) => {
     text: 'Text',
     default:null,
   }
-console.log('outside')
-console.log(isConnectedToSocket)
-console.log(connectedToRoom)
-
-  useEffect(() => {
-    setIsConnectedToSocket(socket.connected)
-console.info('socket, isConnectedToSocket #2 useEffect')
-console.info(socket, isConnectedToSocket)
-  },[socket])
+// console.log('outside')
+// console.log(isConnectedToSocket)
+// console.log(connectedToRoom)
 
   useEffect(() => {
     const sketchWrapper = document.getElementById('sketchWrapper');
     let sketchWrapper_style = getComputedStyle(sketchWrapper);
-setIsConnectedToSocket(socket.connected)
-console.info('socket, isConnectedToSocket #1 useEffect')
-console.info(socket, isConnectedToSocket)
+    setIsConnectedToSocket(socket.connected)
+console.info('socket, isConnectedToSocket, connectedToRoom #1 useEffect')
+console.info(socket, isConnectedToSocket, connectedToRoom)
 
     initFabricCanvas();
     
@@ -304,6 +297,7 @@ console.info(e.path.owner, connection.email)
           dispatch(statechange(object))
         })
 
+        AddJsonListener(canvasRef.current);
         AddDrawListener(canvasRef.current)
         AddObjectListener(canvasRef.current)
         ModifyObjectListener(canvasRef.current)
@@ -314,6 +308,12 @@ console.log(canvasRef.current.getZoom())
       
   },[canvasRef.current])
 
+  useEffect(() => {
+    setIsConnectedToSocket(socket.connected)
+console.info('socket, isConnectedToSocket, connectedToRoom #2 useEffect')
+console.info(socket, isConnectedToSocket, connectedToRoom)
+  },[socket, isConnectedToSocket, connectedToRoom])
+  
   const zoomDefault = () => {
     var zoom = 1;
     if((localStorage.getItem('whiteboard.zoom') === 'NaN') && isNumeric(localStorage.getItem('whiteboard.zoom'))) {
@@ -329,9 +329,10 @@ console.log(canvasRef.current.getZoom())
 
   // Agree Child functions
   const agreeToConnect = (checked) => {
-console.log('agreeToConnect - checked: ',checked)
-console.log('agreeToConnect - socket.id: ',socket.id)
+// console.log('agreeToConnect - checked: ',checked)
+// console.log('agreeToConnect - socket.id: ',socket.id)
     setIsConnectedToSocket(checked)
+    setConnectedToRoom(checked)
 
     checked ? initSocketConnection() : socket.emit('leave-WhiteboardRoom', socket.id);
 
@@ -507,8 +508,10 @@ console.log('agreeToConnect - socket.id: ',socket.id)
         socketid: response.userId,
       })
       setIsConnectedToSocket(true)
+      setConnectedToRoom(true)
 // console.log('response', response)
 // console.log('response connection', connection)
+// console.log('connectedToRoom', connectedToRoom)
     })
     
   },[])

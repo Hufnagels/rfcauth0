@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import JSONPretty from 'react-json-pretty';
+
 
 // Material
-
-import { Grid, Paper, CircularProgress } from '@mui/material';
+import { 
+  Grid, 
+  CircularProgress 
+} from '@mui/material';
 
 // custom
 import PostListItem from './PostListItem';
@@ -29,7 +31,6 @@ const PostList = () => {
 
   useEffect(() => {
     fetchData();
-    
   }, []);
 
   return (
@@ -50,4 +51,4 @@ const PostList = () => {
   )
 }
 
-export default PostList;
+export default React.memo(PostList);

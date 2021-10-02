@@ -3,7 +3,7 @@ import {
   // rest of the elements/components imported remain same
   useParams
 } from 'react-router-dom';
-import Breadcrumbs from '@mui/material/Breadcrumbs';
+
 import axios from 'axios';
 import JSONPretty from 'react-json-pretty';
 
@@ -28,8 +28,7 @@ const PostItem = (props) => {
 
   useEffect(() => {
     fetchData();
-    
-  }, []);
+  });
   
   return (
     <div>

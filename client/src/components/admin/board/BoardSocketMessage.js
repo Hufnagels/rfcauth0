@@ -5,7 +5,6 @@ import { useDispatch } from 'react-redux';
 import Snackbar from '@mui/material/Snackbar';
 import { Alert } from '@mui/material';
 // Custom
-//import { useSocket } from '../../features/context/SocketContext';
 import { socket } from '../../../features/context/socketcontext_whiteboard'
 import { 
   adduser,

@@ -16,12 +16,13 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 export default function ConnectonDecideDialog({agreeToConnect, connected, connectedToRoom}) {
-  
+
   // Alert
-  const [openAlert, setOpenAlert] = React.useState(connected);
+  const [openAlert, setOpenAlert] = React.useState(false);
 
   const handleCloseAlert = () => {
     setOpenAlert(true);
+  console.log('alert')
   };
 
   // Dialog 
