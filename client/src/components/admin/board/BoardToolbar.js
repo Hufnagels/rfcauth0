@@ -206,7 +206,7 @@ console.info(socket, connectedToSocket, connectedToRoom)
             style={{}}
             value={stateStrokeColor}
             onChange={(e) => {
-  console.info(e.target.value)
+// console.info(e.target.value)
               strokeRef.current = e.target.value
               setStrokeColor(e.target.value);
               setStateStrokeColor(e.target.value)
@@ -221,7 +221,7 @@ console.info(socket, connectedToSocket, connectedToRoom)
             style={{}}
             value={stateFillColor}
             onChange={(e) => {
-  console.info(e.target.value)
+// console.info(e.target.value)
               fillRef.current = e.target.value
               setFillColor(e.target.value);
               setStateFillColor(e.target.value)

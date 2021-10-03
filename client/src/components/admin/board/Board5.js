@@ -37,6 +37,7 @@ import {
 //import History from '../../../features/history';
 import { tryParseJSONObject, isNumeric } from '../../../features/utils';
 import ConnectonDecideDialog from './ConnectonDecideDialog';
+import BoardActionMessage from './BoardActionMessage';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -99,8 +100,22 @@ const SketchWrapper = styled('div')(({ theme }) => ({
 }));
 
 const Board5 = (props) => {
+  // Authentication
+  const { user } = useAuth0();
+  const { name, picture, email } = user;
+
+  // Socket
   const socket = useContext(SocketContext);
-  //const isConnected = React.useRef(false);
+  
+  const [isConnectedToSocket, setIsConnectedToSocket] = React.useState(socket.connected || false)
+  const [connectedToRoom, setConnectedToRoom] = React.useState(false)
+  const [connection, setConnection] = useState({
+    name: name,
+    room: 'whiteboardRoom',
+    email:email,
+    socket: {}, //socket,
+    socketid: '', //socket.id,
+  });
 
   // Styles
   const classes = useStyles();
@@ -111,31 +126,17 @@ const Board5 = (props) => {
   const fileInputRef = React.useRef(null);
   const canvasRef = React.useRef(null);
   const toolsRef = React.useRef(null);
-
   const strokeRef = React.useRef('#f6b73c');
   const fillRef = React.useRef('#f6b73c');
-
-  // Authentication
-  const { user } = useAuth0();
-  const { name, picture, email } = user;
 
   // Redux store & reducers
   const dispatch = useDispatch();
 
-  // Socket
-  const [isConnectedToSocket, setIsConnectedToSocket] = React.useState(socket.connected || false)
-  const [connectedToRoom, setConnectedToRoom] = React.useState(false)
-  const [connection, setConnection] = useState({
-    name: name,
-    room: 'whiteboardRoom',
-    email:email,
-    socket: {}, //socket,
-    socketid: '', //socket.id,
-  });
-  
+  // Messaging
+  const [actiontype, setActiontype] = React.useState('success')
+  const [message, setMessage] = React.useState('');
   //Snackbar section begin
-  let mousepressed = false;
-  let wheeling;
+  
   const [snackstate, setSnacktate] = React.useState({
     open: false,
     vertical: 'top',
@@ -158,9 +159,12 @@ const Board5 = (props) => {
   );
   // console.log('key exist: ',localStorage.getItem("username") === null)
   // console.log('isNumeric', isNumeric(localStorage.getItem('whiteboard.zoom')))
+  // Canvas
+  let mousepressed = false;
+  let wheeling;
   const [currentZoom, setCurrentZoom] = React.useState(localStorage.getItem('whiteboard.zoom'))
   const [currentFile, setCurrentFile] = React.useState('')
-  
+  const [activeobject, setActiveobject] = React.useState(null)
   const drawingMode = {
     pan:'Pan',
     select:'Select',
@@ -234,6 +238,16 @@ console.info(e.path.owner, connection.email)
             }
             AddDrawEmitter(modifiedObj)
           }
+        })
+
+        canvasRef.current.on('selection:created', function(options){
+console.log('selection:created', options)
+          setActiveobject(options.target)
+        })
+
+        canvasRef.current.on('selection:created', function(options){
+console.log('selection:created', options)
+          setActiveobject(options.target)
         })
 
         canvasRef.current.on('object:modified', function (options) {
@@ -322,16 +336,20 @@ console.log(canvasRef.current.getZoom())
 
 console.info('socket, isConnectedToSocket, connectedToRoom #2 useEffect')
 console.info(socket, isConnectedToSocket, connectedToRoom)
-socket.on('connect', () => {
-  console.log('socket connected from board5');
-  setIsConnectedToSocket(true)
-})
+    socket.on('connect', () => {
+      console.log('socket connected from board5');
+      setIsConnectedToSocket(true)
+      setMessage('socket connected')
+      setActiontype('success')
+    })
 
-socket.on('disconnect', () => {
-  console.log('socket disconnected from board5');
-  setIsConnectedToSocket(false)
-  setConnectedToRoom(false)
-})
+    socket.on('disconnect', () => {
+      console.log('socket disconnected from board5');
+      setIsConnectedToSocket(false)
+      setConnectedToRoom(false)
+      setMessage('socket disconnected')
+      setActiontype('error')
+    })
   },[socket, isConnectedToSocket, connectedToRoom])
   
   const zoomDefault = () => {
@@ -379,11 +397,16 @@ console.log('whole canvas sende')
   // Toolbar Child functions
   const setStrokeColor = (data) => {
     strokeRef.current = data
-    console.log(strokeRef.current)
+// console.log(strokeRef.current)
+//console.log(activeobject)
+    activeobject.set({stroke:strokeRef.current})
+    canvasRef.current.requestRenderAll();
   }
 
   const setFillColor = (data) => {
     fillRef.current = data;
+    activeobject.set({fill:fillRef.current})
+    canvasRef.current.requestRenderAll();
   }
 
   const selectTool = (data) => {
@@ -575,6 +598,7 @@ console.log('whole canvas sende')
         transparentCorners: false,
         globalCompositeOperation: "source-over",
         clipTo: null,
+        dirty: false,
       });
 
     } else if (type === 'FilledRectangle') {
@@ -587,6 +611,7 @@ console.log('whole canvas sende')
         transparentCorners: false,
         globalCompositeOperation: "source-over",
         clipTo: null,
+        dirty: false,
       });
 
     } else if (type === 'Triangle') {
@@ -599,6 +624,7 @@ console.log('whole canvas sende')
         transparentCorners: false,
         globalCompositeOperation: "source-over",
         clipTo: null,
+        dirty: false,
       })
 
     } else if (type === 'Circle') {
@@ -607,6 +633,7 @@ console.log('whole canvas sende')
         stroke: strokeRef.current,
         strokeWidth: 5,
         fill: 'transparent',
+        dirty: false,
       })
     } else if (type === 'FilledCircle') {
       object = new fabric.Circle({
@@ -614,6 +641,7 @@ console.log('whole canvas sende')
         stroke: strokeRef.current,
         strokeWidth: 5,
         fill: fillRef.current,
+        dirty: false,
       })
     } else if (type === 'Text') {
       object = new fabric.IText('IText', { 
@@ -624,6 +652,7 @@ console.log('whole canvas sende')
         fill: strokeRef.current,
         text:'IText',
         visible: true,
+        dirty: false,
       });
 
     }
@@ -970,6 +999,10 @@ object.scale(o.scaleX, o.scaleY)
           agreeToConnect={agreeToConnect}
           connected={isConnectedToSocket}
           connectedToRoom={connectedToRoom}
+        />
+        <BoardActionMessage
+          actiontype={actiontype}
+          message={message}
         />
         <BoardToolbar
           agreeToConnect={agreeToConnect}

@@ -16,6 +16,7 @@ export default function BoardSocketMessage() {
   const dispatch = useDispatch();
   const [isConnected, setConnected] = React.useState(false)
   const [open, setOpen] = React.useState(false);
+  const [actiontype, setActiontype] = React.useState('success')
   const [message, setMessage] = React.useState('');
   const [snackstate, setSnacktate] = React.useState({
     vertical: 'bottom',
@@ -34,22 +35,6 @@ export default function BoardSocketMessage() {
     setOpen(false);
   };
 
-  // const action = (
-  //   <React.Fragment>
-  //     <Button color="secondary" size="small" onClick={handleClose}>
-  //       UNDO
-  //     </Button>
-  //     <IconButton
-  //       size="small"
-  //       aria-label="close"
-  //       color="inherit"
-  //       onClick={handleClose}
-  //     >
-  //       <CloseIcon fontSize="small" />
-  //     </IconButton>
-  //   </React.Fragment>
-  // );
-
   React.useEffect(()=> {
     if(socket && socket.connected) setConnected(true)
 
@@ -61,33 +46,37 @@ export default function BoardSocketMessage() {
   React.useEffect(()=> {
 
     if(isConnected){
-    socket.on('welcome-message', (response) => {
-      setOpen(true);
-//console.log('welcome-message: ', response)
-      //setMessage({...message, message: response.username});
-      setMessage(response.text);
-      //delete response.text;
-      dispatch(adduser(response))
-    })
-    socket.on('connection-message', (response) => {
-      setOpen(true);
-//console.log('connection-message: ', response)
-      //setMessage({...message, message: response.username});
-      
-      setMessage(response.text);
-    })
-    socket.on('action-message', (response) => {
-      setOpen(true);
-//console.log('action-message: ', JSON.stringify(response))
-      //setMessage({...message, message: response.username});
-      setMessage(JSON.stringify(response));
-    })
-    socket.on('leave-room-message', (response) => {
-      setOpen(true);
-//console.log('leave-room-message: ', response)
-      setMessage(response.text);
-    })
-  }
+      socket.on('welcome-message', (response) => {
+        setActiontype('success')
+        setOpen(true);
+  //console.log('welcome-message: ', response)
+        //setMessage({...message, message: response.username});
+        setMessage(response.text);
+        //delete response.text;
+        dispatch(adduser(response))
+      })
+      socket.on('connection-message', (response) => {
+        setActiontype('info')
+        setOpen(true);
+  //console.log('connection-message: ', response)
+        //setMessage({...message, message: response.username});
+        
+        setMessage(response.text);
+      })
+      socket.on('action-message', (response) => {
+        setActiontype('info')
+        setOpen(true);
+  //console.log('action-message: ', JSON.stringify(response))
+        //setMessage({...message, message: response.username});
+        setMessage(JSON.stringify(response));
+      })
+      socket.on('leave-room-message', (response) => {
+        setActiontype('warning')
+        setOpen(true);
+  //console.log('leave-room-message: ', response)
+        setMessage(response.text);
+      })
+    }
   },[isConnected])
 
   
@@ -102,7 +91,7 @@ export default function BoardSocketMessage() {
         /*message={message}
          action={action} */
       >
-        <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>{message}</Alert>
+        <Alert onClose={handleClose} severity={actiontype} sx={{ width: '100%' }}>{message}</Alert>
       </Snackbar>
     </div>
   );
