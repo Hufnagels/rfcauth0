@@ -16,12 +16,14 @@ export const socket = io.connect(SOCKET_URL, {
   'forceNew': true,
 });
 
-socket.on('connect', () => {
-  console.log('socket connected')
+export const connectedSocket = socket.on('connect', () => {
+  console.log('socket connected');
+  return true
 })
 
-socket.on('disconnect', () => {
-  console.log('socket disconnected')
+export const disconnectedSocket = socket.on('disconnect', () => {
+  console.log('socket disconnected');
+  return true;
 })
 
 export const SocketContext = React.createContext(socket);

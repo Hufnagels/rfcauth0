@@ -25,7 +25,11 @@ import {
   ModifyObjectListener, 
   RemoveObjectListener
 } from './board_socket_emitters_listeners';
-import { SocketContext } from '../../../features/context/socketcontext_whiteboard';
+import { 
+  SocketContext,
+  // connectedSocket,
+  // disconnectedSocket,
+} from '../../../features/context/socketcontext_whiteboard';
 
 import {
   statechange,
@@ -100,6 +104,7 @@ const Board5 = (props) => {
 
   // Styles
   const classes = useStyles();
+  
   // Refs
   const imgDown = React.useRef(null);
   const jsonDown = React.useRef(null);
@@ -178,6 +183,8 @@ const Board5 = (props) => {
     setIsConnectedToSocket(socket.connected)
 console.info('socket, isConnectedToSocket, connectedToRoom #1 useEffect')
 console.info(socket, isConnectedToSocket, connectedToRoom)
+// console.info('connectedSocket, disconnectedSocket (socketcontext)  #1 useEffect')
+// console.info(connectedSocket, disconnectedSocket)
 
     initFabricCanvas();
     
@@ -310,6 +317,8 @@ console.log(canvasRef.current.getZoom())
 
   useEffect(() => {
     setIsConnectedToSocket(socket.connected)
+// console.info('connectedSocket, disconnectedSocket (socketcontext)  #2 useEffect')
+// console.info(connectedSocket, disconnectedSocket)
 console.info('socket, isConnectedToSocket, connectedToRoom #2 useEffect')
 console.info(socket, isConnectedToSocket, connectedToRoom)
   },[socket, isConnectedToSocket, connectedToRoom])
@@ -344,7 +353,7 @@ console.info(socket, isConnectedToSocket, connectedToRoom)
   }
 
   const pushJSON = () => {
-    console.log('whole canvas sende')
+console.log('whole canvas sende')
     AddJsonEmitter({
       obj: JSON.stringify(canvasRef.current), 
       //id: object.id,
@@ -374,8 +383,8 @@ console.info(socket, isConnectedToSocket, connectedToRoom)
     }
     canvasRef.current.isDrawingMode = (toolsRef.current === drawingMode.pencil) ? true : false;
     canvasRef.current.selection = (toolsRef.current === drawingMode.pan || toolsRef.current === drawingMode.select) ? true : false;
-    console.log('selection')
-    console.log(canvasRef.current.selection)
+// console.log('selection')
+// console.log(canvasRef.current.selection)
     if (data === drawingMode.pencil) {
       updateFreeDrawingBrush();
     }

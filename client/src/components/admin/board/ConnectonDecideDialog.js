@@ -21,8 +21,8 @@ export default function ConnectonDecideDialog({agreeToConnect, connected, connec
   const [openAlert, setOpenAlert] = React.useState(false);
 
   const handleCloseAlert = () => {
-    setOpenAlert(true);
-  console.log('alert')
+    setOpenAlert(false);
+console.log('alert')
   };
 
   // Dialog 
@@ -47,12 +47,13 @@ export default function ConnectonDecideDialog({agreeToConnect, connected, connec
   React.useEffect(() => {
 console.log(socket.connected)
     setOpen(socket.connected) //typeof socket.id == 'undefined' ? false : true);
+    setOpenAlert(!socket.connected)
   },[socket])
 
   return (
     <div>
       <Snackbar 
-        open={!openAlert} 
+        open={openAlert} 
         autoHideDuration={6000} 
         onClose={handleCloseAlert} 
         anchorOrigin={{ vertical, horizontal }}>
