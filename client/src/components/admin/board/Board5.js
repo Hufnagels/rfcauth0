@@ -319,8 +319,19 @@ console.log(canvasRef.current.getZoom())
     setIsConnectedToSocket(socket.connected)
 // console.info('connectedSocket, disconnectedSocket (socketcontext)  #2 useEffect')
 // console.info(connectedSocket, disconnectedSocket)
+
 console.info('socket, isConnectedToSocket, connectedToRoom #2 useEffect')
 console.info(socket, isConnectedToSocket, connectedToRoom)
+socket.on('connect', () => {
+  console.log('socket connected from board5');
+  setIsConnectedToSocket(true)
+})
+
+socket.on('disconnect', () => {
+  console.log('socket disconnected from board5');
+  setIsConnectedToSocket(false)
+  setConnectedToRoom(false)
+})
   },[socket, isConnectedToSocket, connectedToRoom])
   
   const zoomDefault = () => {
