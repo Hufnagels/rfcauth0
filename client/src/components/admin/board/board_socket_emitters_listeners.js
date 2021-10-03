@@ -49,7 +49,7 @@ console.log('AddJsonListener', zoom)
     canvas.loadFromJSON(obj, function() {
       canvas.requestRenderAll();
     },function(o,object){
-//console.log(o,object)
+console.log(o,object)
 object.scale(o.scaleX, o.scaleY)
     });
     canvas.zoomToPoint({ x: parseFloat(canvas.width)/2, y: parseFloat(canvas.height)/2 }, zoom);

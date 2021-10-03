@@ -115,7 +115,7 @@ ScrollTop.propTypes = {
 // custom styles
 const useStyles = makeStyles((theme) => ({
   header: {
-    //backgroundColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.header,
     "@media (max-width: 900px)": {
       paddingLeft: 0,
     },

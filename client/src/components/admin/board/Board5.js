@@ -382,7 +382,7 @@ console.info(socket, isConnectedToSocket, connectedToRoom)
   }
 
   const pushJSON = () => {
-console.log('whole canvas sende')
+console.log('whole canvas sended')
     AddJsonEmitter({
       obj: JSON.stringify(canvasRef.current), 
       //id: object.id,
@@ -399,14 +399,19 @@ console.log('whole canvas sende')
     strokeRef.current = data
 // console.log(strokeRef.current)
 //console.log(activeobject)
-    activeobject.set({stroke:strokeRef.current})
-    canvasRef.current.requestRenderAll();
+    if(activeobject) {
+      activeobject.set({stroke:strokeRef.current})
+      canvasRef.current.requestRenderAll();
+    }
   }
 
   const setFillColor = (data) => {
     fillRef.current = data;
-    activeobject.set({fill:fillRef.current})
-    canvasRef.current.requestRenderAll();
+    if(activeobject) {
+      activeobject.set({fill:fillRef.current})
+      canvasRef.current.requestRenderAll();
+    }
+    
   }
 
   const selectTool = (data) => {

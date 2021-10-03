@@ -36,6 +36,7 @@ const useStyles = makeStyles((theme) => {
 // console.log(theme)
   return {
     AppBar:{
+      backgroundColor: theme.palette.primary.header,
       zIndex:'100',
     },
     root: {

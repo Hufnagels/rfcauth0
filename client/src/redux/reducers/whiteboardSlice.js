@@ -18,20 +18,34 @@ export const boardSlice = createSlice({
       //state.users = action.payload;
       return {
         ...state,
-        users: action.payload,
+        users: [
+          ...state.users, 
+          action.payload
+        ],
       }
 
     },
     removeuser: (state, action) => {
       console.log('removeuser')
       console.log(current(state), action)
+//       console.log(...state)
+//       let newState = Object.keys(state.users).reduce((r, e) => {
+// console.log(r,e,r[e])
+//         if(!action.payload[e]) r[e]['userId'] = state.users[e]['userId'];
+//         return r
+//       }, {})
+      
+//       return {...state, users: newState}
+      return {
+        ...state,
+        users: [
+          ...state.users.filter(user => user.userId !== action.payload)
+        ]
+      }
+
     },
     // ({
-    //   ...state,
-    //   users: {
-    //     ...state.users,
-    //     ...state.users.filter(user => user.id !== action.payload)
-    //   }
+  
 
     // }),
     statechange: (state, action) => {

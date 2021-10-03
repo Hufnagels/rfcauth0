@@ -49,7 +49,7 @@ export default function BoardSocketMessage() {
       socket.on('welcome-message', (response) => {
         setActiontype('success')
         setOpen(true);
-  //console.log('welcome-message: ', response)
+console.log('welcome-message: ', response)
         //setMessage({...message, message: response.username});
         setMessage(response.text);
         //delete response.text;
@@ -58,10 +58,12 @@ export default function BoardSocketMessage() {
       socket.on('connection-message', (response) => {
         setActiontype('info')
         setOpen(true);
-  //console.log('connection-message: ', response)
+console.log('connection-message: ', response)
         //setMessage({...message, message: response.username});
         
         setMessage(response.text);
+        //delete response.text;
+        dispatch(adduser(response))
       })
       socket.on('action-message', (response) => {
         setActiontype('info')
@@ -75,6 +77,7 @@ export default function BoardSocketMessage() {
         setOpen(true);
   //console.log('leave-room-message: ', response)
         setMessage(response.text);
+        dispatch(removeuser(response.userId))
       })
     }
   },[isConnected])

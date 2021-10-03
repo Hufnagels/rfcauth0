@@ -106,16 +106,18 @@ const theme = createTheme({
       active: '#cccccc',
     },
     primary:{
-      light:'#48a999',
-      main:'#00796b',
-      dark:'#004c40',
+      light:"#7986cb",
+      main:"#3f51b5",
+      dark:"#303f9f",
       link:'#cbcad6',
-      contrastText:'#fff',
+      header:'#5664d2',
+      contrastText:"#fff",
     },
     secondary: {
       light:'#b2fef7',
       main:'#80cbc4',
       dark:'#4f9a94',
+      link:'#cbcad6',
       contrastText:'#fff',
     },
     custom:{
@@ -123,6 +125,12 @@ const theme = createTheme({
       main:'#f50057',
       dark:'#c51162',
       contrastText:'#000',
+    },
+    custom2:{
+      color1:'#e53935',
+      color2:'#43a047',
+      color3:'#fb8c00',
+      color4:'#3949ab',
     },
     error:{
       light:'#e57373',
