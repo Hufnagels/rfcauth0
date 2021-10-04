@@ -76,8 +76,11 @@ console.log('users in romm: ', io.sockets.adapter.rooms.get(p_user.room))
       })
    
       socket.on('onObjectModified', data => {
-         socket.broadcast.to(data.room).emit('new-modification', data);
-         console.log('onObjectModified: ', data.name, data.id)
+        setTimeout(function(){
+          socket.broadcast.to(data.room).emit('new-modification', data);
+          console.log('onObjectModified: ', data.name, data.id)
+        }, 50); 
+         
       })
 
       socket.on('onObjectRemoved', data => {

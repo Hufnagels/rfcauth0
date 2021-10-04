@@ -13,7 +13,18 @@ const displaySocketDataFromJSONString = (data, canvasS) => {
   tmpCanvas = null;
   canvasS.renderAll();
 }
-
+function throttle (callback, limit) {
+    var waiting = false;                      // Initially, we're not waiting
+    return function () {                      // We return a throttled function
+        if (!waiting) {                       // If we're not waiting
+            callback.apply(this, arguments);  // Execute users function
+            waiting = true;                   // Prevent future invocations
+            setTimeout(function () {          // After a period of time
+                waiting = false;              // And allow future invocations
+            }, limit);
+        }
+    }
+}
 // emitters
 export const AddJsonEmitter = obj => {
   //console.log('addDrawEmitter', obj)
@@ -44,16 +55,21 @@ export const AddJsonListener = canvas => {
     const { obj, id, username, email, roomname, zoom } = data;
     let object;
 console.log('AddJsonListener', zoom)
-    //if(typeof id === 'undefined' || id === '') return
-    canvas.clear();
-    canvas.loadFromJSON(obj, function() {
-      canvas.requestRenderAll();
-    },function(o,object){
+    if(obj.sender !== email) {
+      canvas.clear();
+      canvas.loadFromJSON(obj, function() {
+        canvas.requestRenderAll();
+      },function(o,object){
 console.log(o,object)
-object.scale(o.scaleX, o.scaleY)
-    });
-    canvas.zoomToPoint({ x: parseFloat(canvas.width)/2, y: parseFloat(canvas.height)/2 }, zoom);
+  object.scale(o.scaleX, o.scaleY)
+      });
+      canvas.zoomToPoint({ x: parseFloat(canvas.width)/2, y: parseFloat(canvas.height)/2 }, zoom);
+    }
+    //if(typeof id === 'undefined' || id === '') return
+    
   })
+  canvas.fromjson = 0;
+  canvas.sender = '';
 }
 
 export const AddDrawListener = canvas => {

@@ -286,7 +286,7 @@ console.log('selection:created', options)
         })
 
         canvasRef.current.on('object:removed', function (options) {
-          if (options.target) {
+          if (options.target && canvasRef.current.fromjson === 0) {
             const removedObj = {
               obj: options.target,
               id: options.target.id,
@@ -383,8 +383,14 @@ console.info(socket, isConnectedToSocket, connectedToRoom)
 
   const pushJSON = () => {
 console.log('whole canvas sended')
+canvasRef.current.fromjson = 1;
+canvasRef.current.sender = connection.email;
+const canvasJSON = canvasRef.current.toJSON(['fromjson', 'sender']) 
+// console.log("JSON.stringify(canvasRef.current.toJSON(['fromjson']))")
+// console.log(JSON.stringify(canvasJSON))
+// return
     AddJsonEmitter({
-      obj: JSON.stringify(canvasRef.current), 
+      obj: JSON.stringify(canvasJSON), 
       //id: object.id,
       name: connection.name,
       email: connection.email,
@@ -449,7 +455,9 @@ console.log('whole canvas sended')
       freeDrawingBrush:{
         color:strokeRef.current,
         width: 5
-      }
+      },
+      fromjson: 0,
+      sender:'',
     });
     canvasRef.current.setZoom(localStorage.getItem('whiteboard.zoom'));
     canvasRef.current.selectionColor = 'rgba(0,255,0,0.3)';
