@@ -4,7 +4,7 @@ import { fabric } from 'fabric';
 import { v4 as uuid } from 'uuid';
 import { useAuth0 } from '@auth0/auth0-react';
 
-//Material
+// Material
 import { makeStyles } from '@mui/styles';
 import { styled } from '@mui/material/styles';
 import { purple } from '@mui/material/colors'
@@ -106,65 +106,20 @@ const Board5 = (props) => {
 
   // Socket
   const socket = useContext(SocketContext);
-  
-  const [isConnectedToSocket, setIsConnectedToSocket] = React.useState(socket.connected || false)
-  const [connectedToRoom, setConnectedToRoom] = React.useState(false)
-  const [connection, setConnection] = useState({
-    name: name,
-    room: 'whiteboardRoom',
-    email:email,
-    socket: {}, //socket,
-    socketid: '', //socket.id,
-  });
 
   // Styles
   const classes = useStyles();
   
-  // Refs
-  const imgDown = React.useRef(null);
-  const jsonDown = React.useRef(null);
-  const fileInputRef = React.useRef(null);
-  const canvasRef = React.useRef(null);
-  const toolsRef = React.useRef(null);
-  const strokeRef = React.useRef('#f6b73c');
-  const fillRef = React.useRef('#f6b73c');
+  // Default settings
+  const defaultValues = {
+    zoom:1,
+    loadedFile:'',
+    strokeWidth:5,
+    stroke:'#f6b73c',
+    fill:'#f6b73c',
+    room:'whiteboardRoom',
+  }
 
-  // Redux store & reducers
-  const dispatch = useDispatch();
-
-  // Messaging
-  const [actiontype, setActiontype] = React.useState('success')
-  const [message, setMessage] = React.useState('');
-  //Snackbar section begin
-  
-  const [snackstate, setSnacktate] = React.useState({
-    open: false,
-    vertical: 'top',
-    horizontal: 'right',
-  });
-  const { vertical, horizontal, open } = snackstate;
-  // const handleClickSnack = (newState) => () => {
-  //   setSnacktate({ open: true, ...newState });
-  // };
-  const handleCloseSnack = () => {
-    setSnacktate({ ...snackstate, open: false });
-  };
-  const action = (
-      <Button color="secondary" size="small" onClick={ (e) => {
-        e.preventDefault();
-        setCurrentZoom(1);
-        canvasRef.current.zoomToPoint(new fabric.Point(canvasRef.current.width / 2, canvasRef.current.height / 2), 1.0);
-        canvasRef.current.setZoom(1);
-      }}>Set to default</Button>
-  );
-  // console.log('key exist: ',localStorage.getItem("username") === null)
-  // console.log('isNumeric', isNumeric(localStorage.getItem('whiteboard.zoom')))
-  // Canvas
-  let mousepressed = false;
-  let wheeling;
-  const [currentZoom, setCurrentZoom] = React.useState(localStorage.getItem('whiteboard.zoom'))
-  const [currentFile, setCurrentFile] = React.useState('')
-  const [activeobject, setActiveobject] = React.useState(null)
   const drawingMode = {
     pan:'Pan',
     select:'Select',
@@ -177,16 +132,72 @@ const Board5 = (props) => {
     text: 'Text',
     default:null,
   }
-// console.log('outside')
-// console.log(isConnectedToSocket)
-// console.log(connectedToRoom)
+
+  // Refs
+  const imgDown = React.useRef(null);
+  const jsonDown = React.useRef(null);
+  const fileInputRef = React.useRef(null);
+  const canvasRef = React.useRef(null);
+  const toolsRef = React.useRef(null);
+  const strokeRef = React.useRef(defaultValues.stroke);
+  const strokeWidthRef = React.useRef(defaultValues.strokeWidth);
+  const fillRef = React.useRef(defaultValues.fill);
+
+  // Redux store & reducers
+  const dispatch = useDispatch();
+
+  // States - socket
+  const [isConnectedToSocket, setIsConnectedToSocket] = React.useState(socket.connected || false)
+  const [connectedToRoom, setConnectedToRoom] = React.useState(false)
+  const [connection, setConnection] = useState({
+    name: name,
+    room: defaultValues.room,
+    email:email,
+    socket: {}, //socket,
+    socketid: '', //socket.id,
+  });
+
+  // States - drawing
+  const [currentZoom, setCurrentZoom] = React.useState(localStorage.getItem('whiteboard.zoom'))
+  const [currentFile, setCurrentFile] = React.useState('')
+  const [activeobject, setActiveobject] = React.useState(null)
+  const [currentStrokeWidth, setCurrentStrokeWidth] = React.useState(strokeRef.current)
+  const [currentStrokeColor, setCurrentStrokeColor] = React.useState(strokeWidthRef.current)
+  const [currentFillColor, setCurrentFillColor] = React.useState(fillRef.current)
+  
+  // States - Messaging
+  const [actiontype, setActiontype] = React.useState('success')
+  const [message, setMessage] = React.useState('');
+  
+  // States - Snackbar
+  const [snackstate, setSnacktate] = React.useState({
+    open: false,
+    vertical: 'top',
+    horizontal: 'right',
+  });
+  const { vertical, horizontal, open } = snackstate;
+  const handleCloseSnack = () => {
+    setSnacktate({ ...snackstate, open: false });
+  };
+  const action = (
+      <Button color="secondary" size="small" onClick={ (e) => {
+        e.preventDefault();
+        setCurrentZoom(1);
+        canvasRef.current.zoomToPoint(new fabric.Point(canvasRef.current.width / 2, canvasRef.current.height / 2), 1.0);
+        canvasRef.current.setZoom(1);
+      }}>Set to default</Button>
+  );
+
+  // Mouse action variables
+  let mousepressed = false;
+  let wheeling;
 
   useEffect(() => {
     const sketchWrapper = document.getElementById('sketchWrapper');
     let sketchWrapper_style = getComputedStyle(sketchWrapper);
     setIsConnectedToSocket(socket.connected)
-console.info('socket, isConnectedToSocket, connectedToRoom #1 useEffect')
-console.info(socket, isConnectedToSocket, connectedToRoom)
+// console.info('socket, isConnectedToSocket, connectedToRoom #1 useEffect')
+// console.info(socket, isConnectedToSocket, connectedToRoom)
 // console.info('connectedSocket, disconnectedSocket (socketcontext)  #1 useEffect')
 // console.info(connectedSocket, disconnectedSocket)
 
@@ -223,8 +234,6 @@ console.info(socket, isConnectedToSocket, connectedToRoom)
           if (e.path) {
             if(e.path.owner === connection.email) return
 console.info('path:created', e.path)
-console.info(e.path.owner, connection.email)
-// console.log(JSON.stringify(e.path))
             e.path.id = uuid();
             e.path.owner = connection.email;
             const modifiedObj = {
@@ -243,11 +252,25 @@ console.info(e.path.owner, connection.email)
         canvasRef.current.on('selection:created', function(options){
 console.log('selection:created', options)
           setActiveobject(options.target)
+          if(options.target.strokeWidth !== null) setCurrentStrokeWidth(options.target.strokeWidth)
+          if(options.target.stroke !== null) setCurrentStrokeColor(options.target.stroke)
+          if(options.target.fill !== null) setCurrentFillColor(options.target.fill)
+          
         })
+        
+        canvasRef.current.on('before:selection:cleared', function(options){
+          console.log('before:selection:cleared', options)
+        })
+        canvasRef.current.on('selection:cleared', function(options){
+console.log('selection:cleared', options)
 
-        canvasRef.current.on('selection:created', function(options){
-console.log('selection:created', options)
+        })
+        canvasRef.current.on('selection:updated', function(options){
+          console.log('selection:updated', options)
           setActiveobject(options.target)
+          if(options.target.strokeWidth !== null) setCurrentStrokeWidth(options.target.strokeWidth)
+          if(options.target.stroke !== null) setCurrentStrokeColor(options.target.stroke)
+          if(options.target.fill !== null) setCurrentFillColor(options.target.fill)
         })
 
         canvasRef.current.on('object:modified', function (options) {
@@ -323,7 +346,7 @@ console.log('selection:created', options)
         AddObjectListener(canvasRef.current)
         ModifyObjectListener(canvasRef.current)
         RemoveObjectListener(canvasRef.current)
-console.log(canvasRef.current.getZoom())
+// console.log(canvasRef.current.getZoom())
         loadSavedState();
       }
       
@@ -334,8 +357,8 @@ console.log(canvasRef.current.getZoom())
 // console.info('connectedSocket, disconnectedSocket (socketcontext)  #2 useEffect')
 // console.info(connectedSocket, disconnectedSocket)
 
-console.info('socket, isConnectedToSocket, connectedToRoom #2 useEffect')
-console.info(socket, isConnectedToSocket, connectedToRoom)
+// console.info('socket, isConnectedToSocket, connectedToRoom #2 useEffect')
+// console.info(socket, isConnectedToSocket, connectedToRoom)
     socket.on('connect', () => {
       console.log('socket connected from board5');
       setIsConnectedToSocket(true)
@@ -352,20 +375,7 @@ console.info(socket, isConnectedToSocket, connectedToRoom)
     })
   },[socket, isConnectedToSocket, connectedToRoom])
   
-  const zoomDefault = () => {
-    var zoom = 1;
-    if((localStorage.getItem('whiteboard.zoom') === 'NaN') && isNumeric(localStorage.getItem('whiteboard.zoom'))) {
-      zoom = localStorage.getItem('whiteboard.zoom');
-    } else {
-      zoom = 1;
-      localStorage.setItem('whiteboard.zoom', zoom)
-    }
-    //setCurrentZoom(zoom)
-    return parseFloat(zoom);
-
-  }
-
-  // Agree Child functions
+  // Functions: Board Toolbar toChild functions
   const agreeToConnect = (checked) => {
 // console.log('agreeToConnect - checked: ',checked)
 // console.log('agreeToConnect - socket.id: ',socket.id)
@@ -400,15 +410,26 @@ const canvasJSON = canvasRef.current.toJSON(['fromjson', 'sender'])
     })
   }
 
-  // Toolbar Child functions
   const setStrokeColor = (data) => {
     strokeRef.current = data
-// console.log(strokeRef.current)
+console.log(strokeRef.current)
 //console.log(activeobject)
     if(activeobject) {
       activeobject.set({stroke:strokeRef.current})
       canvasRef.current.requestRenderAll();
     }
+  }
+
+  const setStrokeWidth = (data) => {
+    strokeWidthRef.current = data
+    setCurrentStrokeWidth(data)
+// console.log(strokeRef.current)
+//console.log(activeobject)
+    if(activeobject) {
+      activeobject.set({strokeWidth:strokeWidthRef.current})
+      canvasRef.current.requestRenderAll();
+    }
+
   }
 
   const setFillColor = (data) => {
@@ -427,7 +448,7 @@ const canvasJSON = canvasRef.current.toJSON(['fromjson', 'sender'])
       toolsRef.current=data;
     }
     canvasRef.current.isDrawingMode = (toolsRef.current === drawingMode.pencil) ? true : false;
-    canvasRef.current.selection = (toolsRef.current === drawingMode.pan || toolsRef.current === drawingMode.select) ? true : false;
+    canvasRef.current.selection = (/* toolsRef.current === drawingMode.pan ||  */data === drawingMode.select) ? true : false;
 // console.log('selection')
 // console.log(canvasRef.current.selection)
     if (data === drawingMode.pencil) {
@@ -436,25 +457,44 @@ const canvasJSON = canvasRef.current.toJSON(['fromjson', 'sender'])
   }
 
   const objectButtons = (data) => {}
-
   // Toolbar section end
 
-  // Functions
-  const getCanvasPosition = (el) => {
-    var viewportOffset = el.getBoundingClientRect();
-    // these are relative to the viewport, i.e. the window
-    return {top:viewportOffset.top, left:viewportOffset.left}
-  }
+  // Functions: Socket
+  const initSocketConnection = useCallback(() => {
+    
+    socket.emit('joinWhiteboardRoom', {
+      name: name, 
+      email: email, 
+      room: connection.room
+    }, (error) => {
+      if(error) {
+        alert(error);
+      }
+    });
+    socket.on('welcome-message', (response) => {
+      setConnection({
+        ...connection, 
+        socketid: response.userId,
+      })
+      setIsConnectedToSocket(true)
+      setConnectedToRoom(true)
+// console.log('response', response)
+// console.log('response connection', connection)
+// console.log('connectedToRoom', connectedToRoom)
+    })
+    
+  },[])
 
+  // Functions: Canvas base
   const initFabricCanvas = () => {
     canvasRef.current = new fabric.Canvas('canvas',{
       isDrawingMode: false,
-      lineWidth: 5,
+      lineWidth: strokeWidthRef.current,
       topContextMenu: true,
       fireRightClick: true,
       freeDrawingBrush:{
         color:strokeRef.current,
-        width: 5
+        width: strokeWidthRef.current
       },
       fromjson: 0,
       sender:'',
@@ -545,197 +585,6 @@ const canvasJSON = canvasRef.current.toJSON(['fromjson', 'sender'])
 
     var img = document.createElement('img');
     img.src = deleteIcon;
-  }
-
-  const initSocketConnection = useCallback(() => {
-    
-    socket.emit('joinWhiteboardRoom', {
-      name: name, 
-      email: email, 
-      room: connection.room
-    }, (error) => {
-      if(error) {
-        alert(error);
-      }
-    });
-    socket.on('welcome-message', (response) => {
-      setConnection({
-        ...connection, 
-        socketid: response.userId,
-      })
-      setIsConnectedToSocket(true)
-      setConnectedToRoom(true)
-// console.log('response', response)
-// console.log('response connection', connection)
-// console.log('connectedToRoom', connectedToRoom)
-    })
-    
-  },[])
-
-  const loadSavedState = () => {
-//console.log('loadsavedata')
-    const zoom = localStorage.getItem('whiteboard.zoom')//parseFloat(localStorage.getItem('whiteboard.zoom')).toFixed(4);
-    setCurrentZoom(zoom)
-    if(localStorage.getItem('whiteboard.data') && tryParseJSONObject(localStorage.getItem('whiteboard.data'))) {
-      canvasRef.current.loadFromJSON(localStorage.getItem('whiteboard.data'), function() {
-        canvasRef.current.requestRenderAll();
-      },function(o,object){
-  //console.log(o,object)
-  object.scale(o.scaleX, o.scaleY)
-      });
-      if(localStorage.getItem('whiteboard.zoom')){
-        const zoom = parseFloat(localStorage.getItem('whiteboard.zoom')).toFixed(4);
-        setCurrentZoom(zoom)
-        canvasRef.current.zoomToPoint({ x: parseFloat(canvasRef.current.width), y: parseFloat(canvasRef.current.height) }, zoom);
-      }
-    }
-  }
-
-  const updateFreeDrawingBrush = () => {
-    canvasRef.current.freeDrawingBrush.color = strokeRef.current;
-    canvasRef.current.freeDrawingBrush.width = 5;
-  }
-
-  const addShape = (e) => {
-    let type = e//.target.name || e.currentTarget.name;
-    let object
-    
-    if(type !== 'Line'){
-    if (type === 'Rectangle') {
-      object = new fabric.Rect({
-        height: 75,
-        width: 150,
-        stroke: strokeRef.current,
-        strokeWidth: 5,
-        fill: 'transparent',
-        transparentCorners: false,
-        globalCompositeOperation: "source-over",
-        clipTo: null,
-        dirty: false,
-      });
-
-    } else if (type === 'FilledRectangle') {
-      object = new fabric.Rect({
-        height: 75,
-        width: 150,
-        stroke: strokeRef.current,
-        strokeWidth: 5,
-        fill: fillRef.current,
-        transparentCorners: false,
-        globalCompositeOperation: "source-over",
-        clipTo: null,
-        dirty: false,
-      });
-
-    } else if (type === 'Triangle') {
-      object = new fabric.Triangle({
-        width: 100,
-        height: 100,
-        stroke: strokeRef.current,
-        strokeWidth: 5,
-        fill: 'transparent',
-        transparentCorners: false,
-        globalCompositeOperation: "source-over",
-        clipTo: null,
-        dirty: false,
-      })
-
-    } else if (type === 'Circle') {
-      object = new fabric.Circle({
-        radius: 50,
-        stroke: strokeRef.current,
-        strokeWidth: 5,
-        fill: 'transparent',
-        dirty: false,
-      })
-    } else if (type === 'FilledCircle') {
-      object = new fabric.Circle({
-        radius: 50,
-        stroke: strokeRef.current,
-        strokeWidth: 5,
-        fill: fillRef.current,
-        dirty: false,
-      })
-    } else if (type === 'Text') {
-      object = new fabric.IText('IText', { 
-        left: 10, 
-        top: 50,
-        fontFamily: 'Arial',
-        fontSize: 20,
-        fill: strokeRef.current,
-        text:'IText',
-        visible: true,
-        dirty: false,
-      });
-
-    }
-
-    object.set({id: uuid()})
-    object.set({owner: connection.email})
-    canvasRef.current.add(object)
-    canvasRef.current.requestRenderAll() //renderAll()
-    //canvasRef.current.selection = true;
-    AddObjectEmitter({
-      obj: object, 
-      id: object.id,
-      name: connection.name,
-      email: connection.email,
-      room: connection.room,
-      action:'object:added',
-    })
-    } else if (type === 'Line') { 
-      object = new fabric.Path('M 200 100 L 350 100', {
-        stroke: strokeRef.current,
-        strokeWidth: 5,
-        fill: strokeRef.current,
-        originX: 'left',
-        originY: 'top'
-      });
-      object.set({ left: 100, top: 100 });
-      object.set({id: uuid()})
-      object.set({owner: connection.email})
-      canvasRef.current.add(object)
-      canvasRef.current.requestRenderAll()//renderAll()
-      const modifiedObj = {
-        obj: JSON.stringify(object),
-        id: object.id,
-        name: connection.name,
-        email: connection.email,
-        room: connection.room,
-        action:'object:added',
-      }
-      AddDrawEmitter(modifiedObj)
-    }
-  };
-
-  const groupUngroup = (e) => {
-    let type = e//.target.name || e.currentTarget.name
-
-    switch (type) {
-      case 'UnGroup':
-        if (!canvasRef.current.getActiveObject()) {
-          return;
-        }
-        if (canvasRef.current.getActiveObject().type !== 'group') {
-          return;
-        }
-        canvasRef.current.getActiveObject().toActiveSelection();
-        canvasRef.current.requestRenderAll();
-        break;
-      case 'Group':
-        if (!canvasRef.current.getActiveObject()) {
-          return;
-        }
-        if (canvasRef.current.getActiveObject().type !== 'activeSelection') {
-          return;
-        }
-        canvasRef.current.getActiveObject().toGroup();
-        canvasRef.current.requestRenderAll();
-        break;
-      default:
-        break;
-    }
-    
   }
 
   const canvasFn = (canvas) => {
@@ -850,6 +699,173 @@ const canvasJSON = canvasRef.current.toJSON(['fromjson', 'sender'])
 
   }
 
+  const getCanvasPosition = (el) => {
+    var viewportOffset = el.getBoundingClientRect();
+    // these are relative to the viewport, i.e. the window
+    return {top:viewportOffset.top, left:viewportOffset.left}
+  }
+
+  const updateFreeDrawingBrush = () => {
+    canvasRef.current.freeDrawingBrush.color = strokeRef.current;
+    canvasRef.current.freeDrawingBrush.width = strokeWidthRef.current;
+  }
+
+  const zoomDefault = () => {
+    var zoom = 1;
+    if((localStorage.getItem('whiteboard.zoom') === 'NaN') && isNumeric(localStorage.getItem('whiteboard.zoom'))) {
+      zoom = localStorage.getItem('whiteboard.zoom');
+    } else {
+      zoom = 1;
+      localStorage.setItem('whiteboard.zoom', zoom)
+    }
+    //setCurrentZoom(zoom)
+    return parseFloat(zoom);
+
+  }
+
+  const addShape = (e) => {
+    let type = e//.target.name || e.currentTarget.name;
+    let object
+    
+    if(type !== 'Line'){
+    if (type === 'Rectangle') {
+      object = new fabric.Rect({
+        height: 75,
+        width: 150,
+        stroke: strokeRef.current,
+        strokeWidth: strokeWidthRef.current,
+        fill: 'transparent',
+        transparentCorners: false,
+        globalCompositeOperation: "source-over",
+        clipTo: null,
+        dirty: false,
+      });
+
+    } else if (type === 'FilledRectangle') {
+      object = new fabric.Rect({
+        height: 75,
+        width: 150,
+        stroke: strokeRef.current,
+        strokeWidth: strokeWidthRef.current,
+        fill: fillRef.current,
+        transparentCorners: false,
+        globalCompositeOperation: "source-over",
+        clipTo: null,
+        dirty: false,
+      });
+
+    } else if (type === 'Triangle') {
+      object = new fabric.Triangle({
+        width: 100,
+        height: 100,
+        stroke: strokeRef.current,
+        strokeWidth: strokeWidthRef.current,
+        fill: 'transparent',
+        transparentCorners: false,
+        globalCompositeOperation: "source-over",
+        clipTo: null,
+        dirty: false,
+      })
+
+    } else if (type === 'Circle') {
+      object = new fabric.Circle({
+        radius: 50,
+        stroke: strokeRef.current,
+        strokeWidth: strokeWidthRef.current,
+        fill: 'transparent',
+        dirty: false,
+      })
+    } else if (type === 'FilledCircle') {
+      object = new fabric.Circle({
+        radius: 50,
+        stroke: strokeRef.current,
+        strokeWidth: strokeWidthRef.current,
+        fill: fillRef.current,
+        dirty: false,
+      })
+    } else if (type === 'Text') {
+      object = new fabric.IText('IText', { 
+        left: 10, 
+        top: 50,
+        fontFamily: 'Arial',
+        fontSize: 20,
+        fill: strokeRef.current,
+        text:'IText',
+        visible: true,
+        dirty: false,
+      });
+
+    }
+
+    object.set({id: uuid()})
+    object.set({owner: connection.email})
+    canvasRef.current.add(object)
+    canvasRef.current.requestRenderAll() //renderAll()
+    //canvasRef.current.selection = true;
+    AddObjectEmitter({
+      obj: object, 
+      id: object.id,
+      name: connection.name,
+      email: connection.email,
+      room: connection.room,
+      action:'object:added',
+    })
+    } else if (type === 'Line') { 
+      object = new fabric.Path('M 200 100 L 350 100', {
+        stroke: strokeRef.current,
+        strokeWidth: strokeWidthRef.current,
+        fill: strokeRef.current,
+        originX: 'left',
+        originY: 'top'
+      });
+      object.set({ left: 100, top: 100 });
+      object.set({id: uuid()})
+      object.set({owner: connection.email})
+      canvasRef.current.add(object)
+      canvasRef.current.requestRenderAll()//renderAll()
+      const modifiedObj = {
+        obj: JSON.stringify(object),
+        id: object.id,
+        name: connection.name,
+        email: connection.email,
+        room: connection.room,
+        action:'object:added',
+      }
+      AddDrawEmitter(modifiedObj)
+    }
+  };
+
+  const groupUngroup = (e) => {
+    let type = e//.target.name || e.currentTarget.name
+
+    switch (type) {
+      case 'UnGroup':
+        if (!canvasRef.current.getActiveObject()) {
+          return;
+        }
+        if (canvasRef.current.getActiveObject().type !== 'group') {
+          return;
+        }
+        canvasRef.current.getActiveObject().toActiveSelection();
+        canvasRef.current.requestRenderAll();
+        break;
+      case 'Group':
+        if (!canvasRef.current.getActiveObject()) {
+          return;
+        }
+        if (canvasRef.current.getActiveObject().type !== 'activeSelection') {
+          return;
+        }
+        canvasRef.current.getActiveObject().toGroup();
+        canvasRef.current.requestRenderAll();
+        break;
+      default:
+        break;
+    }
+    
+  }
+
+  // Functions: Canvas datahandling
   const canvasAllToJson = (json, toJson = true) => {
     const date = new Date();
     const data = JSON.stringify(json);
@@ -868,7 +884,26 @@ const canvasJSON = canvasRef.current.toJSON(['fromjson', 'sender'])
     localStorage.setItem('whiteboard.zoom',object.zoom)
     return object;
   }
-/**/
+
+  const loadSavedState = () => {
+    //console.log('loadsavedata')
+    const zoom = localStorage.getItem('whiteboard.zoom')//parseFloat(localStorage.getItem('whiteboard.zoom')).toFixed(4);
+    setCurrentZoom(zoom)
+    if(localStorage.getItem('whiteboard.data') && tryParseJSONObject(localStorage.getItem('whiteboard.data'))) {
+      canvasRef.current.loadFromJSON(localStorage.getItem('whiteboard.data'), function() {
+        canvasRef.current.requestRenderAll();
+      },function(o,object){
+// console.log(o,object)
+        object.scale(o.scaleX, o.scaleY)
+      });
+      if(localStorage.getItem('whiteboard.zoom')){
+        const zoom = parseFloat(localStorage.getItem('whiteboard.zoom')).toFixed(4);
+        setCurrentZoom(zoom)
+        canvasRef.current.zoomToPoint({ x: parseFloat(canvasRef.current.width), y: parseFloat(canvasRef.current.height) }, zoom);
+      }
+    }
+  }
+
   const saveAll = (filename = 'canvas') => {
     //e.preventDefault();
     const json = JSON.stringify(canvasRef.current);
@@ -899,6 +934,19 @@ const canvasJSON = canvasRef.current.toJSON(['fromjson', 'sender'])
     imgDown.current.href = dataURL;
     imgDown.current.click();
     imgDown.current.href = ''
+  }
+
+  const loadAll = (e) => {
+    //e.preventDefault();
+    fileInputRef.current.click();
+    return
+  }
+
+  const clearAll = (e) => {
+    console.log('clearAll')
+    console.log(e)
+    canvasRef.current.clear();
+    setCurrentFile('')
   }
 
   const handelImage = (img) => {
@@ -977,19 +1025,6 @@ object.scale(o.scaleX, o.scaleY)
     }
   }
 
-  const loadAll = (e) => {
-    //e.preventDefault();
-    fileInputRef.current.click();
-    return
-  }
-
-  const clearAll = (e) => {
-    console.log('clearAll')
-    console.log(e)
-    canvasRef.current.clear();
-    setCurrentFile('')
-  }
-
   return (
       <React.Fragment>
         <a ref={imgDown} hidden href="" />
@@ -1021,8 +1056,12 @@ object.scale(o.scaleX, o.scaleY)
           agreeToConnect={agreeToConnect}
           connected={isConnectedToSocket}
           connectedToRoom={connectedToRoom}
-          setFillColor={setFillColor}
+          setStrokeWidth={setStrokeWidth}
           setStrokeColor={setStrokeColor}
+          setFillColor={setFillColor}
+          currentStrokeWidth={currentStrokeWidth}
+          currentStrokeColor={currentStrokeColor}
+          currentFillColor={currentFillColor}
           selectTool={selectTool}
           groupUngroup={groupUngroup}
           addShape={addShape}

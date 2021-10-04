@@ -1,3 +1,4 @@
+// JSON helpers
 export const tryParseJSONObject = (jsonString) => {
   try {
       var o = JSON.parse(jsonString);
@@ -15,12 +16,24 @@ export const tryParseJSONObject = (jsonString) => {
   return false;
 };
 
+// Numeric helpers
 export const isNumeric = (str) => {
   if (typeof str != "string") return false // we only process strings!  
   return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
          !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
 }
 
+// String helpers
+export const isEmpty = (str) => {
+  return (!str || str.length === 0 );
+}
+
+//For checking if a variable is falsey or if the string only contains whitespace or is empty, I use:
+export const isBlank = (str) => {
+    return (!str || /^\s*$/.test(str));
+}
+
+// OBJECT helpers
 export const nestedLoop = (obj,searchKey, searchValue) => {
   const res = {};
   function recurse(obj, current) {
@@ -58,3 +71,5 @@ export const findObjectByLabel = (obj, key, value) => {
       }
   }
 };
+
+// ARRAY helpers

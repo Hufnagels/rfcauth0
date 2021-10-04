@@ -4,13 +4,17 @@ import React, {useEffect, useState} from 'react'
 import { useTheme, styled } from '@mui/styles';
 import { 
   Box,
+  Stack,
+  Slider,
   TextField,
   ButtonGroup,
   Button,
+  Popover,
   ToggleButtonGroup,
   ToggleButton,
   Typography, 
 } from '@mui/material';
+// import Popover from '@mui/material/Popover';
 // import Box from '@mui/material/Box';
 // import TextField from '@mui/material/TextField';
 // import ButtonGroup from '@mui/material/ButtonGroup';
@@ -19,6 +23,10 @@ import {
 // import ToggleButton from '@mui/material/ToggleButton';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 
+// Stroke icons
+import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
+import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined';
+import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 
 // Pan, select, FreeHandDraw Icons
 import PanToolOutlinedIcon from '@mui/icons-material/PanToolOutlined';
@@ -48,15 +56,16 @@ import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import PrintIcon from '@mui/icons-material/Print';
 import ShareIcon from '@mui/icons-material/Share';
 
-// Custom
-import ToolbarWrapper from '../../common/ToolbarWrapper';
-import SpeedDialTools from './SpeedDialTools';
-
 // SpeedDialIcons
 import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
 import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
+
+// Custom
+import ToolbarWrapper from '../../common/ToolbarWrapper';
+import SpeedDialTools from './SpeedDialTools';
 import { socket } from '../../../features/context/socketcontext_whiteboard';
+import { isNumeric, isEmpty } from '../../../features/utils';
 
 const HtmlTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -71,8 +80,12 @@ const HtmlTooltip = styled(({ className, ...props }) => (
 }));
 
 const BoardToolbar = ({
-  setStrokeColor, 
-  setFillColor, 
+  setStrokeWidth,
+  setStrokeColor,
+  setFillColor,
+  currentStrokeWidth,
+  currentStrokeColor,
+  currentFillColor,
   groupUngroup, 
   selectTool, 
   addShape, 
@@ -88,29 +101,55 @@ const BoardToolbar = ({
   
   const theme = useTheme();
 
-  const strokeRef = React.useRef('#f6b73c');
-  const fillRef = React.useRef('#f6b73c');
+  // Default settings
+  const defaultValue = {
+    strokeWidth:5,
+    stroke:'#f6b73c',
+    fill:'#f6b73c',
+  }
+  // Refs
+  // const strokeWidthRef = React.useRef(currentStrokeWidth);
+  // const strokeRef = React.useRef(currentStrokeColor);
+  // const fillRef = React.useRef(currentFillColor);
   const toolsRef = React.useRef(null);
 
   const imgDown = React.useRef(null);
   const jsonDown = React.useRef(null);
   const fileInputRef = React.useRef(null);
 
-  //const [checked, setChecked] = useState(connectedToRoom)
-  // connect switch
+  // State - socket and room connect
   const [connectionSwitchChecked, setConnectionSwitchChecked] = React.useState(connectedToRoom);
   const [connectedToSocket, setConnectedToSocket] = React.useState(connected)
-
   const handleConnectToRoomChange = (event) => {
     setConnectionSwitchChecked(event.target.checked);
     agreeToConnect(event.target.checked)
   };
-  // Color change buttons
-  const [stateStrokeColor, setStateStrokeColor] = useState('#f6b73c')
-  const [stateFillColor, setStateFillColor] = useState('#f6b73c')
-  
-  // Toggle buttons
+
+  // State - Color and strokewidth changeings
+  const [stateStrokeColor, setStateStrokeColor] = useState(isNumeric(currentStrokeColor) ? currentStrokeColor : defaultValue.stroke)
+  const [stateFillColor, setStateFillColor] = useState(isNumeric(currentFillColor) ? currentFillColor : defaultValue.fill)
+  const [stateStrokeWidth, setStateStrokeWidth] = useState(isNumeric(currentStrokeWidth) ? currentStrokeWidth : defaultValue.strokeWidth)
+
+  // State - Stroke width slider & popover
+  const [anchorElPopover, setAnchorElPopover] = React.useState(null);
+  const handleClickPopover = (event) => {
+    setAnchorElPopover(event.currentTarget);
+  };
+  const handleClosePopover = () => {
+    setAnchorElPopover(null);
+  };
+  const openPopover = Boolean(anchorElPopover);
+  const id = openPopover ? 'stroke-popover' : undefined;
+  // Child - parent function
+  const handleChangeStrokeWidth = (event, newValue) => {
+    //setStrokewidthvalue(newValue);
+    setStrokeWidth(newValue)
+    setStateStrokeWidth(newValue)
+  };
+
+  // Toggle buttons - tool change
   const [view, setView] = React.useState(null)
+  // Child - parent function
   const handleToolChange = (event, nextView) => {
     event.preventDefault();
 console.log('handelchange', event)
@@ -120,7 +159,6 @@ console.log('handelchange', event)
   };
 
   // FileUpload
-  
   const filesSelected = () => {
     if (fileInputRef.current.files.length) {
       //handleFiles(fileInputRef.current.files);
@@ -131,8 +169,10 @@ console.info(fileInputRef.current.files)
   useEffect(() => {
     setConnectionSwitchChecked(connectedToRoom)
     setConnectedToSocket(connected ? connected : false)
+    setStateStrokeWidth(defaultValue.strokeWidth)
 console.info('connected, typeof socket.id, socket.connected, connectedToRoom')
 console.info(connected, typeof socket.id, socket.connected, connectedToRoom)
+console.log(currentStrokeWidth, currentStrokeColor, currentFillColor)
   }, [])
 
   useEffect(() => {
@@ -142,6 +182,15 @@ console.info(connected, typeof socket.id, socket.connected, connectedToRoom)
 console.info('socket, isConnected, connectedToRoom')
 console.info(socket, connectedToSocket, connectedToRoom)
   }, [socket, connectedToSocket, connectedToRoom])
+
+  useEffect(() => {
+    //setEnabled(checked);
+    if (!isEmpty(currentStrokeColor)) setStateStrokeColor(currentStrokeColor)
+    if (!isEmpty(currentFillColor)) setStateFillColor(currentFillColor)
+    if (isNumeric(currentStrokeWidth)) setStateStrokeWidth(currentStrokeWidth)
+console.info('currentStrokeWidth, currentStrokeColor, currentFillColor')
+console.info(currentStrokeWidth, currentStrokeColor, currentFillColor)
+  }, [currentStrokeWidth, currentStrokeColor, currentFillColor])
 
   return (
     <React.Fragment>
@@ -175,16 +224,74 @@ console.info(socket, connectedToSocket, connectedToRoom)
               disabled={!connected}
             /></span>
           </HtmlTooltip>
-          {/* <ButtonGroup
-            orientation="vertical"
-            aria-label="vertical outlined button group"
+        </Box>
+        <Box
+          sx={{
+            marginBottom:1,
+            width:'50px',
+            minWidth:'48px',
+            display:'flex',
+            flexDirection:'column',
+            alignItems:'center',
+            boxShadow: 'none',
+            borderRadius:0,
+            '> button': {
+              borderRadius:'0 !important',
+              width:46,
+              height:46,
+              maxWidth:46,
+              maxHeight:46,
+              minWidth:46,
+              boxShadow: 'none',
+              '&:hover':{
+                boxShadow: 'none',
+              }
+            },
+          }}
+        >
+          <Button aria-describedby={id} variant="contained" onClick={handleClickPopover}>
+            <BorderColorOutlinedIcon />
+          </Button>
+          <Popover
+            id={id}
+            open={openPopover}
+            anchorEl={anchorElPopover}
+            onClose={handleClosePopover}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            sx={{
+              margin:0,
+              width:'240px',
+              display:'flex',
+              minHeight:'60px',
+            }}
           >
-            <Tooltip disableFocusListener title="Connect">
-              <Button variant="text" color='secondary' name="Line" aria-label="Connect" disabled={!isConnectedToSocket} onClick={(e) => { agreeToConnect() }}>
-                <ConnectWithoutContactOutlinedIcon />
-              </Button>
-            </Tooltip>
-          </ButtonGroup> */}
+            <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center"
+            sx={{
+              marginTop:5,
+              marginBottom:1,
+              width:'200px',
+              display:'flex',
+              flexDirection:'row',
+            }}>
+              <ChevronRightOutlinedIcon />
+              <Slider 
+                aria-label="strokewidth" 
+                value={stateStrokeWidth} 
+                onChange={handleChangeStrokeWidth}
+                valueLabelDisplay="auto"
+                min={1}
+                max={50}
+              />
+              <ArrowForwardIosOutlinedIcon />
+            </Stack>
+          </Popover>
         </Box>
         <Box
           component="form"
@@ -207,7 +314,7 @@ console.info(socket, connectedToSocket, connectedToRoom)
             value={stateStrokeColor}
             onChange={(e) => {
 // console.info(e.target.value)
-              strokeRef.current = e.target.value
+              //strokeRef.current = e.target.value
               setStrokeColor(e.target.value);
               setStateStrokeColor(e.target.value)
               // canvas.freeDrawingBrush.color = lineColor;
@@ -222,7 +329,7 @@ console.info(socket, connectedToSocket, connectedToRoom)
             value={stateFillColor}
             onChange={(e) => {
 // console.info(e.target.value)
-              fillRef.current = e.target.value
+              //fillRef.current = e.target.value
               setFillColor(e.target.value);
               setStateFillColor(e.target.value)
               // canvas.freeDrawingBrush.color = lineColor;

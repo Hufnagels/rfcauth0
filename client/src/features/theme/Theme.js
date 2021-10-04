@@ -18,7 +18,7 @@ const theme = createTheme({
       margin:0,
       padding:0,
     },
-    MuiButtonBas: {
+    MuiButtonBase: {
       root:{
         MuiFab:{
           root:{

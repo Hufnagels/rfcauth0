@@ -66,6 +66,7 @@ export default function AccountMenu() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const { user, logout, isAuthenticated } = useAuth0();
+  const { name, picture, email } = user;
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -77,7 +78,13 @@ export default function AccountMenu() {
       <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
         <Tooltip title="Account settings">
           <IconButton onClick={handleClick} size="small" sx={{ ml: 2 }}>
+          {
+            (picture && picture !== '') ?
+            <Avatar alt={name} src={picture} />
+            :
             <Avatar {...stringAvatar(user.name)} />
+          }
+
           </IconButton>
         </Tooltip>
       </Box>

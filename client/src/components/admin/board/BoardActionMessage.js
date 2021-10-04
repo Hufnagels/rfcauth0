@@ -5,7 +5,14 @@ import * as React from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import { Alert, Stack } from '@mui/material';
 
+// Custom
+import { isEmpty } from '../../../features/utils'; 
+
+
 export default function BoardActionMessage({actiontype, message}) {
+  // Default settings
+  const Actiontypes = ["success", "info", "warning", "error"];
+  // State - SnackBar
   const [open, setOpen] = React.useState(false);
   const [snackstate, setSnacktate] = React.useState({
     vertical: 'top',
@@ -13,6 +20,8 @@ export default function BoardActionMessage({actiontype, message}) {
   });
   const { vertical, horizontal } = snackstate;
 
+  const [actionType, setActionType] = React.useState(Actiontypes.includes(actiontype) ? actiontype : 'success')
+  // Functions: Snack handling
   const handleClick = () => {
     setOpen(true);
   };
@@ -24,7 +33,12 @@ export default function BoardActionMessage({actiontype, message}) {
     setOpen(false);
   };
 
-  React.useEffect(()=> {
+  // React.useEffect(() => {
+  //   setOpen(false);
+  //   console.log(actiontype, message)
+  // })
+
+  React.useEffect(() => {
     if(message && message.length > 0) {
       setOpen(true);
     }
