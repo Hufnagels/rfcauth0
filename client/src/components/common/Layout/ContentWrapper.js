@@ -24,7 +24,7 @@ const ContentWrapper = ({margin}) => {
   return (
     <Container 
       maxWidth={false} 
-      style={{minHeight: `calc(100vh - ${eh})`, marginTop:'8px'}}
+      style={{minHeight: `calc(100vh - ${eh})`, marginTop:'8px', paddingLeft:'16px !important', paddingRight:'16px !important'}}
     >
       <Box 
         sx={{ my: margin || 0 }} md={{ my: margin || 0 }} m={0}

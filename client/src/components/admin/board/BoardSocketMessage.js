@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 // Material
 import Snackbar from '@mui/material/Snackbar';
 import { Alert } from '@mui/material';
+
 // Custom
 import { socket } from '../../../features/context/socketcontext_whiteboard'
 import { 
@@ -15,19 +16,21 @@ export default function BoardSocketMessage() {
   //const socket = useSocket();
   const dispatch = useDispatch();
   const [isConnected, setConnected] = React.useState(false)
-  const [open, setOpen] = React.useState(false);
+
+  // State - Alert
   const [actiontype, setActiontype] = React.useState('success')
   const [message, setMessage] = React.useState('');
+
+  // State - snackbar
+  const [open, setOpen] = React.useState(false);
   const [snackstate, setSnacktate] = React.useState({
     vertical: 'bottom',
     horizontal: 'right',
   });
   const { vertical, horizontal } = snackstate;
-
   const handleClick = () => {
     setOpen(true);
   };
-
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -35,6 +38,7 @@ export default function BoardSocketMessage() {
     setOpen(false);
   };
 
+  
   React.useEffect(()=> {
     if(socket && socket.connected) setConnected(true)
 

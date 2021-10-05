@@ -7,11 +7,18 @@ import { useAuth0 } from '@auth0/auth0-react';
 // Material
 import { makeStyles } from '@mui/styles';
 import { styled } from '@mui/material/styles';
-import { purple } from '@mui/material/colors'
 import {
   Button,
   Snackbar,
-
+  Grid,
+  Paper,
+  Box,
+  Drawer,CssBaseline,
+  Toolbar,
+  Typography,
+  List,
+  ListItem,
+  Divider,
 } from '@mui/material';
 //import MuiBox from '@mui/material/Box';
 
@@ -42,42 +49,30 @@ import {
 import { tryParseJSONObject, isNumeric } from '../../../features/utils';
 import ConnectonDecideDialog from './ConnectonDecideDialog';
 import BoardActionMessage from './BoardActionMessage';
+import RoomMessages from './RoomMessages';
 
+const drawerWidth = 240;
+const BoxCanvas = styled(Box, { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }) => ({
+    width: '100%',
+    minWidth:'100%',
+    height:'calc(100vh - 80px)',
+    flexShrink: 0,
+    boxSizing: 'border-box',
+    display:'flex',
+    position: 'relative', 
+    zIndex:'100',
+  }),
+);
 
+const SketchWrapper = styled('div')(({ theme }) => ({
+  position:'relative',
+  width: '100%',
+  minWidth:'100%',
+  height:'100%',
+}));
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-    border: 0,
-    borderRadius: 3,
-    boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
-    color: 'white',
-    height: 48,
-    padding: '0 30px',
-    position: 'absolute',
-    top:0,
-    left:0,
-    right:0,
-    bottom:0,
-    '&selected':{
-      color: '#ff4081 !important'
-    }
-  },
-  dropZone:{
-    display:'none',
-    width:'90vw',
-    height:'300px',
-    position:'absolute',
-    top:'10px',
-    zIndex:'1000',
-    '&.selected':{
-      backgroundColor: purple[500],
-      display:'block',
-      '&:hover':{
-        backgroundColor: purple[100],
-      },
-    },
-  },
   board: {
     width:'100%',
     height:'100%',
@@ -99,13 +94,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SketchWrapper = styled('div')(({ theme }) => ({
-  position:'relative',
-  width: '100%',
-  height:'100%',
-}));
-
-const Board5 = (props) => {
+const Board6 = () => {
   // Authentication
   const { user } = useAuth0();
   const { name, picture, email } = user;
@@ -170,7 +159,7 @@ const Board5 = (props) => {
   const [currentStrokeWidth, setCurrentStrokeWidth] = React.useState(strokeWidthRef.current)
   const [currentStrokeColor, setCurrentStrokeColor] = React.useState(strokeRef.current)
   const [currentFillColor, setCurrentFillColor] = React.useState(fillRef.current)
-  
+  const [sketchwidth, setSketchwidth] = React.useState(0)
   // States - Messaging
   const [actiontype, setActiontype] = React.useState('success')
   const [message, setMessage] = React.useState('');
@@ -194,6 +183,9 @@ const Board5 = (props) => {
       }}>Set to default</Button>
   );
 
+  // States - Right drawer
+  const [draweropen, setDraweropen] = React.useState(true)
+  const [drawertype, setDrawertype] = React.useState('permanent')
   // Mouse action variables
   let mousepressed = false;
   let wheeling;
@@ -201,6 +193,7 @@ const Board5 = (props) => {
   useEffect(() => {
     const sketchWrapper = document.getElementById('sketchWrapper');
     let sketchWrapper_style = getComputedStyle(sketchWrapper);
+    setSketchwidth( parseInt(sketchWrapper_style.getPropertyValue('width')) )
     setIsConnectedToSocket(socket.connected)
 // console.info('socket, isConnectedToSocket, connectedToRoom #1 useEffect')
 // console.info(socket, isConnectedToSocket, connectedToRoom)
@@ -213,12 +206,17 @@ const Board5 = (props) => {
     canvasObservers();
 
     const onResize = () => {
-      let width = parseInt(sketchWrapper_style.getPropertyValue('width'));
+      //let sketchWrapper_style = getComputedStyle(sketchWrapper);
+      let width = parseInt(sketchWrapper_style.getPropertyValue('width') );
       let height = parseInt(sketchWrapper_style.getPropertyValue('height'));
+      setSketchwidth(width)
       if(width !== 0 || height !== 0) {
+        if (window.innerWidth-drawerWidth-32 < width){
+          width = window.innerWidth-drawerWidth-32
+        }
         canvasRef.current.setDimensions({
           width: width, 
-          height:height
+          height: height
         });
         canvasRef.current.requestRenderAll() //renderAll();
 //console.info('W-H: ', width, height)
@@ -395,6 +393,7 @@ setCurrentStrokeColor(data)
         this.canvas.wrapperEl.appendChild(this.hiddenTextarea);
       }
     });
+
     fabric.Object.prototype.toObject = (function (toObject) {
       return function () {
           return fabric.util.object.extend(toObject.call(this), {
@@ -1034,12 +1033,11 @@ object.scale(o.scaleX, o.scaleY)
   }
 
   return (
-      <React.Fragment>
-        <a ref={imgDown} hidden href="" />
+    <React.Fragment>
+      <a ref={imgDown} hidden href="" />
         <a ref={jsonDown} hidden href="" />
         <input type="file" ref={fileInputRef} onChange={filesSelected} hidden />
-        <React.Fragment>
-          <Snackbar
+      <Snackbar
             anchorOrigin={{ vertical, horizontal }}
             open={open}
             onClose={handleCloseSnack}
@@ -1047,41 +1045,77 @@ object.scale(o.scaleX, o.scaleY)
             key={vertical + horizontal}
             action={action}
           />
-        </React.Fragment>
-        <SketchWrapper id="sketchWrapper">
-          <canvas id="canvas" ref={canvasRef} className={classes.board} ></canvas>
-        </SketchWrapper>
-        <ConnectonDecideDialog
+      <ConnectonDecideDialog
           agreeToConnect={agreeToConnect}
           connected={isConnectedToSocket}
           connectedToRoom={connectedToRoom}
         />
-        <BoardActionMessage
+      <BoardActionMessage
           actiontype={actiontype}
           message={message}
         />
-        <BoardToolbar
-          agreeToConnect={agreeToConnect}
-          connected={isConnectedToSocket}
-          connectedToRoom={connectedToRoom}
-          setStrokeWidth={setStrokeWidth}
-          setStrokeColor={setStrokeColor}
-          setFillColor={setFillColor}
-          currentStrokeWidth={currentStrokeWidth}
-          currentStrokeColor={currentStrokeColor}
-          currentFillColor={currentFillColor}
-          selectTool={selectTool}
-          groupUngroup={groupUngroup}
-          addShape={addShape}
-          loadAll={loadAll}
-          saveAll={saveAll}
-          clearAll={clearAll}
-          dummyCB={(e)=>{alert('Dummy')}}
-          pushJSON={pushJSON}
-        />
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+      
+        <Grid 
+          container
+          direction="row"
+        >
+          <Grid item xs={12}>
+            <Paper elevation={3}>
+              <BoxCanvas sx={{ overflow:'hidden', }}>
+                <SketchWrapper id="sketchWrapper">
+                  <canvas id="canvas" ref={canvasRef} className={classes.board} ></canvas>
+                </SketchWrapper>
+                <BoardToolbar
+                  agreeToConnect={agreeToConnect}
+                  connected={isConnectedToSocket}
+                  connectedToRoom={connectedToRoom}
+                  setStrokeWidth={setStrokeWidth}
+                  setStrokeColor={setStrokeColor}
+                  setFillColor={setFillColor}
+                  currentStrokeWidth={currentStrokeWidth}
+                  currentStrokeColor={currentStrokeColor}
+                  currentFillColor={currentFillColor}
+                  selectTool={selectTool}
+                  groupUngroup={groupUngroup}
+                  addShape={addShape}
+                  loadAll={loadAll}
+                  saveAll={saveAll}
+                  clearAll={clearAll}
+                  dummyCB={(e)=>{alert('Dummy')}}
+                  pushJSON={pushJSON}
+                />
+              </BoxCanvas>
+            </Paper>
+          </Grid>
+      </Grid>
+      
+      <Drawer
+        variant={drawertype}
+        anchor="right"
+        open={draweropen}
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          height:'100%',
+          zIndex: (theme) => theme.zIndex.AppBar - 1,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
         
-      </React.Fragment>
-  );
+      >
+        <Toolbar />
+        <Divider />
+        <Box sx={{ position:'relative'}}>
+          <RoomMessages />
+        </Box>
+      </Drawer>
+    </Box>
+    </React.Fragment>
+  )
 }
 
-export default Board5;
+export default Board6

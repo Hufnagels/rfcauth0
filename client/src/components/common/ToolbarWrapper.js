@@ -8,8 +8,8 @@ import Paper from '@mui/material/Paper';
 
 const ToolBarWrapper = styled('div')(({ theme }) => ({
   position:'absolute',
-  top:10,
-  right:10,
+  top:0,
+  right:0,
   display: 'flex',
   flexWrap: 'wrap',
   alignItems: 'center',

@@ -2,6 +2,10 @@ import { createTheme } from '@mui/material/styles'
 import { green, purple } from '@mui/material/colors';
 
 const theme = createTheme({
+  zIndex:{
+    AppBar: 100,
+    drawer: 101,
+  },
   overrides: {
     MuiSpeedDial: {
       root: {
