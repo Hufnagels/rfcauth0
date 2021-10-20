@@ -19,6 +19,14 @@ than
 netlify init
 ~~~
 
+### Setups
+Navigate to Build & Deploy
+Under Continuous Deployment select Edit settings
+Update Build command to
+~~~
+CI=false npm run build
+~~~
+
 ## deploy server to heroku
 ### install heroku cli
 ~~~
