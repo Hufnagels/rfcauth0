@@ -43,7 +43,7 @@ const DashboardPage = loadable(() => import("../../pages/admin/Dashboard.js"), {
 
 const routes = (isAuthenticated) => [
   {
-    path: 'app',
+    path: 'apps',
     //element: isAuthenticated ? <AdminLayout /> : <RestrictedArea />, //<Navigate to="/" />,
     element: <AdminLayout />,
     children: [
