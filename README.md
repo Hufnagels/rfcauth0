@@ -3,6 +3,22 @@
 # rfcauth0
 
 ## deploy client to netlify
+## install Netlify cli
+~~~
+npm install netlify-cli --save-dev
+~~~
+
+and the next to package.json
+~~~
+"scripts": {
+....
+    "netlify": "netlify"
+~~~
+than
+~~~
+netlify init
+~~~
+
 ## deploy server to heroku
 ### install heroku cli
 ~~~
@@ -41,3 +57,8 @@ git status (for check)
 git push origin/main
 ~~~
 OR use Github client!
+
+### Watch logs
+~~~
+heroku logs --tail
+~~~
