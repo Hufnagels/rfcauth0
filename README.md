@@ -2,14 +2,14 @@
 
 # rfcauth0
 
-# deploy client to netlify
-# deploy server to heroku
-## install heroku cli
+## deploy client to netlify
+## deploy server to heroku
+### install heroku cli
 ~~~
 brew install heroku/brew/heroku
 ~~~
 go to folder and login to heroku. 
-## After that create a new app and do setup
+### After that create a new app and do setup
 ~~~
 heroku create
 ~~~
@@ -23,6 +23,7 @@ Therefore we need to add an environmental variable in Config vars:
 ~~~
 PROJECT_PATH : server
 ~~~
+### Code changes on both side --> clien + server
 In the server code must the port changed to:
 ~~~
 process.env.PORT
