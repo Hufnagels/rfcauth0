@@ -8,7 +8,8 @@ import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 
-const StyledSpeedDial = styled(SpeedDial)(({ theme }) => ({
+const StyledSpeedDial = styled(SpeedDial, { shouldForwardProp: (prop) => prop !== 'disabled' })(
+  ({ theme, disabled }) => ({
   position: 'absolute',
   '&.MuiSpeedDial-directionUp, &.MuiSpeedDial-directionLeft': {
     top: theme.spacing(-1),
@@ -24,7 +25,7 @@ const StyledSpeedDial = styled(SpeedDial)(({ theme }) => ({
   
 }));
 
-export default function SpeedDialTools({actions,actionIcon}) {
+export default function SpeedDialTools({actions,actionIcon,isenabled}) {
   const theme = useTheme();
   //console.log(theme)
   const [hidden, setHidden] = React.useState(false);
@@ -45,7 +46,6 @@ export default function SpeedDialTools({actions,actionIcon}) {
           ariaLabel="SpeedDial Actions"
           icon={actionIcon}
           direction='left'
-          
         >
           {actions.map((action) => {
             let eventName = action.name;
@@ -55,6 +55,7 @@ export default function SpeedDialTools({actions,actionIcon}) {
                 icon={action.icon}
                 tooltipTitle={action.name}
                 onClick={(e)=> action.cb(eventName)}
+                disabled={(typeof isenabled === 'boolean') ? !isenabled : false}
               />
             )
           })}

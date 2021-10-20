@@ -12,7 +12,8 @@ import {
   Popover,
   ToggleButtonGroup,
   ToggleButton,
-  Typography, 
+  Typography,
+  Divider, 
 } from '@mui/material';
 // import Popover from '@mui/material/Popover';
 // import Box from '@mui/material/Box';
@@ -87,8 +88,8 @@ const BoardToolbar = ({
   currentStrokeColor,
   currentFillColor,
   groupUngroup, 
-  selectTool, 
-  addShape, 
+  addShape,
+  selectTool,
   loadAll, 
   saveAll, 
   clearAll,
@@ -97,6 +98,7 @@ const BoardToolbar = ({
   connected,
   connectedToRoom,
   pushJSON,
+  isenabled,
 }) => {
   
   const theme = useTheme();
@@ -170,9 +172,9 @@ console.info(fileInputRef.current.files)
     setConnectionSwitchChecked(connectedToRoom)
     setConnectedToSocket(connected ? connected : false)
     setStateStrokeWidth(defaultValue.strokeWidth)
-console.info('connected, typeof socket.id, socket.connected, connectedToRoom')
-console.info(connected, typeof socket.id, socket.connected, connectedToRoom)
-console.log(currentStrokeWidth, currentStrokeColor, currentFillColor)
+// console.info('connected, typeof socket.id, socket.connected, connectedToRoom')
+// console.info(connected, typeof socket.id, socket.connected, connectedToRoom)
+// console.log(currentStrokeWidth, currentStrokeColor, currentFillColor)
   }, [])
 
   useEffect(() => {
@@ -188,8 +190,8 @@ console.info(socket, connectedToSocket, connectedToRoom)
     if (!isEmpty(currentStrokeColor)) setStateStrokeColor(currentStrokeColor)
     if (!isEmpty(currentFillColor)) setStateFillColor(currentFillColor)
     if (isNumeric(currentStrokeWidth)) setStateStrokeWidth(currentStrokeWidth)
-console.info('currentStrokeWidth, currentStrokeColor, currentFillColor')
-console.info(currentStrokeWidth, currentStrokeColor, currentFillColor)
+// console.info('currentStrokeWidth, currentStrokeColor, currentFillColor')
+// console.info(currentStrokeWidth, currentStrokeColor, currentFillColor)
   }, [currentStrokeWidth, currentStrokeColor, currentFillColor])
 
   return (
@@ -359,22 +361,15 @@ console.info(currentStrokeWidth, currentStrokeColor, currentFillColor)
               <ToggleButton value="Select" aria-label="Select">
                 <PhotoSizeSelectSmallIcon />
               </ToggleButton>
-              <ToggleButton value="Pencil" aria-label="Pencil">
-                <GestureOutlinedIcon />
+              <ToggleButton value="Draw" aria-label="Draw">
+                <CreateOutlinedIcon />
               </ToggleButton>
             </ToggleButtonGroup>
         </Box>
+
         <SpeedDialTools 
           actions={[
-            { icon: <LayersClearOutlinedIcon />, name: 'Clear', cb: clearAll },
-            { icon: <BookmarksOutlinedIcon />, name: 'Group', cb: groupUngroup },
-            { icon: <BookmarkRemoveOutlinedIcon />, name: 'UnGroup', cb: groupUngroup },
-            { icon: <SendOutlinedIcon /> , name: 'Send whole canvas', cb: pushJSON},
-          ]}
-          actionIcon={<BuildOutlinedIcon />}
-        />
-        <SpeedDialTools 
-          actions={[
+            { icon: <GestureOutlinedIcon />, name: 'Pencil', cb: addShape },
             { icon: <DriveFileRenameOutlineOutlinedIcon />, name: 'Line', cb: addShape },
             { icon: <FolderIcon />, name: 'FilledRectangle', cb: addShape },
             { icon: <CircleIcon />, name: 'FilledCircle', cb: addShape },
@@ -384,7 +379,21 @@ console.info(currentStrokeWidth, currentStrokeColor, currentFillColor)
             { icon: <TextFieldsOutlinedIcon />, name: 'Text', cb: addShape },
           ]}
           actionIcon={<CreateOutlinedIcon />}
+          isenabled={isenabled}
+          style={{m:4}}
         />
+        <Divider />
+        <Box style={{position:'relative',marginTop:5}}>
+        <SpeedDialTools 
+          actions={[
+            { icon: <LayersClearOutlinedIcon />, name: 'Clear', cb: clearAll },
+            { icon: <BookmarksOutlinedIcon />, name: 'Group', cb: groupUngroup },
+            { icon: <BookmarkRemoveOutlinedIcon />, name: 'UnGroup', cb: groupUngroup },
+            { icon: <SendOutlinedIcon /> , name: 'Send whole canvas', cb: pushJSON},
+          ]}
+          actionIcon={<BuildOutlinedIcon />}
+        />
+        
         <SpeedDialTools 
           actions={[
             { icon: <FileUploadOutlinedIcon />, name: 'Load', cb: loadAll },
@@ -394,6 +403,8 @@ console.info(currentStrokeWidth, currentStrokeColor, currentFillColor)
           ]}
           actionIcon={<DriveFileMoveOutlinedIcon />}
         />
+        </Box>
+        
         
       </ToolbarWrapper>
     </React.Fragment>

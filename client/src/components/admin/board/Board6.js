@@ -125,7 +125,9 @@ const Board6 = () => {
     circle:'Circle',
     fillcircle: 'FilledCircle',
     text: 'Text',
+    triangle:'Triangle',
     default:null,
+    draw:'Draw',
   }
 
   // Refs
@@ -153,6 +155,7 @@ const Board6 = () => {
   });
 
   // States - drawing
+  const [isenabled, setIsenabled] = React.useState(false)
   const [currentZoom, setCurrentZoom] = React.useState(localStorage.getItem('whiteboard.zoom'))
   const [currentFile, setCurrentFile] = React.useState('')
   const [activeobject, setActiveobject] = React.useState(null)
@@ -160,6 +163,7 @@ const Board6 = () => {
   const [currentStrokeColor, setCurrentStrokeColor] = React.useState(strokeRef.current)
   const [currentFillColor, setCurrentFillColor] = React.useState(fillRef.current)
   const [sketchwidth, setSketchwidth] = React.useState(0)
+  
   // States - Messaging
   const [actiontype, setActiontype] = React.useState('success')
   const [message, setMessage] = React.useState('');
@@ -189,6 +193,7 @@ const Board6 = () => {
   // Mouse action variables
   let mousepressed = false;
   let wheeling;
+  let origX, origY, drawingObject = null;
 
   useEffect(() => {
     const sketchWrapper = document.getElementById('sketchWrapper');
@@ -329,6 +334,10 @@ setCurrentStrokeColor(data)
       //setTool(nextView);
       toolsRef.current=data;
     }
+    if( data === drawingMode.draw) 
+      setIsenabled(true) 
+    else 
+      setIsenabled(false)
     canvasRef.current.isDrawingMode = (toolsRef.current === drawingMode.pencil) ? true : false;
     canvasRef.current.selection = (/* toolsRef.current === drawingMode.pan ||  */data === drawingMode.select) ? true : false;
 // console.log('selection')
@@ -472,11 +481,12 @@ setCurrentStrokeColor(data)
 
   const canvasMouseObservers = (canvas) => {
     const offset = getCanvasPosition(document.getElementById('canvas'));
-    let origX, origY, drawingObject = null;
+    
     //loadJSONData(canvas, canvasData);
 
     canvas.on('mouse:move', function(e) {
       const event = e.e;
+      
       switch (toolsRef.current) {
         case drawingMode.pan:
           if (!this.isDragging) return
@@ -491,15 +501,73 @@ setCurrentStrokeColor(data)
         case drawingMode.pencil:
           this.isDrawingMode = true;
           break;
+        case drawingMode.line:
+          if(drawingObject !== null){
+            var pointer = canvas.getPointer(event);
+            drawingObject.set({ x2: pointer.x, y2: pointer.y });
+            this.requestRenderAll();
+          }
+          break;
+        case drawingMode.triangle:
+          if(drawingObject !== null) {
+            var pointer = canvas.getPointer(event);
+            drawingObject.set({ width: Math.abs(origX - pointer.x) });
+            drawingObject.set({ height: Math.abs(origY - pointer.y) });
+            this.requestRenderAll()
+          }
+          break;
+        case drawingMode.rect:
+        case drawingMode.fillrect:
+          if(drawingObject !== null){
+            var pointer = canvas.getPointer(event);
+            //drawingObject = canvas.getActiveObject();
+            if(origX>pointer.x){
+                drawingObject.set({ left: Math.abs(pointer.x) });
+            }
+            if(origY>pointer.y){
+                drawingObject.set({ top: Math.abs(pointer.y) });
+            }
+  
+            drawingObject.set({ width: Math.abs(origX - pointer.x) });
+            drawingObject.set({ height: Math.abs(origY - pointer.y) });
+            this.requestRenderAll()
+          }
+          break;
+        case drawingMode.circle:
+        case drawingMode.fillcircle:
+          if(drawingObject !== null){
+            var pointer = canvas.getPointer(event);
+            var radius = Math.max(Math.abs(origY - pointer.y),Math.abs(origX - pointer.x))/2;
+            if (radius > drawingObject.strokeWidth) {
+                radius -= drawingObject.strokeWidth/2;
+            }
+            drawingObject.set({ radius: radius});
+            
+            if(origX>pointer.x){
+                drawingObject.set({originX: 'right' });
+            } else {
+                drawingObject.set({originX: 'left' });
+            }
+            if(origY>pointer.y){
+                drawingObject.set({originY: 'bottom'  });
+            } else {
+                drawingObject.set({originY: 'top'  });
+            }
+            this.requestRenderAll()
+          }
+          break;
         default:
           break;
       }
+      //canvas.selection=true;
     })
 
     canvas.on('mouse:down', function(e) {
       const event = e.e;
       mousepressed = true;
-// console.log(e.button)
+console.log('mouse:down')
+console.log(toolsRef.current)
+      canvas.selection=true;
       if (e.button === 3 && e.target) {
         canvas.sendBackwards(e.target);
         canvas.discardActiveObject();
@@ -515,9 +583,166 @@ setCurrentStrokeColor(data)
       } 
       switch (toolsRef.current) {
         case drawingMode.pencil:
+          updateFreeDrawingBrush();
           this.isDrawingMode = true;
           this.setCursor('crosshair');
-          updateFreeDrawingBrush();
+          break;
+        case drawingMode.line:
+          if (e.target !== null) return
+          //canvas.selection = false;
+          var pointer = canvas.getPointer(event.e);
+          var points = [ pointer.x, pointer.y, pointer.x, pointer.y ];
+          origX = pointer.x;
+          origY = pointer.y;
+          drawingObject = new fabric.Line(points, {
+            strokeWidth: strokeWidthRef.current,
+            fill: fillRef.current,
+            stroke: strokeRef.current,
+            originX: 'center',
+            originY: 'center'
+          });
+          drawingObject.set({id: uuid()})
+          drawingObject.set({owner: connection.email})
+          canvas.add(drawingObject);
+          break;
+        case drawingMode.triangle:
+          if(e.target !== null) return
+          var pointer = canvas.getPointer(event.e);
+          origX = pointer.x;
+          origY = pointer.y;
+          var pointer = canvas.getPointer(event.e);
+          drawingObject = new fabric.Triangle({
+            left: origX,
+            top: origY,
+            width: pointer.x-origX,
+            height: pointer.y-origY,
+            stroke: strokeRef.current,
+            strokeWidth: strokeWidthRef.current,
+            fill: 'transparent',
+            transparentCorners: false,
+            globalCompositeOperation: "source-over",
+            clipTo: null,
+            dirty: false,
+          })
+          drawingObject.set({id: uuid()})
+          drawingObject.set({owner: connection.email})
+          canvas.add(drawingObject);
+          break;
+        case drawingMode.rect:
+          if (e.target !== null) return
+          //canvas.selection = false;
+          var pointer = canvas.getPointer(event.e);
+          origX = pointer.x;
+          origY = pointer.y;
+          var pointer = canvas.getPointer(event.e);
+          drawingObject = new fabric.Rect({
+            left: origX,
+            top: origY,
+            width: pointer.x-origX,
+            height: pointer.y-origY,
+            angle: 0,
+            //selectable:false,
+            //hasBorders: true,
+            stroke: strokeRef.current,
+            strokeWidth: strokeWidthRef.current,
+            fill: 'transparent',
+            transparentCorners: false,
+            globalCompositeOperation: "source-over",
+            clipTo: null,
+          });
+          drawingObject.set({id: uuid()})
+          drawingObject.set({owner: connection.email})
+          canvas.add(drawingObject);
+          break;
+        case drawingMode.fillrect:
+          if (e.target !== null) return
+          //canvas.selection = false;
+          var pointer = canvas.getPointer(event.e);
+          origX = pointer.x;
+          origY = pointer.y;
+          drawingObject = new fabric.Rect({
+            left: origX,
+            top: origY,
+            width: pointer.x-origX,
+            height: pointer.y-origY,
+            angle: 0,
+            //selectable:true,
+            stroke: strokeRef.current,
+            strokeWidth: strokeWidthRef.current,
+            fill: fillRef.current,
+            transparentCorners: false,
+            globalCompositeOperation: "source-over",
+            clipTo: null,
+          });
+          drawingObject.set({id: uuid()})
+          drawingObject.set({owner: connection.email})
+          canvas.add(drawingObject);
+          break;
+        case drawingMode.circle:
+          if (e.target !== null) return
+          //canvas.selection = false;
+          var pointer = canvas.getPointer(event);
+          origX = pointer.x;
+          origY = pointer.y;
+          drawingObject = new fabric.Circle({
+            left: origX,
+            top: origY,
+            radius: pointer.x-origX,
+            angle: 0,
+            fill: '',
+            stroke: strokeRef.current,
+            strokeWidth: strokeWidthRef.current,
+            globalCompositeOperation: "source-over",
+            clipTo: null,
+          });
+          drawingObject.set({id: uuid()})
+          drawingObject.set({owner: connection.email})
+          canvas.add(drawingObject);
+          break;
+        case drawingMode.fillcircle:
+          if (e.target !== null) return
+          //canvas.selection = false;
+          var pointer = canvas.getPointer(event);
+          origX = pointer.x;
+          origY = pointer.y;
+          drawingObject = new fabric.Circle({
+            left: origX,
+            top: origY,
+            radius: pointer.x-origX,
+            angle: 0,
+            fill: fillRef.current,
+            stroke: strokeRef.current,
+            strokeWidth: strokeWidthRef.current,
+            globalCompositeOperation: "source-over",
+            clipTo: null,
+          });
+          drawingObject.set({id: uuid()})
+          drawingObject.set({owner: connection.email})
+          canvas.add(drawingObject);
+          break;
+        case drawingMode.text:
+          if (e.target !== null) return
+          var pointer = canvas.getPointer(event.e);
+          origX = pointer.x;
+          origY = pointer.y;
+          drawingObject = new fabric.IText('Sample', { 
+            left: origX, 
+            top: origY,
+            fontWeight: 'normal',
+            fontSize: 40,
+            textAlign: 'left',
+            fill: strokeRef.current,
+            stroke: strokeRef.current,
+            text:'Sample',
+            colorProperties: {
+              fill: strokeRef.current
+              // stroke 
+              // backgroundColor
+            },
+          })
+          drawingObject.set({id: uuid()})
+          drawingObject.set({owner: connection.email})
+          canvas.add(drawingObject);
           break;
         default:
           break;
@@ -531,13 +756,12 @@ setCurrentStrokeColor(data)
 // console.log('mouse:up')
 // console.log(e.target)
       canvas.selection=true;
-      
       if(drawingObject !== null ) {
-        drawingObject.owner = connection.email;
-        
+        drawingObject.set({owner:connection.email});
 // console.log('mouse up drawinObject')
-        //canvas.remove(drawingObject);
-        //if(dropObject(drawingObject, canvas, drawingObject.id)){
+// console.log(drawingObject)
+//canvas.remove(drawingObject);
+        drawingObject.set({selectable:true, evented:true})
         const modifiedObj = {
           obj: drawingObject,
           id: drawingObject.id,
@@ -546,12 +770,25 @@ setCurrentStrokeColor(data)
           room: connection.room,
           action:'object:added',
         }
-        //canvas.remove(drawingObject);
-        AddObjectEmitter(modifiedObj)
+canvas.remove(drawingObject);
+        switch (drawingObject.type) {
+          case 'line':
+          case 'Line':
+            modifiedObj.obj = JSON.stringify(drawingObject)
+            AddDrawEmitter(modifiedObj)
+            break;
+
+          default:
+            AddObjectEmitter(modifiedObj)
+            break;
+        }
+        canvas.add(modifiedObj.obj)
+        toolsRef.current = drawingMode.default;
+//console.log("canvas.getActiveObject().get('id')")
+//console.log(canvas.getActiveObject().get('id'))
+//canvas.setActiveObject(canvas.item(drawingObject.id)) 
         drawingObject = null;
         //}
-        
-        
 //console.log(canvas.getObjects())
       }
       canvasRef.current.selection = (toolsRef.current === drawingMode.pan || toolsRef.current === drawingMode.select) ? true : false;
@@ -626,11 +863,13 @@ console.log('selection:created', options)
       
       canvasRef.current.on('before:selection:cleared', function(options){
         console.log('before:selection:cleared', options)
+        canvasRef.current.fire('object:modified', {target: options.target});
       })
+      
       canvasRef.current.on('selection:cleared', function(options){
 console.log('selection:cleared', options)
-
       })
+
       canvasRef.current.on('selection:updated', function(options){
         console.log('selection:updated', options)
         setActiveobject(options.target)
@@ -700,6 +939,7 @@ console.log('selection:cleared', options)
         // console.log('before:render')
         // console.log(options)
       })
+
       canvasRef.current.on('after:render', function(options){
 // console.log('after:render')
 // console.log(options)
@@ -1079,12 +1319,13 @@ object.scale(o.scaleX, o.scaleY)
                   currentFillColor={currentFillColor}
                   selectTool={selectTool}
                   groupUngroup={groupUngroup}
-                  addShape={addShape}
+                  addShape={selectTool}
                   loadAll={loadAll}
                   saveAll={saveAll}
                   clearAll={clearAll}
                   dummyCB={(e)=>{alert('Dummy')}}
                   pushJSON={pushJSON}
+                  isenabled={isenabled}
                 />
               </BoxCanvas>
             </Paper>
@@ -1110,7 +1351,7 @@ object.scale(o.scaleX, o.scaleY)
         <Toolbar />
         <Divider />
         <Box sx={{ position:'relative'}}>
-          <RoomMessages />
+          {/* <RoomMessages /> */}
         </Box>
       </Drawer>
     </Box>
