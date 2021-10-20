@@ -11,7 +11,7 @@ app.use(express());
 app.use(cors());
 app.use(router);
 
-const port = process.env.SERVER_PORT || 6000;
+const port = process.env.PORT || 6000;
 const server = app.listen(port, () => {
   console.log(`Server Up and running on port: ${port}`);
 });
