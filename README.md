@@ -8,7 +8,8 @@
 ~~~
 brew install heroku/brew/heroku
 ~~~
-go to folder and login to heroku. After that create a new app
+go to folder and login to heroku. 
+## After that create a new app and do setup
 ~~~
 heroku create
 ~~~
