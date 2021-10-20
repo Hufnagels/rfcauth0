@@ -23,7 +23,7 @@ Therefore we need to add an environmental variable in Config vars:
 ~~~
 PROJECT_PATH : server
 ~~~
-### Code changes on both side --> clien + server
+### Code changes on both side --> client + server
 In the server code must the port changed to:
 ~~~
 process.env.PORT
@@ -34,8 +34,10 @@ https://ancient-garden-xxx23.herokuapp.com/
 ~~~
 After that
 ~~~
-git stash
+git status
 git add client/ server/
 git commit -m "update for deploy on heroku"
-git stash (for check)
+git status (for check)
+git push origin/main
 ~~~
+OR use Github client!
