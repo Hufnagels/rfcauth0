@@ -8,7 +8,7 @@ const Home = props => {
 
   return (
     <div>
-      Home
+      Home2
     </div>
   )
 }
