@@ -7,14 +7,14 @@ headers.append('Access-Control-Allow-Origin', ['https://rfcauth0.netlify.app',`h
 headers.append('Access-Control-Allow-Credentials', 'true');
 // export const socket = {};
  
-export const socket = io.connect(SOCKET_URL, {
+export const socket = io.connect(SOCKET_URL/* , {
   'withCredentials': true,
   'headers': headers,
   'reconnection': true,
   'reconnectionDelay': 500,
   'reconnectionAttempts': 50,
   'forceNew': true,
-});
+} */);
 
 socket.on('connect', () => {
   console.log('socket connected');

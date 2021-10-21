@@ -20,12 +20,12 @@ const server = app.listen(port, () => {
 const io = socket(server, {
   cors: {
     //origin: process.env.ORIGIN || 'http://localhost',
-    origin: ['http://localhost:3000', 'http://localhost:5000','https://rfcauth0.netlify.app'],
-    methods: ["GET", "POST"], "PUT",
+    origin: '*',//['http://localhost:3000', 'http://localhost:5000','https://rfcauth0.netlify.app'],
+    methods: ["GET", "POST", "PUT"],
     transports: ['websocket', 'polling'],
-    credentials: true
+    //credentials: true
   },
-  allowEIO3: true
+  //allowEIO3: true
 });
 // in a separate file we'll get more specific about the events we want our socket server to listen for and broadcast
 require('./components/socket')(io);
