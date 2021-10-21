@@ -9,10 +9,10 @@ headers.append('Access-Control-Allow-Credentials', 'true');
  
 export const socket = io.connect(SOCKET_URL, {
   'withCredentials': true,
-  'headers': headers,
+  //'headers': headers,
   'reconnection': true,
   'reconnectionDelay': 500,
-  'reconnectionAttempts': 100,
+  'reconnectionAttempts': 50,
   'forceNew': true,
 });
 
