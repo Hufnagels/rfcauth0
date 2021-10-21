@@ -34,8 +34,8 @@ const io = socket(server, {
 // production
 const io = socket(server, {
   cors: { 
-    origin: "https://rfcauth0.netlify.app", 
-    credentials: true 
+    origin:[ 'https://rfcauth0.netlify.app', 'http://localhost:3000'], 
+    credentials: true
   },
 });
 
