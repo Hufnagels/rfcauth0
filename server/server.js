@@ -20,7 +20,7 @@ const server = app.listen(port, () => {
 const io = socket(server, {
   cors: {
     //origin: process.env.ORIGIN || 'http://localhost',
-    origin: ['http://localhost:3000', 'http://localhost:5000'],
+    origin: ['http://localhost:3000', 'http://localhost:5000','https://rfcauth0.netlify.app/'],
     methods: ["GET", "POST"],
     transports: ['websocket', 'polling'],
     credentials: true
