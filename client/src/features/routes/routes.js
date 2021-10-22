@@ -13,43 +13,44 @@ import ContactMailOutlinedIcon from '@mui/icons-material/ContactMailOutlined';
 //Layouts
 import AdminLayout from '../../components/common/Layout/AdminLayout';
 import MainLayout from '../../components/common/Layout/MainLayout';
+import RestrictedArea from '../../components/common/RestrictedArea';
 
 // Pages -- admin
-import DataFetching from '../../pages/admin/Tables/DataFetching';
-import BasicFilteringGrid from '../../pages/admin/Tables/Table';
-import MindMap from '../../pages/admin/Mindmap/Mindmap';
-import Whiteboard from '../../pages/admin/Whiteboard/Whiteboard';
-import Counter from '../../pages/admin/Counter/Counter';
-import Profile from '../../pages/admin/Profile';
+import DataFetching from '../../pages/backend/Tables/DataFetching';
+import BasicFilteringGrid from '../../pages/backend/Tables/Table';
+import MindMapPage from '../../pages/backend/Tree/index';
+import WhiteboardPage from '../../pages/backend/Whiteboard/Whiteboard';
+import Counter from '../../pages/backend/Counter/Counter';
+import Profile from '../../pages/backend/Profile';
 
 // Pages - main
-import About from '../../pages/About';
-import Home from '../../pages/Home';
+import About from '../../pages/frontend/About';
+import Home from '../../pages/frontend/Home';
 import Login from '../../pages/Login';
 import Register from '../../pages/Register';
-import NotFound from '../../pages/NotFound';
-import PostList from '../../components/Posts/PostList';
-import PostItem from '../../components/Posts/PostItem';
+import NotFound from '../../pages/ErrorPages/NotFound';
+import PostList from '../../components/public/Posts/PostList';
+import PostItem from '../../components/public/Posts/PostItem';
 import loadable from "@loadable/component"
-import Posts from '../../components/Posts/Posts';
+import Posts from '../../components/public/Posts/Posts';
 import Loading from '../../components/common/Loading'
 
 // const Loading = () => {
 //   return <div>Loading...</div>
 // }
-const DashboardPage = loadable(() => import("../../pages/admin/Dashboard.js"), {
+const DashboardPage = loadable(() => import("../../pages/backend/Dashboard.js"), {
   fallback: <Loading />,
 })
 
 const routes = (isAuthenticated) => [
   {
     path: 'apps',
-    //element: isAuthenticated ? <AdminLayout /> : <RestrictedArea />, //<Navigate to="/" />,
-    element: <AdminLayout />,
+    element: isAuthenticated ? <AdminLayout /> : <RestrictedArea />, //<Navigate to="/" />,
+    //element: <AdminLayout />,
     children: [
       { path: '', element: <DashboardPage />, title: 'Dashboard',icon: DashboardOutlinedIcon, children: [] },
-      { path: 'mindmap', element: <MindMap />, title: 'MindMap',icon: AccountTreeOutlinedIcon, children: [] },
-      { path: 'whiteboard', element: <Whiteboard />, title: 'WhiteBoard',icon: BorderColorOutlinedIcon, children: [] },
+      { path: 'mindmap', element: <MindMapPage />, title: 'MindMap',icon: AccountTreeOutlinedIcon, children: [] },
+      { path: 'whiteboard', element: <WhiteboardPage />, title: 'WhiteBoard',icon: BorderColorOutlinedIcon, children: [] },
       { path: 'counter', element: <Counter />, title: 'Counter',icon: HourglassEmptyOutlinedIcon, children: [] },
       { path: 'tables', element: <BasicFilteringGrid />, title: 'Tables',icon: TableViewOutlinedIcon, children: [] },
       { path: 'users', element: <DataFetching />, title: 'Users',icon: PeopleAltOutlinedIcon,

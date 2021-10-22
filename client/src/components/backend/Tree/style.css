@@ -1,0 +1,62 @@
+#treecontainer {
+  width: calc( 100vw - 22px);
+  height: calc( 100vh - 22px);
+  background-color: #fff;
+  border: black 1px dashed;
+}
+.node {
+  cursor: pointer;
+}
+
+
+.toolbox {
+  display:block;
+  width:100px;
+  height:30px;
+  border: 1px solid black;
+  box-shadow: black 0px 0px 10px 0px;
+}
+.toolbox.visible{display:block;}
+
+.overlay{
+    background-color:#EEE;
+}
+ 
+circle, circle.node {
+  fill: #fff;
+  stroke: rgb(116, 167, 211);
+  stroke-width: 1.5px;
+}
+ 
+text, .nodetext {
+  font-size: 0.8rem;
+  letter-spacing: .05rem;
+  stroke: rgb(59, 54, 54);
+  color: rgb(59, 54, 54);
+  font-family: 'Roboto', sans-serif;
+  font-weight: 100;
+}
+ 
+.link {
+  fill: none;
+  stroke: #c3c3c3;
+  stroke-width: 1.5px;
+}
+
+.templink {
+  fill: none;
+  stroke: red;
+  stroke-width: 3px;
+}
+
+.ghostCircle.show{
+    display:block;
+}
+
+.ghostCircle, .activeDrag .ghostCircle{
+     display: none;
+}
+
+.hidden {
+        display: none;
+}

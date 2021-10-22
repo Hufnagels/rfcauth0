@@ -73,3 +73,61 @@ export const findObjectByLabel = (obj, key, value) => {
 };
 
 // ARRAY helpers
+// create new array where key is the key, and holds array of object with the given key
+export const groupBy3 = (xs, key) => {
+  return xs.reduce(function(rv, x) {
+    
+    (rv[x[key]] = rv[x[key]] || []).push(x);
+    //console.log(rv, x, rv[x[key]])
+    return rv;
+  }, {});
+};
+
+// Time helpers
+export const daydiff = (date, now) => {
+  const diff = Math.floor((now-date)/60/60/24)
+  switch (diff) {
+    case 0:
+        return 'Today'
+      //break;
+    case 1:
+        return 'Yestreday'
+      //break;
+    default:
+      return diff+' days before'
+  }
+  //return Math.floor((now-date)/60/60/24)
+}
+
+export const isToday = (date, now = Date.now()*1000) => {
+  date=new Date(date)*1000
+
+  const yearDate = date.getYear();
+  const monthDate = date.getMonth();
+  const dayDate = date.getDate();
+  const yearNow = now.getYear();
+  const monthNow = now.getMonth();
+  const dayNow = now.getDate();
+  if (yearDate === yearNow && monthDate === monthNow && dayDate === dayNow) {
+    return true
+  } 
+  return false
+}
+
+export const beforeToday = (date, now) => {
+  //this month
+  const yearDate = date.getYear();
+  const monthDate = date.getMonth();
+  const dayDate = date.getDate();
+  const yearNow = now.getYear();
+  const monthNow = now.getMonth();
+  const dayNow = now.getDate();
+  if (yearDate === yearNow && monthDate === monthNow && dayDate === dayNow) {
+    return 'Todasy'
+  } else if (yearDate === yearNow && monthDate === monthNow && (dayNow - dayDate) === 1) {
+    return 'Yesterday'
+  } else if (yearDate === yearNow && monthDate === monthNow ) {
+    return (dayNow - dayDate) + ' days ago'
+  }
+  return false
+}
