@@ -31,7 +31,7 @@ const options = {
   'reconnectionAttempts': 50,
   'forceNew': true,
 }
-export const socket = io.connect(SOCKET_URL)
+export const socket = io.connect(SOCKET_URL, options)
 
 socket.on('connect', () => {
   console.log('socket connected');

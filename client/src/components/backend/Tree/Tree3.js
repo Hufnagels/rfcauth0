@@ -25,7 +25,7 @@ import useD3hook from '../../../features/hooks/useD3hook'
 import './style.css';
 import { 
   SocketContext,
-} from '../../../features/context/socketcontext_mindmap';
+} from '../../../features/context/socketcontext_whiteboard';
 import AsyncLocalStorage from '@createnextapp/async-local-storage'
 
 
