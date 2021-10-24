@@ -245,13 +245,19 @@ console.info(socket, connectedToSocket, connectedToRoom)
               maxHeight:46,
               minWidth:46,
               boxShadow: 'none',
+              backgroundColor: theme.palette.primary.contrastText,
+              color:theme.palette.primary.main,
               '&:hover':{
                 boxShadow: 'none',
+                color:theme.palette.primary.contrastText,
               }
             },
           }}
         >
-          <Button aria-describedby={id} variant="contained" onClick={handleClickPopover}>
+          <Button aria-describedby={id} variant="contained" 
+            onClick={handleClickPopover}
+            
+          >
             <BorderColorOutlinedIcon />
           </Button>
           <Popover

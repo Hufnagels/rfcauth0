@@ -11,7 +11,16 @@ import {
   GridOverlay,
 } from '@material-ui/data-grid';
 import Alert from '@mui/material/Alert';
-import CircularProgress from '@mui/material/CircularProgress';
+import {
+  CircularProgress,
+  Typography,
+  Grid,
+  Card,
+  CardHeader,
+  CardActions,
+  CardContent,
+  Button,
+} from '@mui/material'
 
 
 const TableOuter = styled('div')(({ theme }) => ({
@@ -202,7 +211,7 @@ export default function BasicFilteringGrid() {
   const fetchData = async () => {
     try {
       // fetch data from a url endpoint
-      const response = await axios.get("https://jsonplaceholder.typicode.com/users1");
+      const response = await axios.get("https://jsonplaceholder.typicode.com/users");
       console.log("response");
       console.log(response.data);
       setIsLoading(false);
@@ -228,39 +237,54 @@ export default function BasicFilteringGrid() {
   }, []);
 
   return (
-    <>
-      <h2>Table</h2>
-      {isEditing ? <Alert severity="info" style={{ marginBottom: 8 }}><code>editRowsModel: {JSON.stringify(editRowsModel)}</code></Alert> : null }
-      {error ? <Alert severity="error" style={{ marginBottom: 8 }}><div>{errorMessage}</div></Alert> : null }
-      {isLoading ? <CircularProgress color="secondary" /> : null }
+    <React.Fragment>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={12} lg={12}>
+          <Card>
+            <CardHeader 
+              title={'Table'}
+              subheader={new Date(Date.now()).toDateString()}
+            />
+            <CardContent>
+              {isEditing ? <Alert severity="info" style={{ marginBottom: 8 }}><code>editRowsModel: {JSON.stringify(editRowsModel)}</code></Alert> : null }
+              {error ? <Alert severity="error" style={{ marginBottom: 8 }}><div>{errorMessage}</div></Alert> : null }
+              {isLoading ? <CircularProgress color="primary" /> : null }
 
-      {!isLoading ?  
-        <TableOuter>
-          <TableInner>
-              <DataGrid
-                components={{
-                  NoRowsOverlay: CustomNoRowsOverlay,
-                }}
-                rows={rowData} 
-                columns={columns}
-                editRowsModel={editRowsModel}
-                onEditCellPropsChange={cellpropchange}
-                onEditRowsModelChange={handleEditRowsModelChange}
-                onCellEditCommit={handleCellEditCommit}
-                onCellDoubleClick={(params) => params.isEditable? setIsEditing(true):console.log(params) }
-                checkboxSelection
-                disableSelectionOnClick
-                density="compact"
-                pageSize={2}
-                components={{Toolbar: GridToolbar,}}
-                filterModel={filterModel}
-                onFilterModelChange={(model) => setFilterModel(model)}
-                
-              />
-          </TableInner>
-        </TableOuter>
-      : null
-      }
-    </>
+              {!isLoading ?  
+                <TableOuter>
+                  <TableInner>
+                      <DataGrid
+                        components={{
+                          NoRowsOverlay: CustomNoRowsOverlay,
+                        }}
+                        rows={rowData} 
+                        columns={columns}
+                        editRowsModel={editRowsModel}
+                        onEditCellPropsChange={cellpropchange}
+                        onEditRowsModelChange={handleEditRowsModelChange}
+                        onCellEditCommit={handleCellEditCommit}
+                        onCellDoubleClick={(params) => params.isEditable? setIsEditing(true):console.log(params) }
+                        checkboxSelection
+                        disableSelectionOnClick
+                        density="compact"
+                        pageSize={5}
+                        components={{Toolbar: GridToolbar,}}
+                        filterModel={filterModel}
+                        onFilterModelChange={(model) => setFilterModel(model)}
+                        
+                      />
+                  </TableInner>
+                </TableOuter>
+              : null
+              }
+            </CardContent>
+            <CardActions>
+
+            </CardActions>
+          </Card>
+        </Grid>
+      </Grid>
+    </React.Fragment>  
+
   );
 }

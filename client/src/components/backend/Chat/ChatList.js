@@ -118,7 +118,7 @@ export default function ChatList({heightHandler}) {
       <Paper elevation={3} square sx={{ pb: '52px' , transition:'ease-in-out .5s', height:(open ? '600px': '40px'), }}>
         <Typography variant="h6" gutterBottom component="div" 
           sx={{ 
-            p: 2, 
+            p: 1, 
             transition:'ease-in-out 1s', 
             height:'48px', 
             display: 'flex', 

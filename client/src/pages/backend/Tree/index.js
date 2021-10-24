@@ -20,6 +20,7 @@ import {
 // Custom
 // Components - common
 import Loading from '../../../components/common/Loading';
+import BoxCanvas from '../../../components/common/Layout/BoxCanvas';
 import MyDropzone from '../../../components/common/Fileupload/Fileupload'
 
 // Components - Barchart
@@ -58,18 +59,18 @@ const datas =
     ]
   }
 
-const BoxCanvas = styled(Box, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: '100%',
-    minWidth:'100%',
-    height:'calc(100vh - 80px)',
-    flexShrink: 0,
-    boxSizing: 'border-box',
-    display:'flex',
-    position: 'relative', 
-    zIndex:'100',
-  }),
-);
+// const BoxCanvas = styled(Box, { shouldForwardProp: (prop) => prop !== 'open' })(
+//   ({ theme, open }) => ({
+//     width: '100%',
+//     minWidth:'100%',
+//     height:'calc(100vh - 160px)',
+//     flexShrink: 0,
+//     boxSizing: 'border-box',
+//     display:'flex',
+//     position: 'relative', 
+//     zIndex:'100',
+//   }),
+// );
 
 const TreehWrapper = styled('div')(({ theme }) => ({
   position:'relative',
@@ -87,7 +88,7 @@ const MindMapPage = () => {
 
   return (
     <React.Fragment>
-      <ChatListContainer />
+      {/* <ChatListContainer /> */}
       {!loading ?
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />

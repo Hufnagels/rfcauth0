@@ -21,7 +21,7 @@ const Loading = () => {
         open={true}
         onClick={handleClose}
       >
-        <CircularProgress color="inherit" />
+        <CircularProgress color="primary" />
       </Backdrop>
     </React.Fragment>
   );

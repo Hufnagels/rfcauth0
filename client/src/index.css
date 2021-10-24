@@ -93,4 +93,8 @@
 body {
   font-family: 'Roboto';
   font-weight: 400;
+  margin:0;
+  padding:0;
+  background-color: rgb(233,234,236);
+  background: rgb(233,234,236);
 }

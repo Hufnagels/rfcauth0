@@ -11,7 +11,7 @@ import RestrictedArea from '../../components/common/RestrictedArea';
 
 const DashboardLayoutRoot = styled('div')(
   ({ theme }) => ({
-    backgroundColor: theme.palette.background.default,
+    //backgroundColor: theme.palette.background.default,
     display: 'flex',
     height: '100%',
     overflow: 'hidden',
@@ -24,8 +24,8 @@ const DashboardLayoutWrapper = styled('div')(
     display: 'flex',
     flex: '1 1 auto',
     overflow: 'hidden',
-    border: '1px solid black',
-    paddingTop: 64,
+    
+    paddingTop: 8,
     [theme.breakpoints.up('sx')]: {
       paddingLeft: 256
     }

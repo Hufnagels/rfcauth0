@@ -5,7 +5,14 @@ import axios from 'axios'
 // Material
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-
+// Material
+import {
+  Grid,
+  Card,
+  CardActions,
+  CardContent,
+  Button,
+} from '@mui/material'
 
 // custom
 import { columns } from './columns';
@@ -61,21 +68,33 @@ function DataFetching() {
 
   console.log(state)
   return (
-    <div>
-      {state.errorMessage ? <Alert severity="error" style={{ marginBottom: 8 }}><div>{state.errorMessage}</div></Alert> : null }
-      <div className="tableOuter">
-        <div className="tableInner">
-          {state.loading ? <CircularProgress color="secondary" /> : ((state.errorMessage === '') ?
-          <div style={{ height: 600, width: '100%' }} >
-            {state.users.map( (user) => (
-              <p key={user.id}>{user.name}</p>
-            ))}
-          </div>
-          : null)
-          }
-        </div>
-      </div>
-    </div>
+    <React.Fragment>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={12} lg={12}>
+          <Card>
+            <CardContent>
+              {state.errorMessage ? <Alert severity="error" style={{ marginBottom: 8 }}><div>{state.errorMessage}</div></Alert> : null }
+              <div className="tableOuter">
+                <div className="tableInner">
+                  {state.loading ? <CircularProgress color="secondary" /> : ((state.errorMessage === '') ?
+                    <div style={{  width: '100%' }} >
+                      {state.users.map( (user) => (
+                        <p key={user.id}>{user.name}</p>
+                      ))}
+                    </div>
+                    : null)
+                  }
+                </div>
+              </div>
+            </CardContent>
+            <CardActions>
+              <Button size="small">Learn More</Button>
+            </CardActions>
+          </Card>
+        </Grid>
+      </Grid>
+      
+    </React.Fragment>
   )
 }
 

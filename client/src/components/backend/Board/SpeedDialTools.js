@@ -14,13 +14,20 @@ const StyledSpeedDial = styled(SpeedDial, { shouldForwardProp: (prop) => prop !=
   '&.MuiSpeedDial-directionUp, &.MuiSpeedDial-directionLeft': {
     top: theme.spacing(-1),
     right: theme.spacing(0),
+    '& :hover': {
+      color:theme.palette.primary.contrastText,
+    }
   },
   '> button': {
     borderRadius:0,
     width:46,
     height:46,
     boxShadow: 'none',
-    //backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.primary.contrastText,
+    color:theme.palette.primary.main,
+    '& :hover': {
+      color:theme.palette.primary.contrastText,
+    }
   },
   
 }));

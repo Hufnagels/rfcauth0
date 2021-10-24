@@ -72,7 +72,7 @@ const Listelement = ({data,i}) => {
                       Admin
                     </Typography>
                     {" — "}
-                    <Typography variant="body" component="div">
+                    <Typography variant="body" component="span">
                       {typotext}
                     </Typography>
                   </React.Fragment>

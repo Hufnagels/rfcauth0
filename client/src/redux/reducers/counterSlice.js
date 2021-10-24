@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchCount } from '../../pages/backend/Counter/counterAPI';
+import { fetchCount } from './counterAPI';
 
 const initialState = {
-  value: 0,
+  value: 1,
   amount: 2, 
   status: 'idle',
 };
@@ -62,12 +62,14 @@ export const { increment, decrement, incrementByAmount } = counterSlice.actions;
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
-export const selectCount = (state) => state.counter.value;
+
+export const selectCountCurrent = (state) => state.counter.present.value;
+export const selectCountPrev = (state) => state.counter.past.value;
 
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.
 export const incrementIfOdd = (amount) => (dispatch, getState) => {
-  const currentValue = selectCount(getState());
+  const currentValue = selectCountCurrent(getState());
   if (currentValue % 2 === 1) {
     dispatch(incrementByAmount(amount));
   }

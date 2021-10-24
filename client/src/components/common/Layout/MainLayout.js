@@ -18,6 +18,8 @@ import {
   Drawer,
   List,
   ListItem,
+  ListItemButton,
+  ListItemIcon,
   IconButton,
   Slide,
   Fab,
@@ -31,6 +33,7 @@ import {
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import SvgIcon from '@mui/material/SvgIcon';
 
 // custom
 import routes from '../../../features/routes/routes';
@@ -120,11 +123,11 @@ const useStyles = makeStyles((theme) => ({
       paddingLeft: 0,
     },
   },
-  logo: {
-    fontWeight: 900,
-    color: theme.palette.primary.color,
-    textAlign: "left",
-  },
+  // logo: {
+  //   fontWeight: 900,
+  //   color: theme.palette.primary.color,
+  //   textAlign: "left",
+  // },
   links: {
     display:'flex',
     flexDirection:'row',
@@ -134,30 +137,40 @@ const useStyles = makeStyles((theme) => ({
     alignItems:'center',
     textDecoration:'none',
   },
-  menuButton: {
-    fontWeight: 500,
-
-    marginLeft: "18px",
-  },
+  // menuButton: {
+  //   fontWeight: 500,
+  //   marginLeft: "18px",
+  // },
   navlink: {
     display: 'flex',
     alignItems: 'center',
     justifyContent:'flex-start',
     textDecoration:'none',
     //color: theme.palette.text.primary,
-    color: theme.palette.text.nav,
+    color: theme.palette.primary.contrastText,
   },
   navlinkNavbar : {
     textDecoration:'none',
-    color: theme.palette.primary.link,
-  },
-  activeClassSidenav: {
-    color: theme.palette.primary.dark,
-    //backgroundColor: '#90d6e3',
-  },
-  activeClassNavbarElement: {
     color: theme.palette.primary.contrastText,
+  },
+  activeNavbar: {
+    color: theme.palette.primary.contrastText,
+    //backgroundColor: theme.palette.primary.dark,
     borderBottom: '1px solid #ffeeee',
+  },
+  navlinkSidebar: {
+    color: theme.palette.primary.main,
+    textDecoration: 'none',
+    borderBottom: '1px solid #ffeeee',
+  },
+  activeSidebar: {
+    color: theme.palette.primary.contrastText,
+    backgroundColor: theme.palette.primary.main,
+    background:theme.palette.primary.main,
+    '& > .MuiListItemButton-root' :{
+      backgroundColor: theme.palette.primary.main,
+      background:theme.palette.primary.main,
+    }
   },
   toolbar: {
     display: 'flex',
@@ -183,18 +196,31 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 const drawerWidth = 250;
 
+const SideMenuIcon = React.forwardRef((props, ref) => {
+  console.log('SideMenuIcon')
+  console.log(props, ref.current.type.render.displayName)
+  return (
+    <SvgIcon ref={ref} component={ref.current.type.render.displayName} className="">
+      {props.children}
+    </SvgIcon>
+  )
+});
+
 const MainLayout = (props) => {
   const classes = useStyles();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   
-  const headersData = routes(false)[1].children;
+  const routesData = routes(false)[1].children;
 
   const [state, setState] = useState({
     mobileView: false,
     drawerOpen: false,
   });  
   const { mobileView, drawerOpen } = state;
+
+  const ref = React.createRef(null);
+  
 
   useEffect(() => {
     const setResponsiveness = () => {
@@ -273,26 +299,33 @@ const MainLayout = (props) => {
   };
 
   const getDrawerChoices = () => {
-    return headersData.map(({ title, path }) => {
-      if(title)
-      return (
-        <NavLink end className={classes.navlink} to={path} activeClassName={classes.activeClassSidenav} key={`routeLink-${title}}`}>
-          <ListItem button key={`routeListItem-${title}}`} activeClassName={classes.activeClassSidenav} >
-            <Typography variant="span">{title}</Typography>
-          </ListItem>
-        </NavLink>
-      );
+    return routesData.map(({ path, title,icon, ...prop }, index) => { 
+
+      if(title) {
+        ref.current= icon;
+console.log(ref)
+        return (
+          <NavLink end className={classes.navlinkSidebar} to={path} activeClassName={classes. activeSidebar} key={`routeLink-${index}}`}>
+            <ListItemButton key={`routeListItem-${index}}`} >
+              <ListItemIcon>
+                
+              </ListItemIcon>
+              <Typography variant="inherit">{title}</Typography>
+            </ListItemButton>
+          </NavLink>
+        );
+      }
     });
   };
 
   const getMenuButtons = () => {
-    return headersData.map(({ title, path }) => {
+    return routesData.map(({ title, path }, index) => {
       if(title)
       return (
-        <NavLink end className={classes.navlinkNavbar} to={path} activeClassName={classes.activeClassNavbarElement} key={`routeLink-${title}}`}>
-          <ListItem button activeClassName={classes.activeClassNavbarElement} key={`routeListItem-${title}}`} >
-            <Typography variant="span">{title}</Typography>
-          </ListItem>
+        <NavLink end className={classes.navlink} to={path} activeClassName={classes.activeNavbar} key={`routeLink-${index}}`}>
+          <ListItemButton key={`routeListItem-${index}}`} color="primary" >
+            <Typography variant="inherit">{title}</Typography>
+          </ListItemButton>
         </NavLink>
       );
     });
@@ -305,7 +338,7 @@ const MainLayout = (props) => {
         <AppBar >
           <Toolbar className={classes.toolbar}>
           {mobileView ? displayMobile() : displayDesktop()}
-            <AuthenticationButton />
+          <AuthenticationButton />
           </Toolbar>
         </AppBar>
       </HideOnScroll>

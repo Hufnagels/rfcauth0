@@ -3,6 +3,9 @@ import {
   NavLink,
 } from 'react-router-dom';
 import { useAuth0 } from "@auth0/auth0-react";
+import {
+  Outlet,
+} from 'react-router-dom';
 
 // Material
 import { styled } from '@mui/material/styles';
@@ -18,6 +21,7 @@ import {
   ListItem,
   ListItemIcon,
   IconButton,
+  Grid,
 } from '@mui/material';
 
 // Material icons
@@ -100,9 +104,8 @@ const AdminLayout = () => {
 
   return (
     <div>
-      <AppBar position="fixed" id="appbar" className={classes.AppBar}>
+      {/* <AppBar position="fixed" id="appbar" className={classes.AppBar}>
         <Toolbar>
-          {/* <Button onClick={toggleDrawer('left', true)} color='secondary'>{'left'}</Button> */}
           <IconButton
             color='inherit'
             aria-label="open drawer"
@@ -119,7 +122,7 @@ const AdminLayout = () => {
           <AuthenticationButton />
         </Toolbar>
       </AppBar>
-      <Toolbar />
+      <Toolbar /> */}
       <React.Fragment key='left'>
         <Drawer
           anchor='left'
@@ -144,7 +147,7 @@ const AdminLayout = () => {
               //console.log('prop', prop)
               //const Icon = icons[icon];
                 if(title){
-                  ref.current= icon;  
+                  ref.current = icon;  
                   return (
                     <NavLink end className={classes.navlink} to={path} activeClassName={classes.active} key={`routeLink-${index}}`}>
                       <ListItem button key={`routeListItem-${index}}`} >
@@ -163,7 +166,30 @@ const AdminLayout = () => {
         </Drawer>
       </React.Fragment>
       <SocketContext.Provider value={socket}>
-        <ContentWrapper />
+        <Grid container>
+          <Grid item sx={{ width:'45px', height:'100vh'}}>
+            <IconButton
+              color='inherit'
+              aria-label="open drawer"
+              onClick={toggleDrawer(true)}
+              edge="start"
+              sx={{
+                marginRight: '0px',
+                marginLeft: '6px',
+                ...({ display: 'block' }),
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+          </Grid>
+          <Grid item sx={{width:'calc(100% - 96px)'}}>
+            <ContentWrapper margin={1} />
+          </Grid>
+          <Grid item sx={{width:'50px', height:'100vh', position:'relative'}}>
+            <AuthenticationButton/>
+          </Grid>
+        </Grid>
+        {/* <ContentWrapper margin={1} /> */}
       </SocketContext.Provider>
     </div>
   );

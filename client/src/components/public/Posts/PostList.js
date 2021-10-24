@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-
 // Material
 import { 
-  Grid, 
+  Grid,
+  Card,
+  CardHeader,
+  CardActions,
+  Button,
   CircularProgress 
 } from '@mui/material';
 
@@ -35,11 +38,20 @@ const PostList = () => {
 
   return (
     <React.Fragment>
-    <h1>PostList</h1>
+       <Card>
+            <CardHeader 
+              title={'PostList'}
+              subheader={new Date(Date.now()).toDateString()}
+            />
+        <CardActions>
+          <Button size="small">Learn More</Button>
+        </CardActions>
+      </Card>
     <Grid 
       container 
       direction="row"
       spacing={2}
+      sx={{marginTop:1}}
     >
       { postsdata.length ? 
         /* Object.entries(postsdata).map(([slug, { post }]) => (<PostListItem slug={slug} data={post} />)) */

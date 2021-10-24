@@ -9,10 +9,10 @@ import ChatList from './ChatList'
 
 const ChatListContainer = () => {
   const [open, setOpen] = React.useState(false)
-  const [height, setHeight] = React.useState('600px')
+  const [height, setHeight] = React.useState(open ? '600px': '100px')
 
-  const heightHandler = (isopen) => {
-    let h = isopen ? '600px': '100px'
+  const heightHandler = (open) => {
+    let h = open ? '600px': '100px'
     setHeight(h)
   }
 

@@ -77,7 +77,7 @@ export default function AccountMenu() {
     <React.Fragment>
       <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
         <Tooltip title="Account settings">
-          <IconButton onClick={handleClick} size="small" sx={{ ml: 2 }}>
+          <IconButton onClick={handleClick} size="small" sx={{ ml: 0 }}>
           {
             (picture && picture !== '') ?
             <Avatar alt={name} src={picture} />
@@ -124,16 +124,16 @@ export default function AccountMenu() {
       >
         {isAuthenticated && (window.location.href.indexOf("apps") > -1) ? 
         <MenuItem>
-          <Avatar alt={user.name} /> <Link className={classes.navlink} to="/">Home</Link>
+          <Link className={classes.navlink} to="/"><Avatar alt={user.name} />Home</Link>
         </MenuItem>
         :
         <MenuItem>
-          <Avatar alt={user.name} /> <Link className={classes.navlink} to="/apps">Dashboard</Link>
+          <Link className={classes.navlink} to="/apps"><Avatar alt={user.name} />Dashboard</Link>
         </MenuItem>
         }
         <Divider />
         <MenuItem>
-          <Avatar alt={user.name} /> <Link className={classes.navlink} to="/apps/profile">Profile</Link>
+          <Link className={classes.navlink} to="/apps/profile"><Avatar alt={user.name} />My Profile</Link>
         </MenuItem>
         <MenuItem>
           <Avatar alt={user.name} /> My account

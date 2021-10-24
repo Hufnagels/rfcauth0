@@ -1,27 +1,69 @@
 import { createTheme } from '@mui/material/styles'
-import { green, purple } from '@mui/material/colors';
 
 const theme = createTheme({
   zIndex:{
     AppBar: 100,
     drawer: 101,
   },
-  overrides: {
+  components: {
+    MuiToggleButton:{
+      styleOverrides:{
+        root:{
+          border:0,
+          '& .Mui-selected': {
+            background:'red',
+            backgroundColor: 'red'
+          }
+        }
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        // Name of the slot
+        root: {
+          // Some CSS
+          fontSize: '0.85rem',
+        },
+      },
+    },
+    MuiButtonBase:{
+      styleOverrides:{
+        root: {
+          fontSize:'0.85rem',
+          textTransform:'initial !important',
+        },
+      },
+    },
     MuiSpeedDial: {
-      root: {
-        backgroundColor: "red",
-        borderRadius: 0,
+      styleOverrides: {
+        root: {
+          
+          borderRadius: 0,
+        },
       },
     },
     MuiSpeedDialAction: {
-      staticTooltipLabel: {
-        backgroundColor: "red"
+      styleOverrides: {
+        staticTooltipLabel: {
+          backgroundColor: "red"
+        },
       },
+      
     },
     body: {
-      margin:0,
-      padding:0,
+      styleOverrides: {
+        margin:0,
+        padding:0,
+        backgroundColor:'rgb(243,244,246)',
+        background:'rgb(243,244,246)'
+      },
+      
     },
+  },
+  overrides: {
+    
+    
+    
     MuiButtonBase: {
       root:{
         MuiFab:{
@@ -108,6 +150,7 @@ const theme = createTheme({
       paper:'#fff',
       default:'#fafafa',
       active: '#cccccc',
+      body:'rgb(233,234,236)',
     },
     primary:{
       light:"#7986cb",
@@ -135,6 +178,7 @@ const theme = createTheme({
       color2:'#43a047',
       color3:'#fb8c00',
       color4:'#3949ab',
+      color5:'#6dffa1',
     },
     error:{
       light:'#e57373',
@@ -156,20 +200,6 @@ const theme = createTheme({
     // two indexes within its tonal palette.
     // E.g., shift from Red 500 to Red 300 or Red 700.
     tonalOffset: 0.2,
-  },
-  components : {
-    MuiAppBar: {
-      defaultProps: {
-        enableColorOnDark: true,
-      },
-      root: {
-        backgroundColor: '#f50057',
-        zIndex:'100',
-        "@media (max-width: 900px)": {
-          paddingLeft: 0,
-        },
-      }
-    },
   },
   
 });

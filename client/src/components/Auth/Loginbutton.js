@@ -9,21 +9,10 @@ import {
 
 // custom styles
 const useStyles = makeStyles((theme) => ({
-  header: {
-    backgroundColor: theme.palette.primary.main,
-    "@media (max-width: 900px)": {
-      paddingLeft: 0,
-    },
-  },
   navlinkNavbar : {
     textDecoration:'none',
-    color: theme.palette.primary.link,
+    color: theme.palette.custom2.color5,
   },
-  activeClassNavbar: {
-    color: theme.palette.primary.contrastText,
-    outlinBottom: '1px solid #90d6e3',
-  },
-
 }));
 
 const LoginButton = () => {
@@ -40,7 +29,7 @@ const LoginButton = () => {
         })
       }
     >
-      Login
+      LogIn
     </Button>
   )
 }

@@ -30,7 +30,7 @@ import MediaCard from './MediaCard';
 import AsyncLocalStorage from '@createnextapp/async-local-storage'
 
 
-const Tree3 = (ddata) => {
+const Tree4 = (ddata) => {
   // Socket
   const socket = React.useContext(SocketContext);
 
@@ -85,6 +85,9 @@ const Tree3 = (ddata) => {
   let linksGroup = null 
   let zoomer = null
 
+  // added for test
+  let temp = null
+
   // Dialog, textupdate
   const [openDialog, setOpenDialog] = React.useState(false)
 
@@ -124,6 +127,7 @@ console.log('Effect #1')
     linksGroup = d3.select('.links')
     baseSvg = d3.select('#baseSvg')
     zoomer = d3.select('#baseSvg')
+    temp = d3.select('.ehtml')
 
     baseSvg.on('mouse:wheel', function(e) {
       console.error(e)
@@ -226,6 +230,7 @@ console.log('connectedToRoom', connectedToRoom)
     let trans;
     nodesGroup.attr("transform", (trans = e.transform));
     linksGroup.attr("transform", (trans = e.transform));
+    temp.attr("transform", (trans = e.transform));
   });
 
   // center node 
@@ -423,7 +428,7 @@ console.log('connectedToRoom', connectedToRoom)
       d3.select(this.parentNode.children[0]).attr('height', h);
     });
   }
-  // select node for update node.name
+  
   const editable = (event, d) => {
 //console.log('editable', event, d) 
     setTextNode(d)
@@ -432,7 +437,7 @@ console.log('connectedToRoom', connectedToRoom)
     setTextTop(event.clientY-28) 
     setTextDisplay('block')
   }
-  // update node.name 
+    
   const updateContent = (event) => {
 // console.log('updateContent')
 // console.log('event',event)
@@ -482,6 +487,61 @@ console.log('connectedToRoom', connectedToRoom)
     const node = nodesGroup
       .selectAll('g.node') // svg.select('.nodes').selectAll('g.node')
       .data(nodes, d => d.id = d.id ||'node-' + uuid())
+/*
+      .join(
+        enter => {
+          console.log('enter',enter)
+          enter
+            .append('g')
+            .attr('id', d => d.id)
+            //.attr("transform", d => `translate(${source.y0},${source.x0})`)
+            .attr("transform", d => `translate(${d.y},${d.x})`)
+            .attr('class', 'node')
+            .attr("fill-opacity", 1)
+            .attr("stroke-opacity", 1)
+            .append('circle')
+            .attr('class', 'circle')
+            .attr('r', 6)
+            .style('stroke', settings.colors.nodeStroke)
+            .attr('id', (d) => 'node_circle-' + d.id )
+            .style("fill", function(d) {
+              return d._children ? settings.colors.nodeFill2 : settings.colors.nodeFill
+            })
+            .on('click', (event,d) => clickEvent(event,d))
+          enter
+            .append('text')
+            .attr('class', 'title')
+            .attr("transform", d => `translate(${d.y},${d.x})`)
+            .attr('id', (d) => 'node_text-' + d.id )
+            .attr("dy", function(d) { return d.children || d._children ? '-.7rem' : '0.2rem'; })
+            .attr("x", function(d) { return d.children || d._children ? 0 : (d.data.direction === 'right' ? 13 : -13); })
+            .attr("text-anchor", function(d) { return d.children || d._children ? "middle" : (d.data.direction === 'right' ? "start" : "end"); })
+            .text(d => d.data.name )
+            .attr("stroke-linejoin", "round")
+            .attr("stroke", "black")
+
+        },
+        update => {
+console.log('update', update)
+update
+.transition()
+.attr("transform", d => `translate(${d.y},${d.x})`)
+.attr("fill-opacity", 1)
+.attr("stroke-opacity", 1)
+.select('circle')
+.attr('r', 6)
+.style("fill", function(d) {
+  return d._children ? settings.colors.nodeFill2 : settings.colors.nodeFill
+})
+
+        },
+        exit => {
+console.log('exit', exit)
+          
+          
+        }
+      )
+*/
     
     // Enter any new nodes at the parent's previous position.
     const nodeEnter = node.enter().append('g')
@@ -611,6 +671,180 @@ console.log(nodeEnter)
                   ${d.y} ${d.x }`
       return path
     }
+/**/
+/*
+    // box version
+
+    function diagonal(s, d) {
+  //console.log(s,d)
+      let path = `M ${s.y - settings.toolbox.width/2} ${s.x }
+                  C ${(s.y + d.y) / 2} ${s.x},
+                    ${(s.y + d.y) / 2} ${d.x},
+                    ${d.y + settings.toolbox.width/2} ${ d.x}`
+       return path
+    }
+    // Normalize for fixed-depth.
+    nodes.forEach(function(d){ 
+//console.log(d.height)
+      d.y = d.depth * 180
+      d.x = d.x*5.5  //* 5//(Math.floor(Math.random() * 5) + 1) //d.x *  5 //(d.depth < 3 ? 1 : 4)
+    });
+  
+    // ****************** Nodes section ***************************
+    // Update the nodes...
+    var node = nodesGroup.selectAll('g.node') // svg.select('.nodes').selectAll('g.node')
+      .data(nodes, function(d) {
+        return d.id || (d.id = 'node-' + uuid()) 
+      })//i++) }) //uuid()) });
+
+    // Enter any new nodes at the parent's previous position.
+    var nodeEnter = node.enter().append('g')
+      .attr('class', 'node')
+      .attr("transform", function(d) {
+        return "translate(" + source.y0 + "," + source.x0 + ")";
+      })
+      //.on('click', clickEvent)
+      //.on("dblclick", dblClickEvent)
+      //.on("mouseover", hoverEvent)
+      //.on("mouseout", hoverEvent)
+
+    nodeEnter.append("svg:rect")
+      .attr('class', 'node')
+      .attr("width", settings.toolbox.width)
+      .attr("height", function (d) {
+          return settings.toolbox.height;
+      })
+      .attr("y", -settings.toolbox.height/2)// DIFF: place the rect at y = 0
+      .attr('x', function(d) {
+        return d.children || d._children ? -settings.toolbox.width/2 : -settings.toolbox.width/2;
+      })
+      .attr("rx", 10)
+      .attr("ry", 10)
+      .attr('id', function(d){ 
+        //console.log('circle id', d)
+        return 'node_circle-' + d.id
+      })
+      .style('stroke', settings.colors.nodeStroke)
+      .style('strokeWidth',1)
+      .style("fill", function (d) {
+        return d._children ? "transparent": "transparent" //"lightsteelblue" : "#c3c";
+      })
+      .on("click", clickEvent);
+
+    nodeEnter.append("text")
+      .attr('class', 'nodetext')
+      .attr("x", function (d) {
+        return d._children ? -settings.toolbox.width : settings.toolbox.width;
+      })
+      .attr('dx', 5)
+      .attr("y", 5)
+      .attr("dy", "-0.1rem")// DIFF: move text so that its top is at 0
+      .attr("height", function(d){
+        return d.height ? d.height = settings.toolbox.height : d.height = settings.toolbox.height
+      })
+      .text(function (d) {
+        return d.name;
+      })
+      .on("mouseout", function(e,d){
+        d.name = e.target.textContent
+console.log(e,d)
+      })
+      .on("dblclick", function(d) { 
+
+        var text = d3.select(this)//[0][0]
+        console.log(text) //text.selectSubString(0,0)
+      });
+      
+    wrap(d3.selectAll('text'), settings.toolbox.width-20);
+  //console.log(nodes)
+
+    // UPDATE
+    var nodeUpdate = nodeEnter.merge(node);
+
+    // Transition nodes to their new position.
+    nodeUpdate.transition()
+      .duration(settings.duration)
+      .attr("transform", function (d) {
+          return "translate(" + d.y + "," + d.x + ")";
+      })
+      .style("opacity", 1)
+
+    // node.transition()
+    //   .duration(settings.duration)
+    //   .attr("transform", function (d) {
+    //       return "translate(" + d.y + "," + d.x + ")";
+    //   })
+    //   .style("opacity", 1);
+    var nodeExit = node.exit().transition()
+      .duration(settings.duration)
+      .attr("transform", function (d) {
+  //console.log('node transition',d)
+        return "translate(" + source.y + "," + source.x + ")";
+      })
+      .style("opacity", 1e-6)
+      .remove();
+
+    // Update the links…
+    var link = linksGroup.selectAll("path.link")
+      .data(links, function (d) {
+        return d.id || (d.id = i++)
+      });
+
+    //linksGroup.selectAll("path.link")//.attr()
+
+    // Enter any newlinks at the parent's previous position.
+    var linkEnter = link.enter().insert("svg:path", "g")
+      .attr("class", "link")
+      .attr("id", function(d){ 
+  //console.log('.link id', d)
+        return ("node_path-"  + d.parent.id + "-" + d.id)
+      })
+      .attr("d", function (d) {
+        // DIFF: provide source.height to diagonal
+        var s = {x: source.x,y: source.y, height: source.height};
+        var t = {x: d.x, y: d.y , height: d.height}
+  //console.log('449:',s,t)
+        return diagonal(s,t);
+      })
+
+      // UPDATE
+    var linkUpdate = linkEnter.merge(link);
+
+    // Transition back to the parent element position
+    linkUpdate.transition()
+      .duration(settings.duration)
+      .attr('d', function(d){ 
+        return diagonal(d, d.parent) 
+      });
+
+    // Transition links to their new position.
+    // link.transition()
+    //   .duration(settings.duration)
+    //   //.attr("d", diagonal);
+
+    // Transition back to the parent element position
+    linkUpdate.transition()
+      .duration(settings.duration)
+      .attr('d', function(d){ return diagonal(d, d.parent) });
+
+    // Transition exiting nodes to the parent's new position.
+    var linkExit = link.exit().transition()
+      .duration(settings.duration/10)
+      .attr("d", function (d) {
+        var s = {x: source.x0,y: source.y0,height: source.height};
+        var t = {x: d.x0, y: d.y0, height: d.height}
+//console.log('449:',s,t)
+        return diagonal(s,t);
+      })
+      .remove();
+
+    // Stash the old positions for transition.
+    nodes.forEach(function (d) {
+      d.x0 = d.x;
+      d.y0 = d.y;
+    });
+   */
+    
   }
 
   // initialise tree
@@ -642,7 +876,6 @@ console.log('build data', data)
     })
   },[data])
 
-  // create hierarchy
   const createRoot = () => {
 console.log('createRoot data', data)
     let direction = '',
@@ -826,6 +1059,13 @@ setData(result)
         >
           <g className="links" />
           <g className="nodes" id='baseG'/>
+          <g class='ehtml'>
+            <foreignObject width="400" height="400">
+              <div xmlns="http://www.w3.org/1999/xhtml">
+<MediaCard />
+              </div>
+            </foreignObject>
+          </g>
         </svg>
       </div>
       
@@ -856,4 +1096,4 @@ setData(result)
   );
 }
 
-export default Tree3
+export default Tree4

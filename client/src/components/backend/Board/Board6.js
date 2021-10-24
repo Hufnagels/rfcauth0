@@ -24,6 +24,7 @@ import {
 //import MuiBox from '@mui/material/Box';
 
 // custom
+import BoxCanvas from '../../../components/common/Layout/BoxCanvas';
 import BoardToolbar from './BoardToolbar';
 import {
   AddJsonEmitter,
@@ -52,19 +53,7 @@ import ConnectonDecideDialog from './ConnectonDecideDialog';
 import BoardActionMessage from './BoardActionMessage';
 import RoomMessages from './RoomMessages';
 
-const drawerWidth = 240;
-const BoxCanvas = styled(Box, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: '100%',
-    minWidth:'100%',
-    height:'calc(100vh - 80px)',
-    flexShrink: 0,
-    boxSizing: 'border-box',
-    display:'flex',
-    position: 'relative', 
-    zIndex:'100',
-  }),
-);
+const drawerWidth = 0;
 
 const SketchWrapper = styled('div')(({ theme }) => ({
   position:'relative',
@@ -1304,7 +1293,7 @@ object.scale(o.scaleX, o.scaleY)
         >
           <Grid item xs={12}>
             <Paper elevation={3}>
-              <BoxCanvas sx={{ overflow:'hidden', }}>
+              <BoxCanvas>
                 <SketchWrapper id="sketchWrapper">
                   <canvas id="canvas" ref={canvasRef} className={classes.board} ></canvas>
                 </SketchWrapper>

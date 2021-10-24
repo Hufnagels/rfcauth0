@@ -24,15 +24,16 @@ ReactDOM.render(
   <React.StrictMode>
     <StyledEngineProvider injectFirst>
       <CssBaseline />
+      <ThemeProvider theme={theme}>
         <Provider store={store}>
           <Router>
             <Auth0ProviderWithHistory>
-              <ThemeProvider theme={theme}>
               <App />
-              </ThemeProvider>
             </Auth0ProviderWithHistory>
           </Router>
         </Provider>
+      </ThemeProvider>
+        
     </StyledEngineProvider>
   </React.StrictMode>,
   document.getElementById('root')
