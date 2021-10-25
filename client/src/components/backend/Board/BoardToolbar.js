@@ -89,6 +89,7 @@ const BoardToolbar = ({
   currentFillColor,
   groupUngroup, 
   addShape,
+  activeToggleButton,
   selectTool,
   loadAll, 
   saveAll, 
@@ -157,6 +158,7 @@ const BoardToolbar = ({
 console.log('handelchange', event)
     setView(nextView)
     toolsRef.current = nextView;
+    activeToggleButton(nextView)
     selectTool(toolsRef.current)
   };
 

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from 'react-router-dom';
 
-//Material
+// Material
 import { makeStyles } from '@mui/styles';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
@@ -12,6 +12,11 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
+
+// Material - menu icons
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 
@@ -124,25 +129,39 @@ export default function AccountMenu() {
       >
         {isAuthenticated && (window.location.href.indexOf("apps") > -1) ? 
         <MenuItem>
-          <Link className={classes.navlink} to="/"><Avatar alt={user.name} />Home</Link>
+          <Link className={classes.navlink} to="/">
+            <ListItemIcon>
+              <HomeOutlinedIcon />
+            </ListItemIcon>
+            Home
+          </Link>
         </MenuItem>
         :
         <MenuItem>
-          <Link className={classes.navlink} to="/apps"><Avatar alt={user.name} />Dashboard</Link>
+          <Link className={classes.navlink} to="/apps">
+            <ListItemIcon>
+              <DashboardOutlinedIcon />
+            </ListItemIcon>
+            Dashboard
+          </Link>
         </MenuItem>
         }
         <Divider />
         <MenuItem>
-          <Link className={classes.navlink} to="/apps/profile"><Avatar alt={user.name} />My Profile</Link>
+          <Link className={classes.navlink} to="/apps/profile">
+            <ListItemIcon>
+              <AccountCircleOutlinedIcon fontSize="small" />
+            </ListItemIcon>
+            My Profile
+          </Link>
         </MenuItem>
         <MenuItem>
-          <Avatar alt={user.name} /> My account
-        </MenuItem>
-        <MenuItem>
-          <ListItemIcon>
-            <Settings fontSize="small" />
-          </ListItemIcon>
-          Settings
+          <Link className={classes.navlink} to="/apps/profile">
+            <ListItemIcon>
+              <Settings fontSize="small" />
+            </ListItemIcon>
+            Settings
+          </Link>
         </MenuItem>
         <Divider />
         <MenuItem

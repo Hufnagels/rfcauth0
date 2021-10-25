@@ -318,16 +318,26 @@ setCurrentStrokeColor(data)
     
   }
 
+  const activeToggleButton = (tool) => {
+// console.log('activeToggleButton')
+// console.log(tool)
+    if( tool === drawingMode.draw) 
+      setIsenabled(true) 
+    else 
+      setIsenabled(false)
+  }
+
   const selectTool = (data) => {
-    console.log(data)
+// console.log('selecttool')
+// console.log(data)
     if( data !== null){
       //setTool(nextView);
       toolsRef.current=data;
     }
-    if( data === drawingMode.draw) 
-      setIsenabled(true) 
-    else 
-      setIsenabled(false)
+    // if( view === drawingMode.draw) 
+    //   setIsenabled(true) 
+    // else 
+    //   setIsenabled(false)
     canvasRef.current.isDrawingMode = (toolsRef.current === drawingMode.pencil) ? true : false;
     canvasRef.current.selection = (/* toolsRef.current === drawingMode.pan ||  */data === drawingMode.select) ? true : false;
 // console.log('selection')
@@ -1307,6 +1317,7 @@ object.scale(o.scaleX, o.scaleY)
                   currentStrokeWidth={currentStrokeWidth}
                   currentStrokeColor={currentStrokeColor}
                   currentFillColor={currentFillColor}
+                  activeToggleButton={activeToggleButton}
                   selectTool={selectTool}
                   groupUngroup={groupUngroup}
                   addShape={selectTool}

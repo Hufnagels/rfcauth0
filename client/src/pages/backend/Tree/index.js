@@ -100,7 +100,7 @@ const MindMapPage = () => {
               <Paper elevation={3}>
                 <BoxCanvas sx={{ overflow:'hidden', }}>
                   <TreehWrapper>
-                    <Tree3 
+                    <Tree3
                       ddata={dataset}
                     />
                   </TreehWrapper>
